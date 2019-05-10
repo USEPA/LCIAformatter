@@ -1,2 +1,3 @@
 olca-ipc==0.0.7
 pandas==0.24.2
+requests==2.21.0
