@@ -1,0 +1,7 @@
+/.vscode/
+/.idea/
+*.iml
+/env/
+*.pyc
+/*.egg-info/
+/out/
