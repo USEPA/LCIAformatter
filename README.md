@@ -90,3 +90,20 @@ lcia.is_regionalized(traci)
 # exported characterization factors; a possible integration
 # in openLCA will be checked
 ```
+
+## Format
+
+```
+Index  Field                                                       Type
+-------------------------------------------------------------------------------
+0      Group or method (e.g. 'Traci 2.1')                          string
+1      Name of the indicator, e.g. 'Acidification Potential'       string
+2      Reference unit of the indicator, e.g. `kg SO2 eq.`          string
+3      Elementary flow name, e.g. `Sulfur dioxide`                 string
+4      Flow category / compartment, e.g. `air`                     string
+5      Flow sub-category / sub-compartment, e.g. `unspecified`     string
+6      Flow unit, e.g. `kg`                                        string
+7      Flow UUID                                                   string
+8      CAS number of the flow                                      string
+9      Value of the characterization factor                        f64
+```
