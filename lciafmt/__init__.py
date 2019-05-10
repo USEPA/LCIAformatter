@@ -42,9 +42,16 @@ def get_traci(file=None) -> pandas.DataFrame:
         flow = _cell_str(sheet, row, 2)
         if flow == "":
             break
-        cas = _cell_str(sheet, row, 1)
-        if cas == "x":
+
+        # in traci, CAS numbers are saved as
+        # formatted numbers
+        cas = _cell_val(sheet, row, 1)
+        if cas == "x" or cas is None:
             cas = ""
+        if isinstance(cas, (int, float)):
+            cas = str(int(cas))
+            if len(cas) > 4:
+                cas = cas[:-3] + "-" + cas[-3:-1] + "-" + cas[-1]
 
         for col in range(3, sheet.ncols):
             category = categories.get(col)
@@ -62,6 +69,7 @@ def get_traci(file=None) -> pandas.DataFrame:
                 factor=factor)
 
     return df.data_frame(records)
+
 
 def _cell_str(sheet, row, col) -> str:
     cell = sheet.cell(row, col)
@@ -82,6 +90,13 @@ def _cell_f64(sheet, row, col) -> float:
         return float(cell.value)
     except ValueError:
         return 0.0
+
+
+def _cell_val(sheet, row, col):
+    cell = sheet.cell(row, col)
+    if cell is None:
+        return None
+    return cell.value
 
 
 def cache_dir(create=False) -> str:

@@ -10,7 +10,7 @@ def data_frame(records):
             "Flow sub-category",
             "Flow unit",
             "Flow UUID",
-            "CAS#",
+            "CAS",
             "Factor"]
     return pandas.DataFrame(records, columns=cols)
 
