@@ -96,14 +96,13 @@ lcia.is_regionalized(traci)
 ```
 Index  Field                                                       Type
 -------------------------------------------------------------------------------
-0      Group or method (e.g. 'Traci 2.1')                          string
+0      LCIA method (e.g. 'Traci 2.1')                              string
 1      Name of the indicator, e.g. 'Acidification Potential'       string
 2      Reference unit of the indicator, e.g. `kg SO2 eq.`          string
 3      Elementary flow name, e.g. `Sulfur dioxide`                 string
-4      Flow category / compartment, e.g. `air`                     string
-5      Flow sub-category / sub-compartment, e.g. `unspecified`     string
-6      Flow unit, e.g. `kg`                                        string
+4      Flow category (context), e.g. `air/unspecified`             string
+5      Flow unit, e.g. `kg`                                        string
+6      CAS number of the flow                                      string
 7      Flow UUID                                                   string
-8      CAS number of the flow                                      string
-9      Value of the characterization factor                        f64
+8      Value of the characterization factor                        f64
 ```

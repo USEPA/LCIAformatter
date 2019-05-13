@@ -7,10 +7,9 @@ def data_frame(records):
             "Indicator unit",
             "Flow",
             "Flow category",
-            "Flow sub-category",
             "Flow unit",
-            "Flow UUID",
             "CAS",
+            "Flow UUID",
             "Factor"]
     return pandas.DataFrame(records, columns=cols)
 
@@ -21,10 +20,9 @@ def record(records: list,
            indicator_unit="",
            flow="",
            flow_category="",
-           flow_sub_category="",
            flow_unit="",
-           flow_uuid="",
            cas_number="",
+           flow_uuid="",
            factor=0.0) -> list:
     """Append a new row to the given list (which may be the empty list)."""
     records.append([
@@ -33,9 +31,8 @@ def record(records: list,
         indicator_unit,
         flow,
         flow_category,
-        flow_sub_category,
         flow_unit,
-        flow_uuid,
         cas_number,
+        flow_uuid,
         factor])
     return records

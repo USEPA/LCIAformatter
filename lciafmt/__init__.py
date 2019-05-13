@@ -7,6 +7,7 @@ import requests
 import xlrd
 
 import lciafmt.df as df
+import lciafmt.traci as traci
 
 
 def get_traci(file=None) -> pandas.DataFrame:
@@ -35,7 +36,9 @@ def get_traci(file=None) -> pandas.DataFrame:
         name = _cell_str(sheet, 0, col)
         if name == "":
             break
-        categories[col] = name
+        cat_info = traci.category_info(name)
+        if cat_info is not None:
+            categories[col] = cat_info
 
     records = []
     for row in range(1, sheet.nrows):
@@ -54,17 +57,20 @@ def get_traci(file=None) -> pandas.DataFrame:
                 cas = cas[:-3] + "-" + cas[-3:-1] + "-" + cas[-1]
 
         for col in range(3, sheet.ncols):
-            category = categories.get(col)
-            if category is None:
-                break
+            cat_info = categories.get(col)
+            if cat_info is None:
+                continue
             factor = _cell_f64(sheet, row, col)
             if factor == 0.0:
                 continue
             df.record(
                 records,
                 method="traci 2.1",
-                indicator=category,
+                indicator=cat_info[0],
+                indicator_unit=cat_info[1],
                 flow=flow,
+                flow_category=cat_info[2],
+                flow_unit=cat_info[3],
                 cas_number=cas,
                 factor=factor)
 
