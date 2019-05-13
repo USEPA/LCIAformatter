@@ -24,7 +24,8 @@ def get_traci(file=None) -> pandas.DataFrame:
             with open(cache_path, "wb") as f:
                 f.write(resp.content)
             file = cache_path
-    return traci.read(file)
+    df = traci.read(file)
+    return df
 
 
 def cache_dir(create=False) -> str:
