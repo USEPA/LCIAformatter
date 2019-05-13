@@ -6,7 +6,7 @@ import pandas
 import requests
 
 import lciafmt.traci as traci
-
+import lciafmt.jsonld as jsonld
 
 def get_traci(file=None) -> pandas.DataFrame:
     log.info("get method Traci 2.1")
@@ -26,6 +26,12 @@ def get_traci(file=None) -> pandas.DataFrame:
             file = cache_path
     df = traci.read(file)
     return df
+
+
+def to_jsonld(df: pandas.DataFrame, zip_file: str):
+    log.info("write JSON-LD package to %s", zip_file)
+    with jsonld.Writer(zip_file) as w:
+        w.write(df)
 
 
 def cache_dir(create=False) -> str:

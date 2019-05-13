@@ -110,3 +110,6 @@ Index  Field                                              Type
 11     Location UUID                                      str
 12     Characterization factor                            float
 ```
+
+TODO: 
+* document UUID generation (also flow category IDs)
