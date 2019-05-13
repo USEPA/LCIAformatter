@@ -1,4 +1,67 @@
-def category_info(c: str):
+import logging as log
+
+import pandas
+import xlrd
+
+import lciafmt.df as df
+import lciafmt.xls as xls
+
+
+def read(xls_file: str) -> pandas.DataFrame:
+    """Read the data from the Excel file with the given path into a Pandas
+       data frame."""
+
+    log.info("read Traci 2.1 from file %s", xls_file)
+    wb = xlrd.open_workbook(xls_file)
+    sheet = wb.sheet_by_name("Substances")
+
+    categories = {}
+    for col in range(3, sheet.ncols):
+        name = xls.cell_str(sheet, 0, col)
+        if name == "":
+            break
+        cat_info = _category_info(name)
+        if cat_info is not None:
+            categories[col] = cat_info
+
+    records = []
+    for row in range(1, sheet.nrows):
+        flow = xls.cell_str(sheet, row, 2)
+        if flow == "":
+            break
+
+        # in traci, CAS numbers are saved as
+        # formatted numbers
+        cas = xls.cell_val(sheet, row, 1)
+        if cas == "x" or cas is None:
+            cas = ""
+        if isinstance(cas, (int, float)):
+            cas = str(int(cas))
+            if len(cas) > 4:
+                cas = cas[:-3] + "-" + cas[-3:-1] + "-" + cas[-1]
+
+        for col in range(3, sheet.ncols):
+            cat_info = categories.get(col)
+            if cat_info is None:
+                continue
+            factor = xls.cell_f64(sheet, row, col)
+            if factor == 0.0:
+                continue
+            df.record(
+                records,
+                method="Traci 2.1",
+                indicator=cat_info[0],
+                indicator_unit=cat_info[1],
+                flow=flow,
+                flow_category=cat_info[2],
+                flow_unit=cat_info[3],
+                cas_number=cas,
+                factor=factor)
+
+    return df.data_frame(records)
+
+
+def _category_info(c: str):
     """"Get the meta data which are encoded in the category name. It returns
         a tuple (indicator, indicator unit, flow category, flow unit) for the
         given category name. If it is an unknown category, `None` is returned.
