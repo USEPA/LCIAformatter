@@ -101,6 +101,21 @@ class Mapper(object):
     def run(self):
         log.info("apply flow mapping")
         map_idx = self._build_map_index()
+        mapped = 0
+        idx = self.__df.iat
+        for row in range(0, self.__df.shape[0]):
+            key = Mapper._flow_key(
+                name=idx[row, 5],
+                category=idx[row, 7],
+                unit=idx[row, 8],
+            )
+            target = map_idx.get(key)
+            if target is None:
+                log.info("could not map flow %s", key)
+                continue
+            mapped += 1
+        log.info("mapped flows in %i of i% factors",
+                 mapped, self.__df.shape[0])
 
     def _build_map_index(self) -> dict:
         log.info("index mapping flows")
@@ -109,8 +124,7 @@ class Mapper(object):
             sys = row["SourceListName"]
             if self.__system is not None and sys != self.__system:
                 continue
-            skey = Mapper._flow_key(
-                uuid=row["SourceFlowUUID"],
+            key = Mapper._flow_key(
                 name=row["SourceFlowName"],
                 category=Mapper._cat_path(
                     row["SourceFlowCategory1"],
@@ -128,22 +142,20 @@ class Mapper(object):
                 row["TargetFlowCategory3"],
             )
             target.unit = row["TargetUnit"]
-            map_idx[skey] = target
+            map_idx[key] = target
         log.info("indexed %i of %i flows from flow map",
                  len(map_idx), self.__mapping.shape[0])
         return map_idx
 
     @staticmethod
-    def _flow_key(uuid="", name="", category="", unit="") -> str:
-        if not _is_empty(uuid):
-            return uuid
+    def _flow_key(name="", category="", unit="") -> str:
         parts = [name]
-        if not _is_empty(category):
+        if _is_strv(category):
             parts.append(norm_category(category))
-        if _is_empty(unit):
-            parts.append("kg")
-        else:
+        if _is_strv(unit):
             parts.append(unit)
+        else:
+            parts.append("kg")
         parts = [p.strip().lower() for p in parts]
         return "/".join(parts)
 
@@ -151,7 +163,7 @@ class Mapper(object):
     def _cat_path(*args) -> str:
         parts = []
         for arg in args:
-            if _is_empty(arg):
+            if _is_strv(arg):
                 parts.append(arg.strip().lower())
         if len(parts) == 0:
             return ""
