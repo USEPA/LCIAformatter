@@ -7,7 +7,7 @@
 ```python
 # the LCIA formatter will be a standard Python module
 # that can be easily installed via pip
-import lcia_formatter as lcia
+import lciafmt as lcia
 
 # getting the current Traci / ReCiPe / ... method data
 # from an official URL could look like this:
@@ -45,7 +45,7 @@ traci.to_csv("path/to/file.csv")
 > using methods in the Federal LCA Commons Flow list Python module
 
 ```python
-import lcia_formatter as lcia
+import lciafmt as lcia
 import fedelemflowlist as flowlist
 
 # this will apply the default mapping from the Federal LCA Commons

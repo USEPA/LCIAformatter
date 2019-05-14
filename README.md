@@ -44,6 +44,10 @@ $ .\env\Scripts\activate.bat
 # install the requirements
 $ pip install -r requirements.txt
 
+# install the branch `flowmappingforolca` from the
+# Fed.LCA Flow-List list repository
+pip install git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@flowmappingforolca
+
 # install the project
 $ pip install -e .
 
@@ -85,7 +89,9 @@ The flow mappings defined in the
 [Fed.LCA.Commons](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)
 can be directly applied on a data frame with method data:
 
-**TODO not yet implemented**
+```python
+>>> lciafmt.map_flows(traci)
+```
 
 
 ### Data export

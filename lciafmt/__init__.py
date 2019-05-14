@@ -6,8 +6,9 @@ import tempfile
 import pandas
 import requests
 
-import lciafmt.traci as traci
+import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
+import lciafmt.traci as traci
 
 
 def get_traci(file=None, url=None) -> pandas.DataFrame:
@@ -51,3 +52,9 @@ def cache_dir(create=False) -> str:
     if create:
         os.makedirs(cdir, exist_ok=True)
     return cdir
+
+
+def map_flows(df: pandas.DataFrame, version="0.1", system=None, mapping=None):
+    mapper = fmap.Mapper(df, version=version,
+                         system=system, mapping=mapping)
+    mapper.run()
