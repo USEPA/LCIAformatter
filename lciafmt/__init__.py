@@ -1,5 +1,6 @@
 import logging as log
 import os
+import shutil
 import tempfile
 
 import pandas
@@ -8,7 +9,8 @@ import requests
 import lciafmt.traci as traci
 import lciafmt.jsonld as jsonld
 
-def get_traci(file=None) -> pandas.DataFrame:
+
+def get_traci(file=None, url=None) -> pandas.DataFrame:
     log.info("get method Traci 2.1")
     if file is None:
         cache_path = os.path.join(cache_dir(), "traci_2.1.xlsx")
@@ -16,8 +18,9 @@ def get_traci(file=None) -> pandas.DataFrame:
             log.info("take file from cache: %s", cache_path)
             file = cache_path
         else:
-            url = ("https://www.epa.gov/sites/production/files/2015-12/" +
-                   "traci_2_1_2014_dec_10_0.xlsx")
+            if url is None:
+                url = ("https://www.epa.gov/sites/production/files/2015-12/" +
+                       "traci_2_1_2014_dec_10_0.xlsx")
             log.info("download method from %s", url)
             cache_dir(create=True)
             resp = requests.get(url, allow_redirects=True)
@@ -26,6 +29,13 @@ def get_traci(file=None) -> pandas.DataFrame:
             file = cache_path
     df = traci.read(file)
     return df
+
+
+def clear_cache():
+    d = cache_dir()
+    if not os.path.isdir(d):
+        return
+    shutil.rmtree(d)
 
 
 def to_jsonld(df: pandas.DataFrame, zip_file: str):

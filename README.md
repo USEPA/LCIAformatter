@@ -1,97 +1,7 @@
-# lciafmt
-
-> The LCIA raw data will be acquired and processed from the original source so
-> as to be as transparent as possible, using StEWI's acquisition of data such
-> as TRI as an example.
-
-```python
-# the LCIA formatter will be a standard Python module
-# that can be easily installed via pip
-import lcia_formatter as lcia
-
-# getting the current Traci / ReCiPe / ... method data
-# from an official URL could look like this:
-traci = lcia.get_traci()
-recipe = lcia.get_recipe()
-
-# the downloaded Excel file is cached in a temporary folder
-# e.g. ~/temp/.lcia_formatter_cache; calling `get_traci` will
-# first check if there is a current version in this folder;
-
-# it is possible to clear the cache to ensure that the newest
-# version is downloaded from the internet
-lcia.clear_cache()
-traci = lcia.get_traci()
-
-# alternatively, the method can be directly loaded from a file
-# or URL
-traci = lcia.get_traci(file="../data/Traci_2.1.xlsx")
-recipe = lcia.get_recipe(
-  url="http://www.rivm.nl/sites/....xlsx") 
-
-# the returned value is a pandas data frame in a defined
-# format, e.g. as specified in the IO model builder;
-# so all methods of pandas can be directly used, e.g.
-# storing it as a CSV file:
-traci.to_csv("path/to/file.csv")
-
-# the details for converting the respective LCIA method formats
-# into this data frame format will be abstracted away in the
-# respective retrieval methods
-```
-
-> Existing mappings between the original LCIA source flows and the
-> Fed Commons flow list flows will be integrated for use directly
-> using methods in the Federal LCA Commons Flow list Python module
-
-```python
-import lcia_formatter as lcia
-import fedelemflowlist as flowlist
-
-# this will apply the default mapping from the Federal LCA Commons
-# flow list module:
-traci = lcia.get_traci()
-lcia.map_flows(traci)
-
-# applying a mapping of another version from the Fed.LCA flow list
-# can be done by setting the version in the method call:
-lcia.map_flows(traci, version="0.2")
-
-# also, the flow mapping can be directly passed as pandas data frame
-# (in the Fed.LCA flow list format) into this method:
-# lcia.map_flows(traci, mapping=a_data_frame)
-```
-
-> The LCIA methods will be created in both tabular and openLCA
-> JSON-LD formats or available as a pandas dataframe via method(s)
-> in the _init_ module.
-
-```python
-# as described above, the `get_<method>` functions will return
-# a data frame of a defined format which can be directly stored
-# as CSV or Excel file: 
-traci.to_excel("path/to/file.xlsx")
-
-# the function `write_jsonld` will export the data into a
-# JSON-LD package:
-lcia.write_jsonld(traci, "path/to/file.zip")
-```
-
-> The system will be flexible enough to support creating outputs
-> for LCIA spatially-explicit characterization factors.
-
-```python
-# the LCIA method data frame can have an optional location
-# column which can be tested with the `is_regionalized`
-# function:
-lcia.is_regionalized(traci)
-
-# the JSON-LD export will also create location links in the
-# exported characterization factors; a possible integration
-# in openLCA will be checked
-```
-
-## Format
+# LCIA formatter
+The LCIA formatter is a Python 3 package for creating LCIA methods from their
+original LCIA sources by converting them into [pandas](https://pandas.pydata.org/)
+data frames with the following columns:
 
 ```
 Index  Field                                              Type
@@ -111,5 +21,99 @@ Index  Field                                              Type
 12     Characterization factor                            float
 ```
 
-TODO: 
-* document UUID generation (also flow category IDs)
+On these data frames, flow mappings defined in the
+[Fed.LCA.Commons](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)
+can be applied and the result can be exported to all formats supported by the
+`pandas` package (Excel, CSV) or the
+[openLCA JSON-LD format](https://github.com/GreenDelta/olca-schema).
+
+
+## Usage
+
+In order to use the project, first download it and install it (preferably in a
+[virtual environment](https://docs.python.org/3/library/venv.html)):
+
+```bash
+$ git clone https://github.com/msrocka/lcia_formatter.git
+$ cd lcia_formatter
+
+# create a virtual environment and activate it
+$ python -m venv env
+$ .\env\Scripts\activate.bat
+
+# install the requirements
+$ pip install -r requirements.txt
+
+# install the project
+$ pip install -e .
+
+# start the Python interpreter
+$ python
+```
+
+### Loading method data
+A data frame with the data of a method can be loaded with the respective
+`get_[method name]` function
+
+```python
+>>> import lciafmt
+>>> traci = lciafmt.get_traci()
+```
+
+This will download and cache the raw method data in a temporary folder
+(`~/temp/lciafmt`). Before downloading method data, `lciafmt` will first
+check if the method data are available in this cache folder. Alternatively,
+a file path or web URL can be passed as arguments to the `get_*` methods
+to load the data from other locations:
+
+```python
+>>> traci = lciafmt.get_traci(file="path/to/traci_2.1.xlsx")
+>>> traci = lciafmt.get_traci(url="http://.../path/to/traci_2.1.xlsx")
+```
+
+Also, it is possible to clear the cache to ensure that the newest version is
+downloaded from the internet:
+
+```python
+>>> lciafmt.clear_cache()
+>>> traci = lciafmt.get_traci()
+```
+
+
+### Apply flow mappings
+The flow mappings defined in the
+[Fed.LCA.Commons](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)
+can be directly applied on a data frame with method data:
+
+**TODO not yet implemented**
+
+
+### Data export
+The converted method data are stored in a standard
+[pandas data frame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
+so that the standard export functions of pandas can be directly used:
+
+```python
+>>> traci.to_csv("out/traci_2.1.csv", index=False)
+```
+
+Additionally, a method can be stored as JSON-LD package that can be imported
+into an openLCA database:
+
+```python
+>>> lciafmt.to_jsonld(traci, "out/traci_2.1_jsonld.zip")
+```
+
+**Note** that unit groups and flow properties are currently not added to the
+JSON-LD package so that the package can only be imported into a database where
+at least the standard openLCA unit groups and flow properties are available.
+
+### Logging details
+The `lciafmt` module uses writes messages to the default logger of the `logging`
+package. In order to see more details, you can set the log level to a finer
+level:
+
+```python
+>>> import logging as log
+>>> log.basicConfig(level=log.INFO)
+```
