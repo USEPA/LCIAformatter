@@ -109,7 +109,7 @@ JSON-LD package so that the package can only be imported into a database where
 at least the standard openLCA unit groups and flow properties are available.
 
 ### Logging details
-The `lciafmt` module uses writes messages to the default logger of the `logging`
+The `lciafmt` module writes messages to the default logger of the `logging`
 package. In order to see more details, you can set the log level to a finer
 level:
 
@@ -117,3 +117,9 @@ level:
 >>> import logging as log
 >>> log.basicConfig(level=log.INFO)
 ```
+
+## License
+This project is in the worldwide public domain, released under the
+[CC0 1.0 Universal Public Domain Dedication License](https://creativecommons.org/publicdomain/zero/1.0/).
+
+![Public Domain Dedication](https://licensebuttons.net/p/zero/1.0/88x31.png)

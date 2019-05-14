@@ -1,4 +1,4 @@
-LCIA Formatter
+## LCIA Formatter
 
 > The LCIA raw data will be acquired and processed from the original source so
 > as to be as transparent as possible, using StEWI's acquisition of data such
