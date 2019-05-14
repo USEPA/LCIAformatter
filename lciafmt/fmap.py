@@ -3,6 +3,8 @@ import logging as log
 import pandas
 import fedelemflowlist as flowlist
 
+from .util import make_uuid
+
 
 def norm_category(category_path: str) -> str:
     if category_path is None:
@@ -73,18 +75,15 @@ def _is_strv(val) -> bool:
 
 class _FlowInfo(object):
 
-    def __init__(self):
-        self.uuid = ""
-        self.name = ""
-        self.category = ""
-        self.unit = ""
+    def __init__(self, uuid="", name="", category="", unit=""):
+        self.name = name
+        self.category = category
+        self.unit = "kg" if not _is_strv(unit) else unit
 
-    def key(self) -> str:
-        if not _is_empty(self.uuid):
-            return self.uuid
-        path = [self.name, self.category, self.unit]
-        path = [p.strip().lower() for p in path]
-        return "/".join(path)
+        if not _is_strv(uuid):
+            self.uuid = make_uuid(self.name, self.category, self.unit)
+        else:
+            self.uuid = uuid
 
 
 class Mapper(object):
@@ -109,12 +108,16 @@ class Mapper(object):
                 category=idx[row, 7],
                 unit=idx[row, 8],
             )
-            target = map_idx.get(key)
+            target = map_idx.get(key)  # type: _FlowInfo
             if target is None:
-                log.info("could not map flow %s", key)
+                log.debug("could not map flow %s", key)
                 continue
+            idx[row, 5] = target.name
+            idx[row, 6] = target.uuid
+            idx[row, 7] = target.category
+            idx[row, 8] = target.unit
             mapped += 1
-        log.info("mapped flows in %i of i% factors",
+        log.info("mapped flows in %i of %i factors",
                  mapped, self.__df.shape[0])
 
     def _build_map_index(self) -> dict:
@@ -133,15 +136,16 @@ class Mapper(object):
                 ),
                 unit=row["SourceUnit"],
             )
-            target = _FlowInfo()
-            target.uuid = row["TargetFlowUUID"]
-            target.name = row["TargetFlowName"]
-            target.category = Mapper._cat_path(
-                row["TargetFlowCategory1"],
-                row["TargetFlowCategory2"],
-                row["TargetFlowCategory3"],
+            target = _FlowInfo(
+                uuid=row["TargetFlowUUID"],
+                name=row["TargetFlowName"],
+                unit=row["TargetUnit"],
+                category=Mapper._cat_path(
+                    row["TargetFlowCategory1"],
+                    row["TargetFlowCategory2"],
+                    row["TargetFlowCategory3"],
+                ),
             )
-            target.unit = row["TargetUnit"]
             map_idx[key] = target
         log.info("indexed %i of %i flows from flow map",
                  len(map_idx), self.__mapping.shape[0])
