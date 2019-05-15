@@ -93,6 +93,20 @@ can be directly applied on a data frame with method data:
 >>> lciafmt.map_flows(traci)
 ```
 
+This will apply the mapping to the default Fed.LCA.Commons flow list (currently
+version 0.1). Another version or source system can be selected via the
+respective optional parameters:
+
+```python
+>>> lciafmt.map_flows(traci, version="0.1", system="TRI")
+```
+
+Also, it is possible to directly pass a data frame that sepecifies a mapping
+in the Fed.LCA.Commons format into the function:
+
+```python
+>>> lciafmt.map_flows(traci, mapping=a_data_frame)
+```
 
 ### Data export
 The converted method data are stored in a standard
