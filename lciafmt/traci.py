@@ -72,26 +72,26 @@ def _category_info(c: str):
     """
 
     if c == "Global Warming Air (kg CO2 eq / kg substance)":
-        return "Global warming", "kg CO2 eq", "air/unspecified", "kg"
+        return "Global warming", "kg CO2 eq", "air", "kg"
 
     if c == "Acidification Air (kg SO2 eq / kg substance)":
-        return "Acidification", "kg SO2 eq", "air/unspecified", "kg"
+        return "Acidification", "kg SO2 eq", "air", "kg"
 
     if c == "HH Particulate Air (PM2.5 eq / kg substance)":
         return ("Human health - particulate matter", "PM 2.5 eq",
-                "air/unspecified", "kg")
+                "air", "kg")
 
     if c == "Eutrophication Air (kg N eq / kg substance)":
-        return "Eutrophication", "kg N eq", "air/unspecified", "kg"
+        return "Eutrophication", "kg N eq", "air", "kg"
 
     if c == "Eutrophication Water (kg N eq / kg substance)":
-        return "Eutrophication", "kg N eq", "water/unspecified", "kg"
+        return "Eutrophication", "kg N eq", "water", "kg"
 
     if c == "Ozone Depletion Air (kg CFC-11 eq / kg substance)":
-        return "Ozone depletion", "kg CFC-11 eq", "air/unspecified", "kg"
+        return "Ozone depletion", "kg CFC-11 eq", "air", "kg"
 
     if c == "Smog Air (kg O3 eq / kg substance)":
-        return "Smog formation", "kg O3 eq", "air/unspecified", "kg"
+        return "Smog formation", "kg O3 eq", "air", "kg"
 
     if c == "Ecotox. CF [CTUeco/kg], Em.airU, freshwater":
         return "Freshwater ecotoxicity", "CTUeco", "air/urban", "kg"
@@ -100,10 +100,10 @@ def _category_info(c: str):
         return "Freshwater ecotoxicity", "CTUeco", "air/rural", "kg"
 
     if c == "Ecotox. CF [CTUeco/kg], Em.fr.waterC, freshwater":
-        return "Freshwater ecotoxicity", "CTUeco", "water/fresh water", "kg"
+        return "Freshwater ecotoxicity", "CTUeco", "water/freshwater", "kg"
 
     if c == "Ecotox. CF [CTUeco/kg], Em.sea waterC, freshwater":
-        return "Freshwater ecotoxicity", "CTUeco", "water/sea", "kg"
+        return "Freshwater ecotoxicity", "CTUeco", "water/sea water", "kg"
 
     if c == "Ecotox. CF [CTUeco/kg], Em.nat.soilC, freshwater":
         return "Freshwater ecotoxicity", "CTUeco", "soil/natural", "kg"
@@ -124,16 +124,16 @@ def _category_info(c: str):
         return "Human health - non-cancer", "CTUnoncancer", "air/rural", "kg"
 
     if c == "Human health CF  [CTUcancer/kg], Emission to cont. freshwater, cancer":
-        return "Human health - cancer", "CTUcancer", "water/fresh water", "kg"
+        return "Human health - cancer", "CTUcancer", "water/freshwater", "kg"
 
     if c == "Human health CF  [CTUnoncancer/kg], Emission to cont. freshwater, non-canc.":
-        return "Human health - non-cancer", "CTUnoncancer", "water/fresh water", "kg"
+        return "Human health - non-cancer", "CTUnoncancer", "water/freshwater", "kg"
 
     if c == "Human health CF  [CTUcancer/kg], Emission to cont. sea water, cancer":
-        return "Human health - cancer", "CTUcancer", "water/sea", "kg"
+        return "Human health - cancer", "CTUcancer", "water/sea water", "kg"
 
     if c == "Human health CF  [CTUnoncancer/kg], Emission to cont. sea water, non-canc.":
-        return "Human health - non-cancer", "CTUnoncancer", "water/sea", "kg"
+        return "Human health - non-cancer", "CTUnoncancer", "water/sea water", "kg"
 
     if c == "Human health CF  [CTUcancer/kg], Emission to cont. natural soil, cancer":
         return "Human health - cancer", "CTUcancer", "soil/natural", "kg"
