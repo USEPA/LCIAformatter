@@ -44,9 +44,9 @@ $ .\env\Scripts\activate.bat
 # install the requirements
 $ pip install -r requirements.txt
 
-# install the branch `flowmappingforolca` from the
+# install the `master` master from the
 # Fed.LCA Flow-List list repository
-pip install git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@flowmappingforolca
+pip install git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@master
 
 # install the project
 $ pip install -e .

@@ -51,12 +51,9 @@ def read(xls_file: str) -> pandas.DataFrame:
             df.record(
                 records,
                 method="Traci 2.1",
-                method_uuid=make_uuid("Traci 2.1"),
                 indicator=cat_info[0],
-                indicator_uuid=make_uuid("Traci 2.1", cat_info[0]),
                 indicator_unit=cat_info[1],
                 flow=flow,
-                flow_uuid=make_uuid(flow, cat_info[2], cat_info[3]),
                 flow_category=cat_info[2],
                 flow_unit=cat_info[3],
                 cas_number=cas,

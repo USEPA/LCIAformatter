@@ -128,23 +128,16 @@ class Mapper(object):
             if self.__system is not None and sys != self.__system:
                 continue
             key = Mapper._flow_key(
+                uuid=row["SourceFlowUUID"],
                 name=row["SourceFlowName"],
-                category=Mapper._cat_path(
-                    row["SourceFlowCategory1"],
-                    row["SourceFlowCategory2"],
-                    row["SourceFlowCategory3"],
-                ),
+                category=row["SourceFlowContext"],
                 unit=row["SourceUnit"],
             )
             target = _FlowInfo(
                 uuid=row["TargetFlowUUID"],
                 name=row["TargetFlowName"],
+                category=row["TargetFlowContext"],
                 unit=row["TargetUnit"],
-                category=Mapper._cat_path(
-                    row["TargetFlowCategory1"],
-                    row["TargetFlowCategory2"],
-                    row["TargetFlowCategory3"],
-                ),
             )
             map_idx[key] = target
         log.info("indexed %i of %i flows from flow map",
@@ -152,7 +145,9 @@ class Mapper(object):
         return map_idx
 
     @staticmethod
-    def _flow_key(name="", category="", unit="") -> str:
+    def _flow_key(uuid="", name="", category="", unit="") -> str:
+        if _is_strv(uuid) and uuid != "":
+            return uuid
         parts = [name]
         if _is_strv(category):
             parts.append(norm_category(category))
@@ -161,14 +156,4 @@ class Mapper(object):
         else:
             parts.append("kg")
         parts = [p.strip().lower() for p in parts]
-        return "/".join(parts)
-
-    @staticmethod
-    def _cat_path(*args) -> str:
-        parts = []
-        for arg in args:
-            if _is_strv(arg):
-                parts.append(arg.strip().lower())
-        if len(parts) == 0:
-            return ""
         return "/".join(parts)

@@ -4,7 +4,7 @@ setup(
     name="lcia_formatter",
     version="0.1",
     packages=["lciafmt"],
-    install_requires=["olca-ipc", "pandas"],
+    install_requires=["olca-ipc", "pandas", "fedelemflowlist", "xlrd"],
     license="CC0",
     classifiers=[
         "Development Status :: Alpha",

@@ -15,6 +15,13 @@ def _as_path(*args: str) -> str:
     return "/".join(strings)
 
 
+def is_non_empty_str(s: str) -> bool:
+    """Tests if the given parameter is a non-empty string."""
+    if not isinstance(s, str):
+        return False
+    return s.strip() != ""
+
+
 def is_empty_str(s: str) -> bool:
     if s is None:
         return True

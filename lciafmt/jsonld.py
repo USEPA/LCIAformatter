@@ -2,10 +2,11 @@ import logging as log
 from typing import Optional
 
 import olca
+import olca.units as units
 import olca.pack as pack
 import pandas
 
-from .util import make_uuid
+from .util import make_uuid, is_non_empty_str
 
 
 class Writer(object):
@@ -31,8 +32,8 @@ class Writer(object):
             flow = self.__flow(row)
             unit = row[8]
             factor.flow = olca.ref(olca.Flow, flow.id)
-            factor.flow_property = _property_ref(unit)
-            factor.unit = _unit_ref(unit)
+            factor.flow_property = units.property_ref(unit)
+            factor.unit = units.unit_ref(unit)
             factor.value = row[12]
             indicator.impact_factors.append(factor)
 
@@ -49,6 +50,9 @@ class Writer(object):
 
     def __indicator(self, row) -> olca.ImpactCategory:
         uid = row[3]
+        if not is_non_empty_str(uid):
+            uid = make_uuid(row[0], row[2])
+
         ind = self.__indicators.get(uid)
         if ind is not None:
             return ind
@@ -70,6 +74,9 @@ class Writer(object):
 
     def __method(self, row) -> olca.ImpactMethod:
         uid = row[1]
+        if not is_non_empty_str(uid):
+            uid = make_uuid(row[0])
+
         m = self.__methods.get(uid)
         if m is not None:
             return m
@@ -83,6 +90,9 @@ class Writer(object):
 
     def __flow(self, row):
         uid = row[6]
+        if not is_non_empty_str(uid):
+            uid = make_uuid(row[5], row[7], row[8])
+
         flow = self.__flows.get(uid)
         if flow is not None:
             return flow
@@ -90,9 +100,12 @@ class Writer(object):
         flow.id = uid
         flow.name = row[5]
         flow.cas = row[6]
+        flow.flow_type = olca.FlowType.ELEMENTARY_FLOW
 
         # flow property
-        prop_ref = _property_ref(row[8])
+        prop_ref = units.property_ref(row[8])
+        if prop_ref is None:
+            log.error("could not infer flow property for unit %s", row[8])
         if prop_ref is not None:
             prop_fac = olca.FlowPropertyFactor()
             prop_fac.conversion_factor = 1.0
@@ -134,19 +147,3 @@ class Writer(object):
                 c.category = olca.ref(olca.Category, p.id)
             self.__categories[cpath] = c
         return c
-
-
-def _property_ref(unit: str) -> Optional[olca.Ref]:
-    if unit == "kg":
-        return olca.ref(
-            olca.FlowProperty, "93a60a56-a3c8-11da-a746-0800200b9a66", "Mass")
-    log.error("unknown unit %s", unit)
-    return None
-
-
-def _unit_ref(unit: str) -> Optional[olca.Ref]:
-    if unit == "kg":
-        return olca.ref(
-            olca.Unit, "20aadc24-a391-41cf-b340-3e4529f44bde", "kg")
-    log.error("unknown unit %s", unit)
-    return None
