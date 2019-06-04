@@ -88,13 +88,13 @@ class _FlowInfo(object):
 
 class Mapper(object):
 
-    def __init__(self, df: pandas.DataFrame, version="0.1",
+    def __init__(self, df: pandas.DataFrame,
                  system=None, mapping=None):
         self.__df = df
         self.__system = system
         if mapping is None:
-            log.info("load flow mapping v=%s from fed.elem.flows", version)
-            mapping = flowlist.get_flowmapping(version=version)
+            log.info("load flow mapping v=%s from fed.elem.flows")
+            mapping = flowlist.get_flowmapping(source=system)
         self.__mapping = mapping  # type: pandas.DataFrame
 
     def run(self):
@@ -121,7 +121,8 @@ class Mapper(object):
                  mapped, self.__df.shape[0])
 
     def _build_map_index(self) -> dict:
-        log.info("index mapping flows")
+        log.info("index "
+                 " flows")
         map_idx = {}
         for _, row in self.__mapping.iterrows():
             sys = row["SourceListName"]

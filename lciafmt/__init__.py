@@ -54,7 +54,6 @@ def cache_dir(create=False) -> str:
     return cdir
 
 
-def map_flows(df: pandas.DataFrame, version="0.1", system=None, mapping=None):
-    mapper = fmap.Mapper(df, version=version,
-                         system=system, mapping=mapping)
+def map_flows(df: pandas.DataFrame, system=None, mapping=None):
+    mapper = fmap.Mapper(df, system=system, mapping=mapping)
     mapper.run()
