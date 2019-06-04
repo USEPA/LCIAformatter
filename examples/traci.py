@@ -1,7 +1,10 @@
 import logging as log
 import lciafmt
 
-outputpath = '../lcia_formatter_output/'
+import os
+modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/'
+#Must create output folder within lcia_formatter in advance
+outputpath = modulepath+'output/'
 
 def main():
     log.basicConfig(level=log.INFO)
