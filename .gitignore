@@ -4,4 +4,4 @@
 /env/
 *.pyc
 /*.egg-info/
-/out/
+/output/

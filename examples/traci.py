@@ -2,11 +2,14 @@ import logging as log
 import lciafmt
 
 import os
-modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + '/'
-#Must create output folder within lcia_formatter in advance
-outputpath = modulepath+'output/'
+
 
 def main():
+    modulepath = os.path.dirname(
+        os.path.realpath(__file__)).replace('\\', '/')
+    outputpath = modulepath + '/../output/'
+    os.makedirs(outputpath, exist_ok=True)
+
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_traci()
     lciafmt.map_flows(data, system="TRACI2.1")
