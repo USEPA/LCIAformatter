@@ -5,7 +5,6 @@ import xlrd
 
 import lciafmt.df as df
 import lciafmt.xls as xls
-from .util import make_uuid
 
 
 def read(xls_file: str) -> pandas.DataFrame:

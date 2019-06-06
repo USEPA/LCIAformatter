@@ -1,7 +1,8 @@
 import pandas
 
 
-def data_frame(records):
+def data_frame(records: list) -> pandas.DataFrame:
+    """Convert the given list of lists into a data frame."""
     cols = ["Method",
             "Method UUID",
             "Indicator",
@@ -16,6 +17,22 @@ def data_frame(records):
             "Location UUID",
             "Factor"]
     return pandas.DataFrame(records, columns=cols)
+
+
+def as_list(df: pandas.DataFrame, row=-1) -> list:
+    """Converts the given data frame into a list of lists. When the `row`
+       paremeter is given with a value >= 0, only that row is extracted as
+       list from the data frame."""
+    if df is None:
+        return []
+    if row >= 0:
+        rec = []
+        for col in range(0, 13):
+            rec.append(df.iat[row, col])
+        return rec
+    recs = []
+    for row in range(df.shape[0]):
+        recs.append(as_list(df, row=row))
 
 
 def record(records: list,
@@ -48,3 +65,4 @@ def record(records: list,
         location_uuid,
         factor])
     return records
+

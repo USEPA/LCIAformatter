@@ -1,8 +1,10 @@
 import logging as log
+from typing import List
 
 import pandas
 import fedelemflowlist as flowlist
 
+import lciafmt.df as dfutil
 from .util import make_uuid
 
 
@@ -88,41 +90,54 @@ class _FlowInfo(object):
 
 class Mapper(object):
 
-    def __init__(self, df: pandas.DataFrame,
-                 system=None, mapping=None):
+    def __init__(self, df: pandas.DataFrame, system=None,
+                 mapping=None, preserve_unmapped=False):
         self.__df = df
         self.__system = system
         if mapping is None:
             log.info("load flow mapping v=%s from fed.elem.flows")
             mapping = flowlist.get_flowmapping(source=system)
         self.__mapping = mapping  # type: pandas.DataFrame
+        self.__preserve_unmapped = preserve_unmapped
 
-    def run(self):
+    def run(self) -> pandas.DataFrame:
         log.info("apply flow mapping")
         map_idx = self._build_map_index()
         mapped = 0
-        idx = self.__df.iat
+        preserved = 0
+        df = self.__df
+        records = []
         for row in range(0, self.__df.shape[0]):
             key = Mapper._flow_key(
-                name=idx[row, 5],
-                category=idx[row, 7],
-                unit=idx[row, 8],
+                name=df.iat[row, 5],
+                category=df.iat[row, 7],
+                unit=df.iat[row, 8],
             )
-            target = map_idx.get(key)  # type: _FlowInfo
-            if target is None:
+            targets = map_idx.get(key)  # type: List[_FlowInfo]
+
+            if targets is None:
                 log.debug("could not map flow %s", key)
+                if self.__preserve_unmapped:
+                    records.append(dfutil.as_list(df, row=row))
+                    preserved += 1
                 continue
-            idx[row, 5] = target.name
-            idx[row, 6] = target.uuid
-            idx[row, 7] = target.category
-            idx[row, 8] = target.unit
-            mapped += 1
-        log.info("mapped flows in %i of %i factors",
-                 mapped, self.__df.shape[0])
+
+            rec = dfutil.as_list(df, row=row)
+            for target in targets:
+                r = rec.copy()
+                r[5] = target.name
+                r[6] = target.uuid
+                r[7] = target.category
+                r[8] = target.unit
+                records.append(r)
+                mapped += 1
+        log.info("created %i factors for mapped flows; " +
+                 "preserved %i factors for unmapped flows",
+                 mapped, preserved)
+        return dfutil.data_frame(records)
 
     def _build_map_index(self) -> dict:
-        log.info("index "
-                 " flows")
+        log.info("index flows")
         map_idx = {}
         for _, row in self.__mapping.iterrows():
             sys = row["SourceListName"]
@@ -134,15 +149,19 @@ class Mapper(object):
                 category=row["SourceFlowContext"],
                 unit=row["SourceUnit"],
             )
-            target = _FlowInfo(
+            targets = map_idx.get(key)
+            if targets is None:
+                targets = []
+                map_idx[key] = targets
+            targets.append(_FlowInfo(
                 uuid=row["TargetFlowUUID"],
                 name=row["TargetFlowName"],
                 category=row["TargetFlowContext"],
                 unit=row["TargetUnit"],
-            )
-            map_idx[key] = target
-        log.info("indexed %i of %i flows from flow map",
-                 len(map_idx), self.__mapping.shape[0])
+            ))
+
+        log.info("indexed %i mappings for %i flows",
+                 self.__mapping.shape[0], len(map_idx))
         return map_idx
 
     @staticmethod

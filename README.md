@@ -60,8 +60,8 @@ A data frame with the data of a method can be loaded with the respective
 `get_[method name]` function
 
 ```python
->>> import lciafmt
->>> traci = lciafmt.get_traci()
+import lciafmt
+traci = lciafmt.get_traci()
 ```
 
 This will download and cache the raw method data in a temporary folder
@@ -71,16 +71,16 @@ a file path or web URL can be passed as arguments to the `get_*` methods
 to load the data from other locations:
 
 ```python
->>> traci = lciafmt.get_traci(file="path/to/traci_2.1.xlsx")
->>> traci = lciafmt.get_traci(url="http://.../path/to/traci_2.1.xlsx")
+traci = lciafmt.get_traci(file="path/to/traci_2.1.xlsx")
+traci = lciafmt.get_traci(url="http://.../path/to/traci_2.1.xlsx")
 ```
 
 Also, it is possible to clear the cache to ensure that the newest version is
 downloaded from the internet:
 
 ```python
->>> lciafmt.clear_cache()
->>> traci = lciafmt.get_traci()
+lciafmt.clear_cache()
+traci = lciafmt.get_traci()
 ```
 
 
@@ -90,22 +90,22 @@ The flow mappings defined in the
 can be directly applied on a data frame with method data:
 
 ```python
->>> lciafmt.map_flows(traci)
+traci_mapped = lciafmt.map_flows(traci)
 ```
 
-This will apply the mapping to the default Fed.LCA.Commons flow list (currently
-version 0.1). Another version or source system can be selected via the
-respective optional parameters:
+This will apply the mapping to the default Fed.LCA.Commons flow list and produce
+a new data frame with mapped flows. A specific source system can be selected via
+the respective parameter:
 
 ```python
->>> lciafmt.map_flows(traci, version="0.1", system="TRI")
+traci_mapped = lciafmt.map_flows(traci, system="TRACI2.1")
 ```
 
 Also, it is possible to directly pass a data frame that sepecifies a mapping
 in the Fed.LCA.Commons format into the function:
 
 ```python
->>> lciafmt.map_flows(traci, mapping=a_data_frame)
+traci_mapped = lciafmt.map_flows(traci, mapping=a_data_frame)
 ```
 
 ### Data export
@@ -114,14 +114,14 @@ The converted method data are stored in a standard
 so that the standard export functions of pandas can be directly used:
 
 ```python
->>> traci.to_csv("out/traci_2.1.csv", index=False)
+traci.to_csv("out/traci_2.1.csv", index=False)
 ```
 
 Additionally, a method can be stored as JSON-LD package that can be imported
 into an openLCA database:
 
 ```python
->>> lciafmt.to_jsonld(traci, "out/traci_2.1_jsonld.zip")
+lciafmt.to_jsonld(traci, "out/traci_2.1_jsonld.zip")
 ```
 
 **Note** that unit groups and flow properties are currently not added to the
@@ -134,8 +134,8 @@ package. In order to see more details, you can set the log level to a finer
 level:
 
 ```python
->>> import logging as log
->>> log.basicConfig(level=log.INFO)
+import logging as log
+log.basicConfig(level=log.INFO)
 ```
 
 ## License

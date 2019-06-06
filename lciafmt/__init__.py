@@ -3,7 +3,7 @@ import os
 import shutil
 import tempfile
 
-import pandas
+import pandas as pd
 import requests
 
 import lciafmt.fmap as fmap
@@ -11,7 +11,7 @@ import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 
 
-def get_traci(file=None, url=None) -> pandas.DataFrame:
+def get_traci(file=None, url=None) -> pd.DataFrame:
     log.info("get method Traci 2.1")
     if file is None:
         cache_path = os.path.join(cache_dir(), "traci_2.1.xlsx")
@@ -39,7 +39,7 @@ def clear_cache():
     shutil.rmtree(d)
 
 
-def to_jsonld(df: pandas.DataFrame, zip_file: str):
+def to_jsonld(df: pd.DataFrame, zip_file: str):
     log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
         w.write(df)
@@ -54,6 +54,10 @@ def cache_dir(create=False) -> str:
     return cdir
 
 
-def map_flows(df: pandas.DataFrame, system=None, mapping=None):
-    mapper = fmap.Mapper(df, system=system, mapping=mapping)
-    mapper.run()
+def map_flows(df: pd.DataFrame, system=None, mapping=None,
+              preserve_unmapped=False) -> pd.DataFrame:
+    """Maps the flows in the given data frame using the given target system. It
+       returns a new data frame with the mapped flows."""
+    mapper = fmap.Mapper(df, system=system, mapping=mapping,
+                         preserve_unmapped=preserve_unmapped)
+    return mapper.run()
