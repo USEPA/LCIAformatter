@@ -25,7 +25,7 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pandas.DataFrame):
+    def write(self, df: pandas.DataFrame, write_flows=False):
         for _, row in df.iterrows():
             indicator = self.__indicator(row)
             factor = olca.ImpactFactor()
@@ -38,12 +38,18 @@ class Writer(object):
             indicator.impact_factors.append(factor)
 
         log.info("write entities")
-        dicts = [
-            self.__categories,
-            self.__flows,
-            self.__indicators,
-            self.__methods
-        ]
+        if write_flows:
+            dicts = [
+                self.__categories,
+                self.__flows,
+                self.__indicators,
+                self.__methods
+            ]
+        else:
+            dicts = [
+                self.__indicators,
+                self.__methods
+            ]
         for d in dicts:
             for v in d.values():
                 self.__writer.write(v)

@@ -39,10 +39,10 @@ def clear_cache():
     shutil.rmtree(d)
 
 
-def to_jsonld(df: pd.DataFrame, zip_file: str):
+def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
     log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
-        w.write(df)
+        w.write(df,write_flows)
 
 
 def cache_dir(create=False) -> str:
