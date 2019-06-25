@@ -11,7 +11,7 @@ def main():
     os.makedirs(outputpath, exist_ok=True)
 
     log.basicConfig(level=log.INFO)
-    data = lciafmt.get_traci()
+    data = lciafmt.get_method(lciafmt.Method.TRACI)
 
     # map the flows to the Fed.LCA commons flows
     # set preserve_unmapped=True if you want to keep unmapped

@@ -24,22 +24,12 @@ def supported_methods() -> list:
         return json.load(f)
 
 
-def get_traci(file=None, url=None) -> pd.DataFrame:
-    log.info("get method Traci 2.1")
-    f = file
-    if f is None:
-        fname = "traci_2.1.xlsx"
-        f = cache.get_path(fname)
-        if cache.exists(fname):
-            log.info("take file from cache: %s", f)
-        else:
-            if url is None:
-                url = ("https://www.epa.gov/sites/production/files/2015-12/" +
-                       "traci_2_1_2014_dec_10_0.xlsx")
-            log.info("download method from %s", url)
-            cache.download(url, fname)
-    df = traci.read(f)
-    return df
+def get_method(method_id: str, file=None, url=None) -> pd.DataFrame:
+    """Returns the data frame of the method with the given ID. You can get the
+       IDs of the supported methods from the `supported_methods` function or
+       directly use the constants defined in the Method enumeration type."""
+    if method_id == Method.TRACI:
+        return traci.get(file=file, url=None)
 
 
 def clear_cache():
