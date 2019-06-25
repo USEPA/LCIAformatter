@@ -1,57 +1,55 @@
+import json
 import logging as log
-import os
-import shutil
-import tempfile
+import pkg_resources
 
 import pandas as pd
-import requests
 
+import lciafmt.cache as cache
 import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 
+from enum import Enum
+
+
+class Method(Enum):
+    TRACI = "Traci 2.1"
+
+
+def supported_methods() -> list:
+    """Returns a list of dictionaries that contain meta-data of the supported
+       LCIA methods."""
+    json_file = pkg_resources.resource_filename("lciafmt", 'data/methods.json')
+    with open(json_file, "r", encoding="utf-8") as f:
+        return json.load(f)
+
 
 def get_traci(file=None, url=None) -> pd.DataFrame:
     log.info("get method Traci 2.1")
-    if file is None:
-        cache_path = os.path.join(cache_dir(), "traci_2.1.xlsx")
-        if os.path.isfile(cache_path):
-            log.info("take file from cache: %s", cache_path)
-            file = cache_path
+    f = file
+    if f is None:
+        fname = "traci_2.1.xlsx"
+        f = cache.get_path(fname)
+        if cache.exists(fname):
+            log.info("take file from cache: %s", f)
         else:
             if url is None:
                 url = ("https://www.epa.gov/sites/production/files/2015-12/" +
                        "traci_2_1_2014_dec_10_0.xlsx")
             log.info("download method from %s", url)
-            cache_dir(create=True)
-            resp = requests.get(url, allow_redirects=True)
-            with open(cache_path, "wb") as f:
-                f.write(resp.content)
-            file = cache_path
-    df = traci.read(file)
+            cache.download(url, fname)
+    df = traci.read(f)
     return df
 
 
 def clear_cache():
-    d = cache_dir()
-    if not os.path.isdir(d):
-        return
-    shutil.rmtree(d)
+    cache.clear()
 
 
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
     log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows)
-
-
-def cache_dir(create=False) -> str:
-    """Returns the path to the folder where cached files are stored. """
-    tdir = tempfile.gettempdir()
-    cdir = os.path.join(tdir, "lciafmt")
-    if create:
-        os.makedirs(cdir, exist_ok=True)
-    return cdir
 
 
 def map_flows(df: pd.DataFrame, system=None, mapping=None,
