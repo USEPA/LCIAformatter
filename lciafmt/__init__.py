@@ -42,7 +42,7 @@ def clear_cache():
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
     log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
-        w.write(df,write_flows)
+        w.write(df, write_flows)
 
 
 def cache_dir(create=False) -> str:

@@ -38,18 +38,13 @@ class Writer(object):
             indicator.impact_factors.append(factor)
 
         log.info("write entities")
+        dicts = [
+            self.__indicators,
+            self.__methods
+        ]
         if write_flows:
-            dicts = [
-                self.__categories,
-                self.__flows,
-                self.__indicators,
-                self.__methods
-            ]
-        else:
-            dicts = [
-                self.__indicators,
-                self.__methods
-            ]
+            dicts.append(self.__categories)
+            dicts.append(self.__flows)
         for d in dicts:
             for v in d.values():
                 self.__writer.write(v)

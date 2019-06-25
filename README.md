@@ -124,6 +124,13 @@ into an openLCA database:
 lciafmt.to_jsonld(traci, "out/traci_2.1_jsonld.zip")
 ```
 
+When also elementary flows should be written to the JSON-LD package the
+`write_flows` flag can be passed to the export call:
+
+```python
+lciafmt.to_jsonld(traci, "out/traci_2.1_jsonld.zip", write_flows=True)
+```
+
 **Note** that unit groups and flow properties are currently not added to the
 JSON-LD package so that the package can only be imported into a database where
 at least the standard openLCA unit groups and flow properties are available.
