@@ -1,7 +1,7 @@
 import logging as log
-import lciafmt
-
 import os
+
+import lciafmt
 
 
 def main():
