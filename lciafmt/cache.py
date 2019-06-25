@@ -47,3 +47,12 @@ def download(url: str, file: str) -> str:
     with open(path, "wb") as f:
         f.write(resp.content)
     return path
+
+
+def get_or_download(file: str, url: str) -> str:
+    path = get_path(file)
+    if os.path.isfile(path):
+        log.info("take %s from cache", file)
+        return path
+    download(url, file)
+    return path

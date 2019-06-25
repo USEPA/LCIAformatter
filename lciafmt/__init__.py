@@ -8,12 +8,14 @@ import lciafmt.cache as cache
 import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
+import lciafmt.recipe as recipe
 
 from enum import Enum
 
 
 class Method(Enum):
     TRACI = "Traci 2.1"
+    RECIPE_2016 = "ReCiPe 2016"
 
 
 def supported_methods() -> list:
@@ -30,6 +32,8 @@ def get_method(method_id: str, file=None, url=None) -> pd.DataFrame:
        directly use the constants defined in the Method enumeration type."""
     if method_id == Method.TRACI:
         return traci.get(file=file, url=None)
+    if method_id == Method.RECIPE_2016:
+        return recipe.get(file=file, url=url)
 
 
 def clear_cache():

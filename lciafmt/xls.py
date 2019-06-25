@@ -24,3 +24,12 @@ def cell_val(sheet, row: int, col: int):
     if cell is None:
         return None
     return cell.value
+
+
+def cell_empty(sheet, row: int, col: int) -> bool:
+    v = cell_val(sheet, row, col)
+    if v is None:
+        return True
+    if isinstance(v, str):
+        return v.strip() == ""
+    return False

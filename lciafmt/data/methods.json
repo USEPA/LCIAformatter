@@ -3,6 +3,14 @@
     "id": "Traci 2.1",
     "name": "Traci",
     "version": "2.1",
-    "description": "..."
+    "description": "...",
+    "url": "https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx"
+  },
+  {
+    "id": "ReCiPe 2016",
+    "name": "ReCiPe 2016",
+    "version": "1.1",
+    "description": "...",
+    "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx"
   }
 ]

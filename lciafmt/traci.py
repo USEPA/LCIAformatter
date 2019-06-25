@@ -13,15 +13,10 @@ def get(file=None, url=None) -> pandas.DataFrame:
     f = file
     if f is None:
         fname = "traci_2.1.xlsx"
-        f = cache.get_path(fname)
-        if cache.exists(fname):
-            log.info("take file from cache: %s", f)
-        else:
-            if url is None:
-                url = ("https://www.epa.gov/sites/production/files/2015-12/" +
-                       "traci_2_1_2014_dec_10_0.xlsx")
-            log.info("download method from %s", url)
-            cache.download(url, fname)
+        if url is None:
+            url = ("https://www.epa.gov/sites/production/files/2015-12/" +
+                   "traci_2_1_2014_dec_10_0.xlsx")
+        f = cache.get_or_download(fname, url)
     return _read(f)
 
 
