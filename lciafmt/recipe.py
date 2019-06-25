@@ -26,6 +26,7 @@ def _read(file: str) -> pandas.DataFrame:
     records = []
     _read_gwp_sheet(wb.sheet_by_name("Global Warming"), records)
     _read_odp_sheet(wb.sheet_by_name("Stratospheric ozone depletion"), records)
+    _read_irp_sheet(wb.sheet_by_name("Ionizing radiation"), records)
     return df.data_frame(records)
 
 
@@ -39,7 +40,7 @@ def _read_gwp_sheet(sheet: xlrd.book.sheet, records: list):
             if val == 0.0:
                 continue
 
-            category = "Global Warming - "
+            category = "Global warming - "
             if col == 3:
                 category += "GWP20 - I"
                 factor_hh = 0.0000000812
@@ -146,5 +147,51 @@ def _read_odp_sheet(sheet: xlrd.book.sheet, records: list):
                 flow=xls.cell_str(sheet, row, 0),
                 flow_category="emissions/air",
                 flow_unit="kg",
+                factor=val * factor_hh
+            )
+
+
+def _read_irp_sheet(sheet: xlrd.book.sheet, records: list):
+    for row in range(3, sheet.nrows):
+        if xls.cell_empty(sheet, row, 3):
+            continue
+
+        for col in range(4, 7):
+            val = xls.cell_f64(sheet, row, col)
+            if val == 0.0:
+                continue
+
+            category = "Ionizing radiation - "
+            if col == 4:
+                category += "I"
+                factor_hh = 0.0000000068
+            elif col == 5:
+                category += "H"
+                factor_hh = 0.0000000085
+            elif col == 6:
+                category += "E"
+                factor_hh = 0.000000014
+            else:
+                continue
+
+            df.record(
+                records,
+                method="ReCiPe 2016 - Midpoint",
+                indicator=category,
+                indicator_unit="kBq Co-60 to air eq.",
+                flow=xls.cell_str(sheet, row, 0),
+                flow_category="emissions/" + xls.cell_str(sheet, row, 3),
+                flow_unit="kBq",
+                factor=val
+            )
+
+            df.record(
+                records,
+                method="ReCiPe 2016 - Endpoint",
+                indicator=category + " - Human health",
+                indicator_unit="DALY",
+                flow=xls.cell_str(sheet, row, 0),
+                flow_category="emissions/" + xls.cell_str(sheet, row, 3),
+                flow_unit="kBq",
                 factor=val * factor_hh
             )
