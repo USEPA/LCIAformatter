@@ -50,6 +50,7 @@ def _read_mid_points(name: str, sheet: xlrd.book.sheet, records: list):
     if flow_col < 0:
         return
     cas_col = _find_cas_column(sheet)
+    indicator_unit, flow_unit, unit_col = _determine_units(sheet)
 
 
 def _find_data_start(sheet: xlrd.book.sheet) -> (int, int, bool):
@@ -87,6 +88,68 @@ def _find_cas_column(sheet: xlrd.book.sheet) -> int:
             log.debug("identified column %i %s for CAS numbers", ccol, s)
             break
     return ccol
+
+
+def _determine_units(sheet: xlrd.book.sheet) -> (str, str, int):
+    indicator_unit = "?"
+    flow_unit = "?"
+    unit_col = -1
+    row, col, _ = _find_data_start(sheet)
+    row -= 2
+
+    if row > 0:
+        s = xls.cell_str(sheet, row, col)
+        if s is not None and s != "":
+            if "/" in s:
+                parts = s.strip(" ()").split("/")
+                indicator_unit = parts[0].strip()
+                flow_unit = parts[1].strip()
+            else:
+                indicator_unit = s.strip()
+
+    for row, col in xls.iter_cells(sheet):
+        if row > 5:
+            break
+        s = xls.cell_str(sheet, row, col)
+        if _eqstr(s, "Unit"):
+            unit_col = col
+            break
+
+    if indicator_unit != "?":
+        log.debug("determined indicator unit: %s", indicator_unit)
+    elif _containstr(sheet.name, "land", "transformation"):
+        log.warning("unknown indicator unit; assuming it is m2")
+        indicator_unit = "m2"
+    elif _containstr(sheet.name, "land", "occupation"):
+        log.warning("unknown indicator unit; assuming it is m2*a")
+        indicator_unit = "m2*a"
+    elif _containstr(sheet.name, "water", "consumption"):
+        log.warning("unknown indicator unit; assuming it is m3")
+        indicator_unit = "m3"
+    else:
+        log.warning("unknown indicator unit")
+
+    if _containstr(flow_unit, "kg"):
+        flow_unit = "kg"
+
+    if unit_col > -1:
+        log.debug("take units from column %i", unit_col)
+    elif flow_unit != "?":
+        log.debug("determined flow unit: %s", flow_unit)
+    elif _containstr(sheet.name, "land", "transformation"):
+        log.warning("unknown flow unit; assume it is m2")
+        flow_unit = "m2"
+    elif _containstr(sheet.name, "land", "occupation"):
+        log.warning("unknown flow unit; assuming it is m2*a")
+        flow_unit = "m2*a"
+    elif _containstr(sheet.name, "water", "consumption"):
+        log.warning("unknown flow unit; assuming it is m3")
+        flow_unit = "m3"
+    else:
+        log.warning("unknown flow unit; assuming it is 'kg'")
+        flow_unit = "kg"
+
+    return indicator_unit, flow_unit, unit_col
 
 
 def _read_gwp_sheet(sheet: xlrd.book.sheet, records: list):
