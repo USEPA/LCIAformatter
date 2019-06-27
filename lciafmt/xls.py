@@ -2,27 +2,27 @@ import xlrd
 
 
 def cell_str(sheet: xlrd.book.sheet, row: int, col: int) -> str:
-    cell = sheet.cell(row, col)
-    if cell is None:
+    v = cell_val(sheet, row, col)
+    if v is None:
         return ""
-    if cell.value is None:
-        return ""
-    return str(cell.value).strip()
+    return str(v).strip()
 
 
 def cell_f64(sheet: xlrd.book.sheet, row: int, col: int) -> float:
-    cell = sheet.cell(row, col)
-    if cell is None:
-        return 0.0
-    if cell.value is None:
+    v = cell_val(sheet, row, col)
+    if v is None:
         return 0.0
     try:
-        return float(cell.value)
+        return float(v)
     except ValueError:
         return 0.0
 
 
 def cell_val(sheet: xlrd.book.sheet, row: int, col: int):
+    if row < 0 or row >= sheet.nrows:
+        return None
+    if col < 0 or col >= sheet.ncols:
+        return None
     cell = sheet.cell(row, col)
     if cell is None:
         return None

@@ -24,33 +24,82 @@ def _read(file: str) -> pandas.DataFrame:
     log.info("read ReCiPe 2016 from file %s", file)
     wb = xlrd.open_workbook(file)
     records = []
-    _read_gwp_sheet(wb.sheet_by_name("Global Warming"), records)
-    _read_odp_sheet(wb.sheet_by_name("Stratospheric ozone depletion"), records)
-    _read_irp_sheet(wb.sheet_by_name("Ionizing radiation"), records)
+    # _read_gwp_sheet(wb.sheet_by_name("Global Warming"), records)
+    # _read_odp_sheet(wb.sheet_by_name("Stratospheric ozone depletion"), records)
+    # _read_irp_sheet(wb.sheet_by_name("Ionizing radiation"), records)
 
     for name in wb.sheet_names():
         if _eqstr(name, "Version") or _eqstr(
                 name, "Midpoint to endpoint factors"):
             continue
-        _read_mid_points(name, wb.sheet_by_name(name), records)
+        _read_mid_points(wb.sheet_by_name(name), records)
 
     return df.data_frame(records)
 
 
-def _read_mid_points(name: str, sheet: xlrd.book.sheet, records: list):
-    log.info("try to read midpoint factors from sheet %s", name)
+def _read_mid_points(sheet: xlrd.book.sheet, records: list):
+    log.info("try to read midpoint factors from sheet %s", sheet.name)
 
-    # find the start position from where we will read the data
     start_row, data_col, with_perspectives = _find_data_start(sheet)
     if start_row < 0:
-        log.warning("could not find a value column in sheet %s", name)
+        log.warning("could not find a value column in sheet %s", sheet.name)
         return
 
     flow_col = _find_flow_column(sheet)
     if flow_col < 0:
         return
+
     cas_col = _find_cas_column(sheet)
     indicator_unit, flow_unit, unit_col = _determine_units(sheet)
+    compartment, compartment_col = _determine_compartments(sheet)
+
+    perspectives = ["I", "H", "E"]
+    factor_count = 0
+    for row in range(start_row, sheet.nrows):
+        if xls.cell_f64(sheet, row, data_col) == 0.0:
+            continue
+
+        if compartment_col > -1:
+            compartment = xls.cell_str(sheet, row, compartment_col)
+        if unit_col > -1:
+            flow_unit = xls.cell_str(sheet, row, unit_col)
+            if "/" in flow_unit:
+                flow_unit = flow_unit.split("/")[1].strip()
+        cas = ""
+        if cas_col > -1:
+            cas = xls.cell_str(sheet, row, cas_col)
+
+        if with_perspectives:
+            for i in range(0, 3):
+                val = xls.cell_f64(sheet, row, data_col + i)
+                if val == 0.0:
+                    continue
+                df.record(records,
+                          method="ReCiPe 2016 - Midpoint/" + perspectives[i],
+                          indicator=sheet.name,
+                          indicator_unit=indicator_unit,
+                          flow=xls.cell_str(sheet, row, flow_col),
+                          flow_category=compartment,
+                          flow_unit=flow_unit,
+                          cas_number=cas,
+                          factor=val)
+                factor_count += 1
+        else:
+            val = xls.cell_f64(sheet, row, data_col)
+            if val == 0.0:
+                continue
+            for p in perspectives:
+                df.record(records,
+                          method="ReCiPe 2016 - Midpoint/" + p,
+                          indicator=sheet.name,
+                          indicator_unit=indicator_unit,
+                          flow=xls.cell_str(sheet, row, flow_col),
+                          flow_category=compartment,
+                          flow_unit=flow_unit,
+                          cas_number=cas,
+                          factor=val)
+                factor_count += 1
+    log.debug("extracted %i factors", factor_count)
 
 
 def _find_data_start(sheet: xlrd.book.sheet) -> (int, int, bool):
@@ -150,6 +199,31 @@ def _determine_units(sheet: xlrd.book.sheet) -> (str, str, int):
         flow_unit = "kg"
 
     return indicator_unit, flow_unit, unit_col
+
+
+def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
+    compartment_col = -1
+    for row, col in xls.iter_cells(sheet):
+        if row > 5:
+            break
+        s = xls.cell_str(sheet, row, col)
+        if _containstr(s, "compartment"):
+            compartment_col = col
+            break
+
+    if compartment_col > -1:
+        log.debug("found compartment column %i", compartment_col)
+        return "", compartment_col
+
+    if _containstr(sheet.name, "global", "warming") \
+            or _containstr(sheet.name, "ozone") \
+            or _containstr(sheet.name, "particulate") \
+            or _containstr(sheet.name, "acidification"):
+        log.warning("no compartment column; assuming 'emission/air'")
+        return "emission/air", -1
+
+    log.warning("no compartment column")
+    return "", -1
 
 
 def _read_gwp_sheet(sheet: xlrd.book.sheet, records: list):
