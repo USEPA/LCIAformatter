@@ -1,4 +1,7 @@
-def cell_str(sheet, row: int, col: int) -> str:
+import xlrd
+
+
+def cell_str(sheet: xlrd.book.sheet, row: int, col: int) -> str:
     cell = sheet.cell(row, col)
     if cell is None:
         return ""
@@ -7,7 +10,7 @@ def cell_str(sheet, row: int, col: int) -> str:
     return str(cell.value).strip()
 
 
-def cell_f64(sheet, row: int, col: int) -> float:
+def cell_f64(sheet: xlrd.book.sheet, row: int, col: int) -> float:
     cell = sheet.cell(row, col)
     if cell is None:
         return 0.0
@@ -19,17 +22,23 @@ def cell_f64(sheet, row: int, col: int) -> float:
         return 0.0
 
 
-def cell_val(sheet, row: int, col: int):
+def cell_val(sheet: xlrd.book.sheet, row: int, col: int):
     cell = sheet.cell(row, col)
     if cell is None:
         return None
     return cell.value
 
 
-def cell_empty(sheet, row: int, col: int) -> bool:
+def cell_empty(sheet: xlrd.book.sheet, row: int, col: int) -> bool:
     v = cell_val(sheet, row, col)
     if v is None:
         return True
     if isinstance(v, str):
         return v.strip() == ""
     return False
+
+
+def iter_cells(sheet: xlrd.book.sheet):
+    for row in range(0, sheet.nrows):
+        for col in range(0, sheet.ncols):
+            yield row, col
