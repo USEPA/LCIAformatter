@@ -29,3 +29,20 @@ def is_empty_str(s: str) -> bool:
         return s.strip() == ''
     else:
         return False
+
+
+def format_cas(cas) -> str:
+    """ In LCIA method sheets CAS numbers are often saved as numbers. This
+        function formats such numbers to strings that matches the general
+        format of a CAS numner. It also handles other cases like None values
+        etc."""
+    if cas is None:
+        return ""
+    if cas == "x" or cas == "-":
+        return ""
+    if isinstance(cas, (int, float)):
+        cas = str(int(cas))
+        if len(cas) > 4:
+            cas = cas[:-3] + "-" + cas[-3:-1] + "-" + cas[-1]
+        return cas
+    return str(cas)

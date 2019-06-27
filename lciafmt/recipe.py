@@ -5,6 +5,7 @@ import xlrd
 
 import lciafmt.cache as cache
 import lciafmt.df as df
+import lciafmt.util as util
 import lciafmt.xls as xls
 
 
@@ -63,7 +64,7 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
                 flow_unit = flow_unit.split("/")[1].strip()
         cas = ""
         if cas_col > -1:
-            cas = xls.cell_str(sheet, row, cas_col)
+            util.format_cas(xls.cell_str(sheet, row, cas_col))
 
         if with_perspectives:
             for i in range(0, 3):

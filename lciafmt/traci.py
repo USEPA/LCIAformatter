@@ -5,6 +5,7 @@ import xlrd
 
 import lciafmt.cache as cache
 import lciafmt.df as df
+import lciafmt.util as util
 import lciafmt.xls as xls
 
 
@@ -42,17 +43,7 @@ def _read(xls_file: str) -> pandas.DataFrame:
         flow = xls.cell_str(sheet, row, 2)
         if flow == "":
             break
-
-        # in traci, CAS numbers are saved as
-        # formatted numbers
-        cas = xls.cell_val(sheet, row, 1)
-        if cas == "x" or cas is None:
-            cas = ""
-        if isinstance(cas, (int, float)):
-            cas = str(int(cas))
-            if len(cas) > 4:
-                cas = cas[:-3] + "-" + cas[-3:-1] + "-" + cas[-1]
-
+        cas = util.format_cas(xls.cell_val(sheet, row, 1))
         for col in range(3, sheet.ncols):
             cat_info = categories.get(col)
             if cat_info is None:
