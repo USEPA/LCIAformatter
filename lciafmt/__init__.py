@@ -53,3 +53,9 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
     mapper = fmap.Mapper(df, system=system, mapping=mapping,
                          preserve_unmapped=preserve_unmapped)
     return mapper.run()
+
+
+def supported_mapping_systems() -> list:
+    """Returns the mapping systems that are supported in the `map_flows`
+       function."""
+    return fmap.supported_mapping_systems()

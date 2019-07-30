@@ -1,7 +1,7 @@
 # LCIA formatter
 The LCIA formatter is a Python 3 package for creating LCIA methods from their
-original LCIA sources by converting them into [pandas](https://pandas.pydata.org/)
-data frames with the following columns:
+original sources by converting them into a [pandas](https://pandas.pydata.org/)
+data frame with the following columns:
 
 ```
 Index  Field                                              Type
@@ -21,10 +21,10 @@ Index  Field                                              Type
 12     Characterization factor                            float
 ```
 
-On these data frames, flow mappings defined in the
+On such a data frame, flow mappings as defined in the
 [Fed.LCA.Commons](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)
 can be applied and the result can be exported to all formats supported by the
-`pandas` package (Excel, CSV) or the
+`pandas` package (e.g. Excel, CSV) or the
 [openLCA JSON-LD format](https://github.com/GreenDelta/olca-schema).
 
 
@@ -41,12 +41,11 @@ $ cd lcia_formatter
 $ python -m venv env
 $ .\env\Scripts\activate.bat
 
+# install the `master` branch from the Fed.LCA Flow-List repository
+pip install git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@master
+
 # install the requirements
 $ pip install -r requirements.txt
-
-# install the `master` master from the
-# Fed.LCA Flow-List list repository
-pip install git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@master
 
 # install the project
 $ pip install -e .
@@ -56,31 +55,47 @@ $ python
 ```
 
 ### Loading method data
-A data frame with the data of a method can be loaded with the respective
-`get_[method name]` function
+A data frame with the data of a method can be loaded with the
+`get_method(<method ID>)` function
 
 ```python
 import lciafmt
-traci = lciafmt.get_traci()
+
+traci = lciafmt.get_method(lciafmt.Method.TRACI)
 ```
 
 This will download and cache the raw method data in a temporary folder
 (`~/temp/lciafmt`). Before downloading method data, `lciafmt` will first
 check if the method data are available in this cache folder. Alternatively,
-a file path or web URL can be passed as arguments to the `get_*` methods
+a file path or web URL can be passed as arguments to the `get_method` function
 to load the data from other locations:
 
 ```python
-traci = lciafmt.get_traci(file="path/to/traci_2.1.xlsx")
-traci = lciafmt.get_traci(url="http://.../path/to/traci_2.1.xlsx")
+import lciafmt
+
+traci = lciafmt.get_method(lciafmt.Method.TRACI,
+                           file="path/to/traci_2.1.xlsx")
+traci = lciafmt.get_method(lciafmt.Method.TRACI,
+                           url="http://.../path/to/traci_2.1.xlsx")
 ```
 
 Also, it is possible to clear the cache to ensure that the newest version is
 downloaded from the internet:
 
 ```python
+import lciafmt
+
 lciafmt.clear_cache()
-traci = lciafmt.get_traci()
+traci = lciafmt.get_method(lciafmt.Method.TRACI)
+```
+
+The function `supported_methods` returns a list of meta data objects that each
+contain the information of LCIA methods that are currently supported:
+
+```python
+import lciafmt
+
+lciafmt.supported_methods()
 ```
 
 
@@ -90,45 +105,71 @@ The flow mappings defined in the
 can be directly applied on a data frame with method data:
 
 ```python
+import lciafmt
+
+traci = lciafmt.get_method(lciafmt.Method.TRACI)
 traci_mapped = lciafmt.map_flows(traci)
 ```
 
 This will apply the mapping to the default Fed.LCA.Commons flow list and produce
 a new data frame with mapped flows. A specific source system can be selected via
-the respective parameter:
+the `system` parameter:
 
 ```python
+import lciafmt
+
+traci = lciafmt.get_method(lciafmt.Method.TRACI)
 traci_mapped = lciafmt.map_flows(traci, system="TRACI2.1")
 ```
 
-Also, it is possible to directly pass a data frame that sepecifies a mapping
-in the Fed.LCA.Commons format into the function:
+The available systems can be retrieved via the `supported_mapping_systems()`
+function:
 
 ```python
-traci_mapped = lciafmt.map_flows(traci, mapping=a_data_frame)
+import lciafmt
+
+lciafmt.supported_mapping_systems()
 ```
 
+Additionally, the `map_flows` function accepts the following optional parameters:
+
+* `mapping`: a data frame in the
+  [Fed.LCA.Commons flow list mapping format](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List/blob/master/format%20specs/FlowMapping.md)
+  that contains the mapping that should be applied
+* `preserve_unmapped`: a Boolean value that indicates whether the unmapped flows
+  should be preserved in the resulting data frame.
+
+
 ### Data export
-The converted method data are stored in a standard
+The method data are stored in a standard
 [pandas data frame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html)
 so that the standard export functions of pandas can be directly used:
 
 ```python
-traci.to_csv("out/traci_2.1.csv", index=False)
+import lciafmt
+
+traci = lciafmt.get_method(lciafmt.Method.TRACI)
+traci.to_csv("output/traci_2.1.csv", index=False)
 ```
 
 Additionally, a method can be stored as JSON-LD package that can be imported
 into an openLCA database:
 
 ```python
-lciafmt.to_jsonld(traci, "out/traci_2.1_jsonld.zip")
+import lciafmt
+
+traci = lciafmt.get_method(lciafmt.Method.TRACI)
+lciafmt.to_jsonld(traci, "output/traci_2.1_jsonld.zip")
 ```
 
 When also elementary flows should be written to the JSON-LD package the
 `write_flows` flag can be passed to the export call:
 
 ```python
-lciafmt.to_jsonld(traci, "out/traci_2.1_jsonld.zip", write_flows=True)
+import lciafmt
+
+traci = lciafmt.get_method(lciafmt.Method.TRACI)
+lciafmt.to_jsonld(traci, "output/traci_2.1_jsonld.zip", write_flows=True)
 ```
 
 **Note** that unit groups and flow properties are currently not added to the

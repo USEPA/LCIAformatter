@@ -8,6 +8,14 @@ import lciafmt.df as dfutil
 from .util import make_uuid
 
 
+def supported_mapping_systems() -> list:
+    fmap = flowlist.get_flowmapping()  # type: pandas.DataFrame
+    systems = set()
+    for i in range(0, len(fmap.index)):
+        systems.add(fmap.iat[i, 0])
+    return list(systems)
+
+
 def norm_category(category_path: str) -> str:
     if category_path is None:
         return ""

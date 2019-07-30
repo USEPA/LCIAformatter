@@ -1,5 +1,6 @@
 import unittest
 
+import lciafmt.fmap as fmap
 from lciafmt.fmap import norm_category as norm
 
 
@@ -24,6 +25,10 @@ class NormCategoryTest(unittest.TestCase):
         self.assertEqual(
             norm("Emission to air / high population density, long-term"),
             "air/urban, long-term")
+
+    def test_get_systems(self):
+        systems = fmap.supported_mapping_systems()
+        self.assertTrue(len(systems) > 0)
 
 
 if __name__ == "__main__":

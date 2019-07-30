@@ -1,5 +1,5 @@
-fedelemflowlist==0.1
+fedelemflowlist>=0.3
 olca-ipc>=0.0.8
-pandas==0.24.2
-requests==2.21.0
-xlrd==1.2.0
+pandas>=0.24.2
+requests>=2.21.0
+xlrd>=1.2.0
