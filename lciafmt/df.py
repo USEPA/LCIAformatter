@@ -8,14 +8,14 @@ def data_frame(records: list) -> pandas.DataFrame:
             "Indicator",
             "Indicator UUID",
             "Indicator unit",
-            "Flow",
+            "Flowable",
             "Flow UUID",
-            "Flow category",
-            "Flow unit",
-            "CAS",
+            "Context",
+            "Unit",
+            "CAS No",
             "Location",
             "Location UUID",
-            "Factor"]
+            "Characterization Factor"]
     return pandas.DataFrame(records, columns=cols)
 
 
