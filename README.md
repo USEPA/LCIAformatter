@@ -1,32 +1,13 @@
 # LCIA formatter
 The LCIA formatter is a Python 3 package for creating LCIA methods from their
 original sources by converting them into a [pandas](https://pandas.pydata.org/)
-data frame with the following columns:
+data frame in the [LCIAmethod format](./format%20specs/LCIAmethod.md).
 
-```
-Index  Field                                              Type
-----------------------------------------------------------------------
-0      Method (e.g. 'Traci 2.1')                          str
-1      Method UUID                                        str
-2      Indicator, e.g. 'Acidification Potential'          str
-3      Indicator UUID                                     str
-4      Indicator unit, e.g. `kg SO2 eq.`                  str
-5      Flow, e.g. `Sulfur dioxide`                        str
-6      Flow UUID                                          str
-7      Flow category (context), e.g. `air/unspecified`    str
-8      Flow unit, e.g. `kg`                               str
-9      CAS number of the flow                             str
-10     Location                                           str
-11     Location UUID                                      str
-12     Characterization factor                            float
-```
-
-On such a data frame, flow mappings as defined in the
+Flow mappings as defined in the
 [Fed.LCA.Commons](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)
 can be applied and the result can be exported to all formats supported by the
 `pandas` package (e.g. Excel, CSV) or the
 [openLCA JSON-LD format](https://github.com/GreenDelta/olca-schema).
-
 
 ## Usage
 
