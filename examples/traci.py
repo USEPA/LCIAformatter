@@ -2,7 +2,7 @@ import logging as log
 import os
 
 import lciafmt
-
+import pandas as pd
 
 def main():
     modulepath = os.path.dirname(
@@ -12,7 +12,17 @@ def main():
 
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(lciafmt.Method.TRACI)
-
+    
+    """ due to substances listed more than once with different names
+    this replaces all instances of the Original Flowable with a New Flowable
+    based on a csv input file, otherwise zero values for CFs will override
+    when there are duplicate names"""
+    flowables_replace = pd.read_csv(modulepath+'/TRACI_2.1_replacement.csv')
+    for index, row in flowables_replace.iterrows():
+        orig = row['Original Flowable']
+        new = row['New Flowable']
+        data['Flowable']=data['Flowable'].replace(orig, new)    
+    
     # map the flows to the Fed.LCA commons flows
     # set preserve_unmapped=True if you want to keep unmapped
     # flows in the resulting data frame
