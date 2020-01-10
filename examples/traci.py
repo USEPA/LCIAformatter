@@ -21,7 +21,16 @@ def main():
     for index, row in flowables_replace.iterrows():
         orig = row['Original Flowable']
         new = row['New Flowable']
-        data['Flowable']=data['Flowable'].replace(orig, new)    
+        data['Flowable']=data['Flowable'].replace(orig, new) 
+        
+    """ due to substances listed more than once with the same name but different CAS
+    this replaces all instances of the Original Flowable with a New Flowable
+    based on a csv input file according to the CAS"""
+    flowables_split = pd.read_csv(modulepath+'/TRACI_2.1_split.csv')
+    for index, row in flowables_split.iterrows():
+        CAS = row['CAS']
+        new = row['New Flowable']
+        data.loc[data['CAS No'] == CAS, 'Flowable'] = new
     
     # map the flows to the Fed.LCA commons flows
     # set preserve_unmapped=True if you want to keep unmapped
