@@ -1,5 +1,6 @@
 import uuid
-
+import pandas as pd
+import numpy as np
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -46,3 +47,42 @@ def format_cas(cas) -> str:
             cas = cas[:-3] + "-" + cas[-3:-1] + "-" + cas[-1]
         return cas
     return str(cas)
+
+
+def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
+    """
+    When factors don't exist for flow categories with only a primary context, like "air", but do
+    exist for 1 or more categories where secondary contexts are present, like "air/urban", then this
+    function creates factors for that primary context as an average of the factors from flows
+    with the same secondary context. NOTE this will overwrite factors if they already exist
+    :param df: a pandas dataframe for an LCIA method
+    :return: a pandas dataframe for an LCIA method
+    """
+    indices = df['Context'].str.find('/')
+    primary_context = []
+    i = 0
+    for c in df['Context']:
+        if indices[i] > 0:
+            sub = c[0:indices[i]]
+        else:
+            sub = None
+        i = i + 1
+        primary_context.append(sub)
+
+    df['Primary Context'] = primary_context
+    #Subset the df to only include the rows were a primary context was added
+    df_secondary_context_only = df[df['Primary Context'].notnull()]
+
+    #drop primary context field
+    df = df.drop(columns=['Primary Context'])
+
+    #Determine fields to aggregate over. Do not use flow UUID or old context
+    agg_fields = list(set(df.columns) - {'Context', 'Flow UUID', 'Characterization Factor'})
+
+    df_secondary_agg = df_secondary_context_only.groupby(agg_fields, as_index=False).agg(
+        {'Characterization Factor': np.average})
+    df_secondary_agg = df_secondary_agg.rename(columns={"Primary Context": "Context"})
+
+    df = pd.concat([df, df_secondary_agg], ignore_index=True, sort=False)
+    return df
+
