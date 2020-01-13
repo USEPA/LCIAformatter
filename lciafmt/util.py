@@ -73,11 +73,11 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     #Subset the df to only include the rows were a primary context was added
     df_secondary_context_only = df[df['Primary Context'].notnull()]
 
-    #drop primary context field
-    df = df.drop(columns=['Primary Context'])
-
     #Determine fields to aggregate over. Do not use flow UUID or old context
     agg_fields = list(set(df.columns) - {'Context', 'Flow UUID', 'Characterization Factor'})
+
+    #drop primary context field from df
+    df = df.drop(columns=['Primary Context'])
 
     df_secondary_agg = df_secondary_context_only.groupby(agg_fields, as_index=False).agg(
         {'Characterization Factor': np.average})
