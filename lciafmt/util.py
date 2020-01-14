@@ -63,7 +63,7 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     i = 0
     for c in df['Context']:
         if indices[i] > 0:
-            sub = c[0:indices[i]]
+            sub = c[0:indices[i]]+"/unspecified"
         else:
             sub = None
         i = i + 1
