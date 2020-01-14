@@ -9,7 +9,7 @@ import lciafmt.util as util
 import lciafmt.xls as xls
 
 
-def get(file=None, url=None) -> pandas.DataFrame:
+def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
     log.info("get method Traci 2.1")
     f = file
     if f is None:
@@ -18,7 +18,11 @@ def get(file=None, url=None) -> pandas.DataFrame:
             url = ("https://www.epa.gov/sites/production/files/2015-12/" +
                    "traci_2_1_2014_dec_10_0.xlsx")
         f = cache.get_or_download(fname, url)
-    return _read(f)
+    df = _read(f)
+    if add_factors_for_missing_contexts:
+        log.info("Adding average factors for primary contexts")
+        df = util.aggregate_factors_for_primary_contexts(df)
+    return df
 
 
 def _read(xls_file: str) -> pandas.DataFrame:
@@ -53,7 +57,7 @@ def _read(xls_file: str) -> pandas.DataFrame:
                 continue
             df.record(
                 records,
-                method="Traci 2.1",
+                method="TRACI 2.1",
                 indicator=cat_info[0],
                 indicator_unit=cat_info[1],
                 flow=flow,
