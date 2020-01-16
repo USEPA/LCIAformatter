@@ -25,7 +25,7 @@ def norm_category(category_path: str) -> str:
     for part in parts:
 
         # ignore words with no relevance
-        if part in ("elementary flows", "unspecified"):
+        if part in ("elementary flows"):
             continue
 
         term = part
