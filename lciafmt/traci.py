@@ -2,12 +2,16 @@ import logging as log
 
 import pandas
 import xlrd
+import os
 
 import lciafmt.cache as cache
 import lciafmt.df as df
 import lciafmt.util as util
 import lciafmt.xls as xls
 
+datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data'
+flowables_replace = pandas.read_csv(datapath+'/TRACI_2.1_replacement.csv')
+flowables_split = pandas.read_csv(datapath+'/TRACI_2.1_split.csv')
 
 def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
     log.info("get method Traci 2.1")
@@ -22,6 +26,24 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
     if add_factors_for_missing_contexts:
         log.info("Adding average factors for primary contexts")
         df = util.aggregate_factors_for_primary_contexts(df)
+    
+    
+    """ due to substances listed more than once with different names
+    this replaces all instances of the Original Flowable with a New Flowable
+    based on a csv input file, otherwise zero values for CFs will override
+    when there are duplicate names"""
+    for index, row in flowables_replace.iterrows():
+        orig = row['Original Flowable']
+        new = row['New Flowable']
+        df['Flowable']=df['Flowable'].replace(orig, new) 
+        
+    """ due to substances listed more than once with the same name but different CAS
+    this replaces all instances of the Original Flowable with a New Flowable
+    based on a csv input file according to the CAS"""
+    for index, row in flowables_split.iterrows():
+        CAS = row['CAS']
+        new = row['New Flowable']
+        df.loc[df['CAS No'] == CAS, 'Flowable'] = new
     return df
 
 
