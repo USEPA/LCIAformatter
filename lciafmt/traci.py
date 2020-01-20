@@ -27,7 +27,7 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
         log.info("Adding average factors for primary contexts")
         df = util.aggregate_factors_for_primary_contexts(df)
     
-    
+    log.info("Handling manual replacements")
     """ due to substances listed more than once with different names
     this replaces all instances of the Original Flowable with a New Flowable
     based on a csv input file, otherwise zero values for CFs will override
@@ -44,6 +44,12 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
         CAS = row['CAS']
         new = row['New Flowable']
         df.loc[df['CAS No'] == CAS, 'Flowable'] = new
+    
+    length=len(df)
+    df.drop_duplicates(keep='first',inplace=True)
+    length=length-len(df)
+    log.info("%s duplicate entries removed", length)
+    
     return df
 
 
