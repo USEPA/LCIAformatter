@@ -4,8 +4,8 @@ setup(
     name="lciafmt",
     version="0.1.1",
     packages=["lciafmt"],
-    install_requires=["fedelemflowlist","olca-ipc", "pandas", "xlrd"],
-    dependency_links=["https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List/tarball/master#egg=fedelemflowlist"],
+    install_requires=["fedelemflowlist @ git+git@github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.1#egg=fedelemflowlist",
+                      "olca-ipc", "pandas", "xlrd"],
     license="CC0",
     classifiers=[
         "Development Status :: Alpha",
