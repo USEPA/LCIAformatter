@@ -4,7 +4,7 @@ setup(
     name="lciafmt",
     version="0.1.1",
     packages=["lciafmt"],
-    install_requires=["olca-ipc", "pandas", "xlrd"],
+    install_requires=["fedelemflowlist","olca-ipc", "pandas", "xlrd"],
     license="CC0",
     classifiers=[
         "Development Status :: Alpha",
