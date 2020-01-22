@@ -5,10 +5,7 @@ setup(
     version="0.1.1",
     packages=["lciafmt"],
     install_requires=["fedelemflowlist","olca-ipc", "pandas", "xlrd"],
-    dependency_links=["git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@v1.0.1#egg=fedelemflowlist",
-                      "https://pypi.python.org/simple/",
-                      "https://pypi.python.org/simple/",
-                      "https://pypi.python.org/simple/"],
+    dependency_links=["https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List/archive/v1.0.1.tar.gz"],
     license="CC0",
     classifiers=[
         "Development Status :: Alpha",
