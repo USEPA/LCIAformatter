@@ -1,6 +1,9 @@
 import uuid
 import pandas as pd
 import numpy as np
+import os
+
+datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data'
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
