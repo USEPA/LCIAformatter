@@ -204,7 +204,8 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
         if row > 5:
             break
         s = xls.cell_str(sheet, row, col)
-        if _containstr(s, "compartment"):
+        if _containstr(s, "compartment") \
+            or _containstr(s, "name", "in", "ecoinvent"):
             compartment_col = col
             break
 
@@ -212,12 +213,21 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
         log.debug("found compartment column %i", compartment_col)
         return "", compartment_col
 
-    if _containstr(sheet.name, "global", "warming") \
+    elif _containstr(sheet.name, "global", "warming") \
             or _containstr(sheet.name, "ozone") \
             or _containstr(sheet.name, "particulate") \
             or _containstr(sheet.name, "acidification"):
         log.warning("no compartment column; assuming 'emission/air'")
         return "emission/air", -1
+   
+    elif _containstr(sheet.name, "mineral", "resource", "scarcity") \
+            or _containstr(sheet.name, "fossil", "resource", "scarcity"):
+        log.warning("no compartment column; assuming 'resource/ground'")
+        return "resource/ground", -1
+ 
+    if _containstr(sheet.name, "water", "consumption"):
+        log.warning("no compartment column; assuming 'resource/fresh water'")
+        return "resource/fresh water", -1
 
     log.warning("no compartment column")
     return "", -1
