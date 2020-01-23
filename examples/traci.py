@@ -3,7 +3,7 @@ import os
 
 import lciafmt
 
-mod = 'NETL'
+mod = None
 
 def main():
     modulepath = os.path.dirname(
@@ -19,7 +19,7 @@ def main():
         modified_cfs=lciafmt.get_modification(mod,"TRACI2.1")
         data = data.merge(modified_cfs,how='left',on=['Flowable','Context','Indicator'])
         data.loc[data['Updated CF'].notnull(),'Characterization Factor']=data['Updated CF']
-        data = data.drop(columns=['Updated CF'])
+        data = data.drop(columns=['Updated CF','Note'])
         data['Method']="TRACI 2.1 (NETL mod)"
     
     # map the flows to the Fed.LCA commons flows
