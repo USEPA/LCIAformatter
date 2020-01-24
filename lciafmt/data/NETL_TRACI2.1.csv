@@ -1,6 +1,6 @@
 ﻿Flowable,Context,Indicator,Updated CF,Note
 METHANE,air,Global warming,35.0,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
-1,1,1-TRICHLOROETHANE,air,Global warming,193,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+"1,1,1-TRICHLOROETHANE",air,Global warming,193,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
 CFC-11,air,Global warming,5350,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
 CFC-12,air,Global warming,11547,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
 CFC-13,air,Global warming,15451,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
