@@ -1,3 +1,37 @@
 ﻿Flowable,Context,Indicator,Updated CF,Note
-METHANE,air,Global warming,35.0,Modified to use IPCC AR5 100-yr factor
+METHANE,air,Global warming,35.0,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+1,1,1-TRICHLOROETHANE,air,Global warming,193,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CFC-11,air,Global warming,5350,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CFC-12,air,Global warming,11547,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CFC-13,air,Global warming,15451,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CFC-113,air,Global warming,6586,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CFC-114,air,Global warming,9615,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CFC-115,air,Global warming,8516,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CARBON TETRACHLORIDE,air,Global warming,2019,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CARBON TETRAFLUORIDE,air,Global warming,7350,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+CHLOROFORM,air,Global warming,20,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+METHYL CHLORIDE,air,Global warming,15,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+METHANE, DIBROMO-,air,Global warming,1,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HCFC-21,air,Global warming,179,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HCFC-22,air,Global warming,2106,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HCFC-123,air,Global warming,96,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HCFC-124,air,Global warming,635,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HCFC-141b,air,Global warming,938,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HCFC-142b,air,Global warming,2345,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HFC-23,air,Global warming,13856,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HFC-32,air,Global warming,817,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HFC-125,air,Global warming,3691,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HFC-134a,air,Global warming,1549,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HFC-143a,air,Global warming,5508,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HFC-236fa,air,Global warming,8998,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HALON 1211,air,Global warming,2070,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+HALON 1301,air,Global warming,7154,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+PFC-116,air,Global warming,12340,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+METHYL BROMIDE,air,Global warming,3,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+METHYLENECHLORIDE,air,Global warming,11,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+NITROGEN TRIFLUORIDE,air,Global warming,17885,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+NITROUS OXIDE,air,Global warming,298,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+PERFLUOROCYCLOBUTANE,air,Global warming,10592,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+PFC-218,air,Global warming,9878,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
+SULFUR HEXAFLUORIDE,air,Global warming,26087,Modified to use IPCC AR5 100-yr factor w/ climate carbon feedback
 PM10,air,Human health - particulate matter,1.0,Modified to account for emissions stack height
