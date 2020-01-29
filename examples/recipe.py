@@ -18,7 +18,8 @@ def main():
     mapped_data = lciafmt.map_flows(data, system="ReCiPe2016")
 
     # write the result to JSON-LD and CSV
-    mapped_data.to_csv(outputpath+"recipe_2016.csv", index=False)
+    for method in mapped_data['Method'].unique():
+        mapped_data[mapped_data['Method']==method].to_csv(outputpath+method.replace('/','_')+".csv", index=False)
     json_pack = outputpath+"recipe_2016_json.zip"
     if os.path.exists(json_pack):
         os.remove(json_pack)
