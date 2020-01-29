@@ -25,9 +25,9 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pandas.DataFrame, write_flows=False):
+    def write(self, df: pandas.DataFrame, description, write_flows=False):
         for _, row in df.iterrows():
-            indicator = self.__indicator(row)
+            indicator = self.__indicator(row, description)
             factor = olca.ImpactFactor()
             flow = self.__flow(row)
             unit = row[8]
@@ -49,7 +49,7 @@ class Writer(object):
             for v in d.values():
                 self.__writer.write(v)
 
-    def __indicator(self, row) -> olca.ImpactCategory:
+    def __indicator(self, row, description) -> olca.ImpactCategory:
         uid = row[3]
         if not is_non_empty_str(uid):
             uid = make_uuid(row[0], row[2])
@@ -65,7 +65,7 @@ class Writer(object):
         ind.impact_factors = []
         self.__indicators[uid] = ind
 
-        method = self.__method(row)
+        method = self.__method(row, description)
         ref = olca.ImpactCategoryRef()
         ref.id = uid
         ref.name = ind.name
@@ -73,7 +73,7 @@ class Writer(object):
         method.impact_categories.append(ref)
         return ind
 
-    def __method(self, row) -> olca.ImpactMethod:
+    def __method(self, row, description) -> olca.ImpactMethod:
         uid = row[1]
         if not is_non_empty_str(uid):
             uid = make_uuid(row[0])
@@ -86,6 +86,7 @@ class Writer(object):
         m.id = uid
         m.name = row[0]
         m.impact_categories = []
+        m.description= description
         self.__methods[uid] = m
         return m
 

@@ -40,10 +40,10 @@ def clear_cache():
     cache.clear()
 
 
-def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
+def to_jsonld(df: pd.DataFrame, zip_file: str, description: str="", write_flows=False):
     log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
-        w.write(df, write_flows)
+        w.write(df, description, write_flows)
 
 
 def map_flows(df: pd.DataFrame, system=None, mapping=None,
