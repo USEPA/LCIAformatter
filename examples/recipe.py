@@ -11,11 +11,14 @@ def main():
 
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(lciafmt.Method.RECIPE_2016)
-
+    
+    # make flowables case insensitive to handle lack of consistent structure in source file
+    data['Flowable'] = data['Flowable'].str.lower()
+    
     # map the flows to the Fed.LCA commons flows
     # set preserve_unmapped=True if you want to keep unmapped
     # flows in the resulting data frame
-    mapped_data = lciafmt.map_flows(data, system="ReCiPe2016")
+    mapped_data = lciafmt.map_flows(data, system="ReCiPe2016", case_insensitive=True)
 
     # write the result to JSON-LD and CSV
     for method in mapped_data['Method'].unique():
