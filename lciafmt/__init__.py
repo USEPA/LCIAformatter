@@ -47,11 +47,12 @@ def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
 
 
 def map_flows(df: pd.DataFrame, system=None, mapping=None,
-              preserve_unmapped=False) -> pd.DataFrame:
+              preserve_unmapped=False, case_insensitive=False) -> pd.DataFrame:
     """Maps the flows in the given data frame using the given target system. It
        returns a new data frame with the mapped flows."""
     mapper = fmap.Mapper(df, system=system, mapping=mapping,
-                         preserve_unmapped=preserve_unmapped)
+                         preserve_unmapped=preserve_unmapped,
+                         case_insensitive=case_insensitive)
     return mapper.run()
 
 

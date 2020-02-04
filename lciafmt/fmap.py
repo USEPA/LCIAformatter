@@ -99,12 +99,15 @@ class _FlowInfo(object):
 class Mapper(object):
 
     def __init__(self, df: pandas.DataFrame, system=None,
-                 mapping=None, preserve_unmapped=False):
+                 mapping=None, preserve_unmapped=False, case_insensitive=False):
         self.__df = df
         self.__system = system
+        self.__case_insensitive = case_insensitive
         if mapping is None:
             log.info("load flow mapping v=%s from fed.elem.flows")
             mapping = flowlist.get_flowmapping(source=system)
+            if self.__case_insensitive:
+                mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
         self.__mapping = mapping  # type: pandas.DataFrame
         self.__preserve_unmapped = preserve_unmapped
 
