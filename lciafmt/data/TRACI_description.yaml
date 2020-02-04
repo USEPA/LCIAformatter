@@ -7,10 +7,10 @@ description:
     
     TRACI 2.1 flowable and context input files are maintained in the FEDEFL GitHub Repository: 
     https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List 
+    
         
     The LCIA Formatter (https://github.com/USEPA/LCIAformatter) applies TRACI 2.1 
     characterization factors to flows using the mapping housed in the FEDEFL. 
-
     The flowable and context input files for TRACI 2.1 are used by the LCIA Formatter 
     to translate the names from the TRACI 2.1 source file and generate a mapping 
     file for the FEDEFL. This file contains all of the accepted flowable and context 
@@ -18,16 +18,19 @@ description:
     includes target UUID, units, and conversion factors as well as tracking
     who mapped and verified each record and when they were last updated.
 
+
     Additional flowable mappings were included for general metals (e.g. Copper, Zinc, 
     and Selenium) in the FEDEFL to the most common ions where available in TRACI 2.1 
     (e.g. COPPER(II), ZINC(II), and SELENIUM(IV)). This ensures the application 
     of TRACI 2.1 characterization factors when the general name of the metal is 
     reported, as is the case in EPA datasets such as NEI and TRI. 
+
     
     Duplicate names for flowables exist in TRACI 2.1 which have different 
     characterization factors and different CAS. These occur due to duplicate 
     entries in the source files for USEtox. In these cases, the entries with 
     the currently recognized CAS are accepted and the other flowables are ignored.
+
     
     FEDEFL contexts are mapped to TRACI 2.1 to enable impact assessment across most 
     of the possible contexts available within FEDEFL. Mappings that occur in the 
@@ -36,5 +39,6 @@ description:
     contexts (e.g. rural/urban), the LCIA Formatter applies the average of the 
     relevant characterization factors from TRACI 2.1.
 
+
     Normalization and weighting factors are not provided in the TRACI 2.1 source 
-    file and are not added here.
+    file and are not added here.'
