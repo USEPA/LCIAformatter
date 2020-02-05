@@ -8,8 +8,25 @@ import lciafmt.df as df
 import lciafmt.util as util
 import lciafmt.xls as xls
 
+contexts = {
+        'urban air' : 'air/urban',
+        'urban  air' : 'air/urban',
+        'Urban air' : 'air/urban',
+        'Rural air' : 'air/rural',
+        'rural air' : 'air/rural',
+        'agricultural soil' : 'soil/agricultural',
+        'Agricultural soil' : 'soil/agricultural',
+        'industrial soil' : 'soil/industrial',
+        'Industrial soil' : 'soil/industrial',
+        'freshwater' : 'water/freshwater',
+        'Freshwater' : 'water/freshwater',
+        'fresh water' : 'water/freshwater',
+        'seawater' : 'water/sea water',
+        'sea water' : 'water/sea water',
+        'Sea water' : 'water/sea water',
+        'marine water' : 'water/sea water'}
 
-def get(file=None, url=None) -> pandas.DataFrame:
+def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
     log.info("get method ReCiPe 2016")
     f = file
     if f is None:
@@ -18,7 +35,11 @@ def get(file=None, url=None) -> pandas.DataFrame:
             url = ("http://www.rivm.nl/sites/default/files/2018-11/" +
                    "ReCiPe2016_CFs_v1.1_20180117.xlsx")
         f = cache.get_or_download(fname, url)
-    return _read(f)
+    df = _read(f)
+    if add_factors_for_missing_contexts:
+        log.info("Adding average factors for primary contexts")
+        df = util.aggregate_factors_for_primary_contexts(df)    
+    return df
 
 
 def _read(file: str) -> pandas.DataFrame:
@@ -50,6 +71,8 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
     indicator_unit, flow_unit, unit_col = _determine_units(sheet)
     compartment, compartment_col = _determine_compartments(sheet)
 
+
+
     perspectives = ["I", "H", "E"]
     factor_count = 0
     for row in range(start_row, sheet.nrows):
@@ -58,6 +81,8 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
 
         if compartment_col > -1:
             compartment = xls.cell_str(sheet, row, compartment_col)
+        if compartment in contexts:
+            compartment = contexts[compartment]
         if unit_col > -1:
             flow_unit = xls.cell_str(sheet, row, unit_col)
             if "/" in flow_unit:
@@ -217,8 +242,8 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
             or _containstr(sheet.name, "ozone") \
             or _containstr(sheet.name, "particulate") \
             or _containstr(sheet.name, "acidification"):
-        log.warning("no compartment column; assuming 'emission/air'")
-        return "emission/air", -1
+        log.warning("no compartment column; assuming 'air'")
+        return "air", -1
    
     elif _containstr(sheet.name, "mineral", "resource", "scarcity") \
             or _containstr(sheet.name, "fossil", "resource", "scarcity"):
