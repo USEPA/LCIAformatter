@@ -15,7 +15,7 @@ def main():
     with open(join(datapath, "TRACI_description.yaml")) as f:
         metadata=yaml.safe_load(f)
     method_description = metadata['description']
-    
+
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(lciafmt.Method.TRACI)
     
@@ -23,7 +23,6 @@ def main():
     # set preserve_unmapped=True if you want to keep unmapped
     # flows in the resulting data frame
     mapped_data = lciafmt.map_flows(data, system="TRACI2.1")
-    
 
     # write the result to JSON-LD and CSV
     mapped_data.to_csv(outputpath+"traci_2.1.csv", index=False)
@@ -31,7 +30,7 @@ def main():
     if os.path.exists(json_pack):
         os.remove(json_pack)
     lciafmt.to_jsonld(mapped_data, json_pack, method_description)
-    
+
 
 
 if __name__ == "__main__":
