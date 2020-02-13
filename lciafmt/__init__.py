@@ -33,7 +33,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, file=None, url=
     if method_id == Method.TRACI.value or method_id == Method.TRACI:
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
-        return recipe.get(file=file, url=url)
+        return recipe.get(add_factors_for_missing_contexts, file=file, url=url)
 
 
 def clear_cache():

@@ -12,6 +12,9 @@ def main():
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(lciafmt.Method.RECIPE_2016)
     
+    #export lcia to csv before mapping
+    data.to_csv(outputpath+'Recipe_source.csv', index=False)
+    
     # make flowables case insensitive to handle lack of consistent structure in source file
     data['Flowable'] = data['Flowable'].str.lower()
     
