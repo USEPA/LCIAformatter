@@ -242,10 +242,13 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
         log.warning("no compartment column; assuming 'air'")
         return "air", -1
    
-    elif _containstr(sheet.name, "mineral", "resource", "scarcity") \
-            or _containstr(sheet.name, "fossil", "resource", "scarcity"):
+    elif _containstr(sheet.name, "mineral", "resource", "scarcity"):
         log.warning("no compartment column; assuming 'resource/ground'")
         return "resource/ground", -1
+    
+    elif _containstr(sheet.name, "fossil", "resource", "scarcity"):
+        log.warning("no compartment column; assuming 'resource'")
+        return "resource", -1
  
     if _containstr(sheet.name, "water", "consumption"):
         log.warning("no compartment column; assuming 'resource/fresh water'")
