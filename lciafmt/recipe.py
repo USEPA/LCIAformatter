@@ -76,9 +76,6 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
     perspectives = ["I", "H", "E"]
     factor_count = 0
     for row in range(start_row, sheet.nrows):
-        if xls.cell_f64(sheet, row, data_col) == 0.0:
-            continue
-
         if compartment_col > -1:
             compartment = xls.cell_str(sheet, row, compartment_col)
         if compartment in contexts:
