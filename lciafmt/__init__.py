@@ -33,7 +33,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, file=None, url=
     if method_id == Method.TRACI.value or method_id == Method.TRACI:
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
-        return recipe.get(file=file, url=url)
+        return recipe.get(add_factors_for_missing_contexts, file=file, url=url)
 
 
 def clear_cache():
@@ -47,11 +47,12 @@ def to_jsonld(df: pd.DataFrame, zip_file: str, description: str="", write_flows=
 
 
 def map_flows(df: pd.DataFrame, system=None, mapping=None,
-              preserve_unmapped=False) -> pd.DataFrame:
+              preserve_unmapped=False, case_insensitive=False) -> pd.DataFrame:
     """Maps the flows in the given data frame using the given target system. It
        returns a new data frame with the mapped flows."""
     mapper = fmap.Mapper(df, system=system, mapping=mapping,
-                         preserve_unmapped=preserve_unmapped)
+                         preserve_unmapped=preserve_unmapped,
+                         case_insensitive=case_insensitive)
     return mapper.run()
 
 

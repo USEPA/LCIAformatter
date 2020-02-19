@@ -58,7 +58,18 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     :param df: a pandas dataframe for an LCIA method
     :return: a pandas dataframe for an LCIA method
     """
+    #Ignore the following impact categories for generating averages
+    ignored_categories = ['Land transformation', 'Land occupation',
+                          'Water consumption','Mineral resource scarcity',
+                          'Fossil resource scarcity']    
     indices = df['Context'].str.find('/')
+    ignored_list = df['Indicator'].isin(ignored_categories)
+    i = 0
+    for k in ignored_list.iteritems():
+        if k[1] == True:
+            indices.update(pd.Series([-1], index=[i]))
+        i = i + 1
+                 
     primary_context = []
     i = 0
     for c in df['Context']:

@@ -85,11 +85,11 @@ def _is_strv(val) -> bool:
 
 class _FlowInfo(object):
 
-    def __init__(self, uuid="", name="", category="", unit=""):
+    def __init__(self, uuid="", name="", category="", unit="", conversionfactor="1.0"):
         self.name = name
         self.category = category
         self.unit = "kg" if not _is_strv(unit) else unit
-
+        self.conversionfactor = str(conversionfactor)
         if not _is_strv(uuid):
             self.uuid = make_uuid(self.name, self.category, self.unit)
         else:
@@ -99,12 +99,15 @@ class _FlowInfo(object):
 class Mapper(object):
 
     def __init__(self, df: pandas.DataFrame, system=None,
-                 mapping=None, preserve_unmapped=False):
+                 mapping=None, preserve_unmapped=False, case_insensitive=False):
         self.__df = df
         self.__system = system
+        self.__case_insensitive = case_insensitive
         if mapping is None:
             log.info("load flow mapping v=%s from fed.elem.flows")
             mapping = flowlist.get_flowmapping(source=system)
+            if self.__case_insensitive:
+                mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
         self.__mapping = mapping  # type: pandas.DataFrame
         self.__preserve_unmapped = preserve_unmapped
 
@@ -137,6 +140,7 @@ class Mapper(object):
                 r[6] = target.uuid
                 r[7] = target.category
                 r[8] = target.unit
+                r[12] = r[12]/float(target.conversionfactor)
                 records.append(r)
                 mapped += 1
         log.info("created %i factors for mapped flows; " +
@@ -166,6 +170,7 @@ class Mapper(object):
                 name=row["TargetFlowName"],
                 category=row["TargetFlowContext"],
                 unit=row["TargetUnit"],
+                conversionfactor=row["ConversionFactor"]
             ))
 
         log.info("indexed %i mappings for %i flows",
