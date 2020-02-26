@@ -134,6 +134,9 @@ def _find_data_start(sheet: xlrd.book.sheet) -> (int, int, bool):
 
 
 def _find_flow_column(sheet: xlrd.book.sheet) -> int:
+    if _containstr(sheet.name, "land", "occupation"):
+        ncol = 1
+        return ncol
     ncol = -1
     for row, col in xls.iter_cells(sheet):
         s = xls.cell_str(sheet, row, col)
@@ -227,7 +230,7 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
             break
         s = xls.cell_str(sheet, row, col)
         if _containstr(s, "compartment") \
-            or _containstr(s, "name", "in", "ecoinvent"):
+            or _containstr(s, "name", "in", "ReCiPe"):
             compartment_col = col
             break
 

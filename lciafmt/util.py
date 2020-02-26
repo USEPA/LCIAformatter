@@ -1,6 +1,10 @@
 import uuid
 import pandas as pd
 import numpy as np
+import yaml
+import os
+from os.path import join
+import logging as log
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -97,3 +101,23 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     df = pd.concat([df, df_secondary_agg], ignore_index=True, sort=False)
     return df
 
+def get_method_metadata(name: str) -> str:
+    modulepath = os.path.dirname(
+    os.path.realpath(__file__)).replace('\\', '/')
+    datapath = modulepath + '/../lciafmt/data/'
+    if name == "TRACI 2.1": 
+        method = 'TRACI'
+    elif "ReCiPe 2016" in name:
+        method = 'ReCiPe2016'
+    else:
+        return ""
+    with open(join(datapath, method + "_description.yaml")) as f:
+        metadata=yaml.safe_load(f)
+    method_description = metadata['description']
+    detail = ""
+    try:
+        detail = metadata[name]
+        method_description = method_description+detail
+    except:
+        log.info("No further detail in description")
+    return method_description
