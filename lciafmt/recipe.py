@@ -2,6 +2,7 @@ import logging as log
 
 import pandas
 import xlrd
+import os
 
 import lciafmt.cache as cache
 import lciafmt.df as df
@@ -25,6 +26,8 @@ contexts = {
         'sea water' : 'water/sea water',
         'Sea water' : 'water/sea water',
         'marine water' : 'water/sea water'}
+datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data'
+flowables_split = pandas.read_csv(datapath+'/ReCiPe2016_split.csv')
 
 def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
     log.info("get method ReCiPe 2016")
@@ -39,6 +42,21 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
     if add_factors_for_missing_contexts:
         log.info("Adding average factors for primary contexts")
         df = util.aggregate_factors_for_primary_contexts(df)    
+    
+    log.info("Handling manual replacements")
+    """ due to substances listed more than once with the same name but different CAS
+    this replaces all instances of the Original Flowable with a New Flowable
+    based on a csv input file according to the CAS"""
+    for index, row in flowables_split.iterrows():
+        newCAS = util.format_cas(row['CAS'])
+        newFlow = row['New Flowable']
+        df.loc[df['CAS No'] == newCAS, 'Flowable'] = newFlow
+    
+    length=len(df)
+    df.drop_duplicates(keep='first',inplace=True)
+    length=length-len(df)
+    log.info("%s duplicate entries removed", length)
+    
     return df
 
 
@@ -86,7 +104,7 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
                 flow_unit = flow_unit.split("/")[1].strip()
         cas = ""
         if cas_col > -1:
-            util.format_cas(xls.cell_str(sheet, row, cas_col))
+            cas=util.format_cas(xls.cell_f64(sheet, row, cas_col))
 
         if with_perspectives:
             for i in range(0, 3):
