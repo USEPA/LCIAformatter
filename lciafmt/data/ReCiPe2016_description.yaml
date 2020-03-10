@@ -1,0 +1,57 @@
+description:
+    'ReCiPe2016 is built from LCIA Formatter v0.3-beta and mappings from the Federal 
+    Elementary Flow List (FEDEFL) v1.0.2
+    
+    ReCiPe 1.1 source file: https://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx
+    
+    Source citation: (Huijbregts 2016)
+    
+    ReCiPe 1.1 flowable and context input files are maintained in the FEDEFL GitHub Repository: 
+    https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List 
+    
+   
+    The LCIA Formatter (https://github.com/USEPA/LCIAformatter) applies ReCiPe 1.1 
+    characterization factors to flows using the mapping housed in the FEDEFL. 
+    The flowable and context input files for ReCiPe 1.1 are used by the LCIA Formatter 
+    to translate the names from the ReCiPe 1.1 source file and generate a mapping 
+    file for the FEDEFL. This file contains all of the accepted flowable and context 
+    combinations which can be mapped to ReCiPe 1.1 characterization factors. It also 
+    includes target UUID, units, and conversion factors as well as tracking 
+    who mapped and verified each record and when they were last updated.
+
+    
+    FEDEFL contexts are mapped to ReCiPe 1.1 to enable impact assessment across most 
+    of the possible contexts available within FEDEFL. Mappings that occur in the 
+    primary contexts (e.g. air) are assigned to all possible sub-contexts which apply. 
+    Where a context is non-specific in FEDEFL relative to the available ReCiPe 1.1 
+    contexts (e.g. rural/urban), the LCIA Formatter applies the average of the 
+    relevant characterization factors from ReCiPe 1.1.
+    
+    
+    The LCIA Formatter generates a separate impact assement method for each of the 
+    three approaches employed in ReCiPe 1.1, which includes Individualist, 
+    Hierarchist, and Egalitarian. More details on the methods can be found on the 
+    website https://www.rivm.nl/en/life-cycle-assessment-lca/downloads
+
+
+    This mapping is representative of ReCiPe 1.1 midpoint impact factors and 
+    endpoint conversion factors are not included here.  
+    '
+
+ReCiPe 2016 - Midpoint/I:
+    '
+    
+    ReCiPe 2016 v1.1 midpoint method, Individualist version. The typical ReCiPe 
+    midpoint method used is the Hierarchist version.'
+    
+ReCiPe 2016 - Midpoint/H:   
+    '
+    
+    ReCiPe 2016 v1.1 midpoint method, Hierarchist version. This is the typical 
+    ReCiPe midpoint method. ' 
+
+ReCiPe 2016 - Midpoint/E:
+    '
+    
+    ReCiPe 2016 v1.1 midpoint method, Egalitarian version. The typical ReCiPe 
+    midpoint method used is the Hierarchist version.'

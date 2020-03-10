@@ -1,6 +1,10 @@
 import uuid
 import pandas as pd
 import numpy as np
+import yaml
+import os
+from os.path import join
+import logging as log
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -58,7 +62,18 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     :param df: a pandas dataframe for an LCIA method
     :return: a pandas dataframe for an LCIA method
     """
+    #Ignore the following impact categories for generating averages
+    ignored_categories = ['Land transformation', 'Land occupation',
+                          'Water consumption','Mineral resource scarcity',
+                          'Fossil resource scarcity']    
     indices = df['Context'].str.find('/')
+    ignored_list = df['Indicator'].isin(ignored_categories)
+    i = 0
+    for k in ignored_list.iteritems():
+        if k[1] == True:
+            indices.update(pd.Series([-1], index=[i]))
+        i = i + 1
+                 
     primary_context = []
     i = 0
     for c in df['Context']:
@@ -86,3 +101,23 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     df = pd.concat([df, df_secondary_agg], ignore_index=True, sort=False)
     return df
 
+def get_method_metadata(name: str) -> str:
+    modulepath = os.path.dirname(
+    os.path.realpath(__file__)).replace('\\', '/')
+    datapath = modulepath + '/../lciafmt/data/'
+    if name == "TRACI 2.1": 
+        method = 'TRACI'
+    elif "ReCiPe 2016" in name:
+        method = 'ReCiPe2016'
+    else:
+        return ""
+    with open(join(datapath, method + "_description.yaml")) as f:
+        metadata=yaml.safe_load(f)
+    method_description = metadata['description']
+    detail = ""
+    try:
+        detail = metadata[name]
+        method_description = method_description+detail
+    except:
+        log.info("No further detail in description")
+    return method_description

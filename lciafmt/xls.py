@@ -26,6 +26,9 @@ def cell_val(sheet: xlrd.book.sheet, row: int, col: int):
     cell = sheet.cell(row, col)
     if cell is None:
         return None
+    #checks for errortype N/A and returns None
+    if cell.ctype == 5:
+        return None
     return cell.value
 
 

@@ -1,7 +1,5 @@
 import logging as log
 import os
-from os.path import join
-import yaml
 
 import lciafmt
 
@@ -10,11 +8,6 @@ def main():
         os.path.realpath(__file__)).replace('\\', '/')
     outputpath = modulepath + '/../output/'
     os.makedirs(outputpath, exist_ok=True)
-    datapath = modulepath + '/../lciafmt/data/'
-
-    with open(join(datapath, "TRACI_description.yaml")) as f:
-        metadata=yaml.safe_load(f)
-    method_description = metadata['description']
 
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(lciafmt.Method.TRACI)
@@ -29,7 +22,7 @@ def main():
     json_pack = outputpath+"traci_2.1_json.zip"
     if os.path.exists(json_pack):
         os.remove(json_pack)
-    lciafmt.to_jsonld(mapped_data, json_pack, method_description)
+    lciafmt.to_jsonld(mapped_data, json_pack)
 
 
 
