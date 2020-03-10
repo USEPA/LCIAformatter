@@ -5,6 +5,8 @@ description:
     TRACI 2.1 source file: 
     https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx
     
+    Source citation: (Bare 2012)
+    
     TRACI 2.1 flowable and context input files are maintained in the FEDEFL GitHub Repository: 
     https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List 
     

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="lciafmt",
-    version="0.2-beta",
+    version="0.3-beta",
     packages=["lciafmt"],
     install_requires=["fedelemflowlist @ git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.1.1#egg=fedelemflowlist",
                       "olca-ipc", "pandas", "xlrd"],
