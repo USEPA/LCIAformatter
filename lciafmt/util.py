@@ -108,6 +108,8 @@ def get_method_metadata(name: str) -> str:
     if name == "TRACI 2.1": 
         method = 'TRACI'
     elif "ReCiPe 2016" in name:
+        if "Endpoint" in name:
+            method = 'ReCiPe2016_endpoint'
         method = 'ReCiPe2016'
     else:
         return ""
