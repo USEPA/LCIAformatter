@@ -6,6 +6,9 @@ import lciafmt
 #To obtain LCIA endpoint set to True
 apply_endpoint = True
 
+#To obtain summary LCIA endpoint categories (damage assessment) set to True
+apply_summary = False
+
 def main():
     modulepath = os.path.dirname(
         os.path.realpath(__file__)).replace('\\', '/')
@@ -13,7 +16,7 @@ def main():
     os.makedirs(outputpath, exist_ok=True)
 
     log.basicConfig(level=log.INFO)
-    data = lciafmt.get_method(lciafmt.Method.RECIPE_2016, endpoint = apply_endpoint)
+    data = lciafmt.get_method(lciafmt.Method.RECIPE_2016, endpoint = apply_endpoint, summary = apply_summary)
     
     #export lcia to csv before mapping
     data.to_csv(outputpath+'Recipe_source.csv', index=False)
