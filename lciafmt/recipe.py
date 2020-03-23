@@ -29,7 +29,7 @@ contexts = {
 datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data/'
 flowables_split = pandas.read_csv(datapath+'ReCiPe2016_split.csv')
 
-def get(add_factors_for_missing_contexts=True, endpoint=False, file=None, url=None) -> pandas.DataFrame:
+def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, file=None, url=None) -> pandas.DataFrame:
     log.info("get method ReCiPe 2016")
     f = file
     if f is None:
@@ -85,6 +85,29 @@ def get(add_factors_for_missing_contexts=True, endpoint=False, file=None, url=No
     length=length-len(df)
     log.info("%s duplicate entries removed", length)
     
+    if summary:
+        log.info("Summarizing endpoint categories")
+        endpoint_categories = df.groupby(['Method','Method UUID','Indicator unit','Flowable','Flow UUID',
+                             'Context','Unit','CAS No','Location','Location UUID',
+                             'EndpointCategory'], as_index=False)['Characterization Factor'].sum()
+        endpoint_categories['Indicator']=endpoint_categories['EndpointCategory']
+        endpoint_categories['Indicator UUID']=""
+        endpoint_categories=endpoint_categories.drop(columns=['EndpointCategory'])
+        
+        #To append endpoint categories to exisiting endpointLCIA, set endpoint = True
+        #otherwise replaces endpoint LCIA
+        append = False        
+        if append:
+            log.info("Appending endpoint categories")
+            df = pandas.concat([df,endpoint_categories], sort=False)
+        else:
+            log.info("Applying endpoint categories")
+            df = endpoint_categories
+        
+        #reorder columns in DF
+        df=df.reindex(columns=["Method","Method UUID","Indicator","Indicator UUID",
+            "Indicator unit","Flowable","Flow UUID","Context","Unit",
+            "CAS No","Location","Location UUID","Characterization Factor"])
     return df
 
 
