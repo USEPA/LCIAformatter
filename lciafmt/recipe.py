@@ -2,14 +2,34 @@ import logging as log
 
 import pandas
 import xlrd
+import os
 
 import lciafmt.cache as cache
 import lciafmt.df as df
 import lciafmt.util as util
 import lciafmt.xls as xls
 
+contexts = {
+        'urban air' : 'air/urban',
+        'urban  air' : 'air/urban',
+        'Urban air' : 'air/urban',
+        'Rural air' : 'air/rural',
+        'rural air' : 'air/rural',
+        'agricultural soil' : 'soil/agricultural',
+        'Agricultural soil' : 'soil/agricultural',
+        'industrial soil' : 'soil/industrial',
+        'Industrial soil' : 'soil/industrial',
+        'freshwater' : 'water/freshwater',
+        'Freshwater' : 'water/freshwater',
+        'fresh water' : 'water/freshwater',
+        'seawater' : 'water/sea water',
+        'sea water' : 'water/sea water',
+        'Sea water' : 'water/sea water',
+        'marine water' : 'water/sea water'}
+datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data'
+flowables_split = pandas.read_csv(datapath+'/ReCiPe2016_split.csv')
 
-def get(file=None, url=None) -> pandas.DataFrame:
+def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
     log.info("get method ReCiPe 2016")
     f = file
     if f is None:
@@ -18,7 +38,26 @@ def get(file=None, url=None) -> pandas.DataFrame:
             url = ("http://www.rivm.nl/sites/default/files/2018-11/" +
                    "ReCiPe2016_CFs_v1.1_20180117.xlsx")
         f = cache.get_or_download(fname, url)
-    return _read(f)
+    df = _read(f)
+    if add_factors_for_missing_contexts:
+        log.info("Adding average factors for primary contexts")
+        df = util.aggregate_factors_for_primary_contexts(df)    
+    
+    log.info("Handling manual replacements")
+    """ due to substances listed more than once with the same name but different CAS
+    this replaces all instances of the Original Flowable with a New Flowable
+    based on a csv input file according to the CAS"""
+    for index, row in flowables_split.iterrows():
+        newCAS = util.format_cas(row['CAS'])
+        newFlow = row['New Flowable']
+        df.loc[df['CAS No'] == newCAS, 'Flowable'] = newFlow
+    
+    length=len(df)
+    df.drop_duplicates(keep='first',inplace=True)
+    length=length-len(df)
+    log.info("%s duplicate entries removed", length)
+    
+    return df
 
 
 def _read(file: str) -> pandas.DataFrame:
@@ -50,21 +89,22 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
     indicator_unit, flow_unit, unit_col = _determine_units(sheet)
     compartment, compartment_col = _determine_compartments(sheet)
 
+
+
     perspectives = ["I", "H", "E"]
     factor_count = 0
     for row in range(start_row, sheet.nrows):
-        if xls.cell_f64(sheet, row, data_col) == 0.0:
-            continue
-
         if compartment_col > -1:
             compartment = xls.cell_str(sheet, row, compartment_col)
+        if compartment in contexts:
+            compartment = contexts[compartment]
         if unit_col > -1:
             flow_unit = xls.cell_str(sheet, row, unit_col)
             if "/" in flow_unit:
                 flow_unit = flow_unit.split("/")[1].strip()
         cas = ""
         if cas_col > -1:
-            util.format_cas(xls.cell_str(sheet, row, cas_col))
+            cas=util.format_cas(xls.cell_f64(sheet, row, cas_col))
 
         if with_perspectives:
             for i in range(0, 3):
@@ -112,6 +152,9 @@ def _find_data_start(sheet: xlrd.book.sheet) -> (int, int, bool):
 
 
 def _find_flow_column(sheet: xlrd.book.sheet) -> int:
+    if _containstr(sheet.name, "land", "occupation"):
+        ncol = 1
+        return ncol
     ncol = -1
     for row, col in xls.iter_cells(sheet):
         s = xls.cell_str(sheet, row, col)
@@ -204,7 +247,8 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
         if row > 5:
             break
         s = xls.cell_str(sheet, row, col)
-        if _containstr(s, "compartment"):
+        if _containstr(s, "compartment") \
+            or _containstr(s, "name", "in", "ReCiPe"):
             compartment_col = col
             break
 
@@ -212,12 +256,24 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
         log.debug("found compartment column %i", compartment_col)
         return "", compartment_col
 
-    if _containstr(sheet.name, "global", "warming") \
+    elif _containstr(sheet.name, "global", "warming") \
             or _containstr(sheet.name, "ozone") \
             or _containstr(sheet.name, "particulate") \
             or _containstr(sheet.name, "acidification"):
-        log.warning("no compartment column; assuming 'emission/air'")
-        return "emission/air", -1
+        log.warning("no compartment column; assuming 'air'")
+        return "air", -1
+   
+    elif _containstr(sheet.name, "mineral", "resource", "scarcity"):
+        log.warning("no compartment column; assuming 'resource/ground'")
+        return "resource/ground", -1
+    
+    elif _containstr(sheet.name, "fossil", "resource", "scarcity"):
+        log.warning("no compartment column; assuming 'resource'")
+        return "resource", -1
+ 
+    if _containstr(sheet.name, "water", "consumption"):
+        log.warning("no compartment column; assuming 'resource/fresh water'")
+        return "resource/fresh water", -1
 
     log.warning("no compartment column")
     return "", -1
