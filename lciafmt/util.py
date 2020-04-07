@@ -107,7 +107,7 @@ def get_method_metadata(name: str) -> str:
     modulepath = os.path.dirname(
     os.path.realpath(__file__)).replace('\\', '/')
     datapath = modulepath + '/../lciafmt/data/'
-    if name == "TRACI 2.1": 
+    if "TRACI 2.1" in name: 
         method = 'TRACI'
     elif "ReCiPe 2016" in name:
         method = 'ReCiPe2016'
