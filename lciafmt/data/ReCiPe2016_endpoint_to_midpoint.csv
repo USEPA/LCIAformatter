@@ -1,0 +1,28 @@
+﻿FlowFlag,EndpointIndicator,Indicator,EndpointCategory
+,Global Warming - Human health,Global Warming,Human health
+,Stratospheric ozone depletion - Human health,Stratospheric ozone depletion,Human health
+,Ionzing Radiation - Human health,Ionizing radiation,Human health
+,Fine particulate matter formation - Human health,Particulate matter formation,Human health
+,Photochemical ozone formation - Human health,Human damage ozone formation,Human health
+,Toxicity - Human health (cancer),Human carcinogenic toxicity,Human health
+,Toxicity - Human health (non-cancer),Human noncarcinogenic toxicity,Human health
+,Water consumption - human health,Water consumption,Human health
+,Global Warming - Terrestrial ecosystems,Global Warming,Terrestrial ecosystems
+,Photochemical ozone formation - Terrestrial ecosystems,Ecosyste damage ozone formation,Terrestrial ecosystems
+,Acidification - Terrestrial ecosystems,Terrestrial acidification,Terrestrial ecosystems
+,Toxicity - Terrestrial ecosystems,Terrestrial ecotoxicity,Terrestrial ecosystems
+,Water consumption - terrestrial ecosystems,Water consumption,Terrestrial ecosystems
+,Land use - occupation and transformation,Land occupation,Terrestrial ecosystems
+,Global Warming - Freshwater ecosystems,Global Warming,Freshwater ecosystems
+,Eutrophication - Freshwater ecosystems,Freshwater eutrophication,Freshwater ecosystems
+,Toxicity - Freshwater ecosystems,Freshwater ecotoxicity,Freshwater ecosystems
+,Water consumption -aquatic ecosystems,Water consumption,Freshwater ecosystems
+,Toxicity - Marine ecosystems,Marine ecotoxicity,Marine ecosystems
+,Eutrophication - Marine ecosystems,Marine eutrophication,Marine ecosystems
+,Mineral resource scarcity,Mineral resource scarcity,Resources
+,Fossil resource scarcity,Fossil resource scarcity,Resources
+1,Crude oil,Fossil resource scarcity,Resources
+1,Hard coal,Fossil resource scarcity,Resources
+1,Natural gas,Fossil resource scarcity,Resources
+1,Brown coal,Fossil resource scarcity,Resources
+1,Peat,Fossil resource scarcity,Resources
