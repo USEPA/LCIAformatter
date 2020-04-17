@@ -8,8 +8,8 @@ import lciafmt.df as df
 import lciafmt.util as util
 import lciafmt.xls as xls
 
-flowables_replace = pandas.read_csv(util.datapath+'/TRACI_2.1_replacement.csv')
-flowables_split = pandas.read_csv(util.datapath+'/TRACI_2.1_split.csv')
+flowables_replace = pandas.read_csv(util.datapath+'TRACI_2.1_replacement.csv')
+flowables_split = pandas.read_csv(util.datapath+'TRACI_2.1_split.csv')
 
 def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
     log.info("get method Traci 2.1")
