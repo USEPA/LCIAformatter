@@ -20,7 +20,7 @@ def main():
         data = data.merge(modified_cfs,how='left',on=['Flowable','Context','Indicator'])
         data.loc[data['Updated CF'].notnull(),'Characterization Factor']=data['Updated CF']
         data = data.drop(columns=['Updated CF','Note'])
-        data['Method']="TRACI 2.1 (NETL mod)"
+        data['Method']="TRACI 2.1 ("+mod+" mod)"
     
     # map the flows to the Fed.LCA commons flows
     # set preserve_unmapped=True if you want to keep unmapped
