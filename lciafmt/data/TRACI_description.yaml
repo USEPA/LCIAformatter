@@ -44,8 +44,10 @@ description:
 
     Normalization and weighting factors are not provided in the TRACI 2.1 source 
     file and are not added here.'
-
+    
+    
 TRACI 2.1 (NETL mod):
     '
-    
-    This version of TRACI has been modified by NETL.'
+     
+     This version of TRACI has been modified for use by NETL to include IPCC
+     AR5 100-yr GWP factors.'
