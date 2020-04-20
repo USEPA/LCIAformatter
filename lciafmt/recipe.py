@@ -61,16 +61,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, fi
         df['Indicator']=df['EndpointIndicator']
         df['Indicator unit']=df['EndpointUnit']
         df=df.drop(columns=['EndpointMethod','EndpointIndicator','EndpointUnit','EndpointConversion'])
-
-    '''
-    #temporary filter to reduce file size for QA
-    filter=['Global Warming - Human health','Global Warming - Terrestrial ecosystems',
-            'Global Warming - Freshwater ecosystems','Stratospheric ozone depletion - Human health',
-            'Mineral resource scarcity', 'Acidification - Terrestrial ecosystems',
-            'Fossil resource scarcity']
-    df = df[df['Indicator'].isin(filter)]
-    '''
-    
+ 
     log.info("Handling manual replacements")
     """ due to substances listed more than once with the same name but different CAS
     this replaces all instances of the Original Flowable with a New Flowable
@@ -94,7 +85,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, fi
         endpoint_categories['Indicator UUID']=""
         endpoint_categories=endpoint_categories.drop(columns=['EndpointCategory'])
         
-        #To append endpoint categories to exisiting endpointLCIA, set endpoint = True
+        #To append endpoint categories to exisiting endpointLCIA, set append = True
         #otherwise replaces endpoint LCIA
         append = False        
         if append:
@@ -165,10 +156,9 @@ def _read_endpoints(file: str) -> pandas.DataFrame:
     endpoint.loc[endpoint['EndpointUnit'].str.contains('USD', case=False), 'EndpointUnit']='USD2013'
     
     log.info("reading endpoint map from csv")
-    endpoint_map = pandas.read_csv(datapath+'ReCiPe2016_endpoint_to_midpoint.csv')
+    endpoint_map = pandas.read_csv(util.datapath+'ReCiPe2016_endpoint_to_midpoint.csv')
     endpoint=endpoint.merge(endpoint_map,how="left",on='EndpointIndicator')
     
-    endpoint.to_csv(datapath+'endpoints.csv', index=False)
     #split into two dataframes
     endpoint_by_flow = endpoint[endpoint['FlowFlag']==1]
     endpoint_by_flow = endpoint_by_flow.drop(columns='FlowFlag')

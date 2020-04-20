@@ -3,7 +3,7 @@ import os
 
 import lciafmt
 
-mod = 'NETL'
+mod = None
 
 def main():
     modulepath = os.path.dirname(
