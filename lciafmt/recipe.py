@@ -2,7 +2,6 @@ import logging as log
 
 import pandas
 import xlrd
-import os
 
 import lciafmt.cache as cache
 import lciafmt.df as df
@@ -26,8 +25,9 @@ contexts = {
         'sea water' : 'water/sea water',
         'Sea water' : 'water/sea water',
         'marine water' : 'water/sea water'}
-datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data/'
-flowables_split = pandas.read_csv(datapath+'ReCiPe2016_split.csv')
+
+flowables_split = pandas.read_csv(util.datapath+'ReCiPe2016_split.csv')
+
 
 def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, file=None, url=None) -> pandas.DataFrame:
     log.info("get method ReCiPe 2016")

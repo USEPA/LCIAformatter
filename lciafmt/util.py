@@ -6,6 +6,8 @@ import os
 from os.path import join
 import logging as log
 
+datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data/'
+
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
     return str(uuid.uuid3(uuid.NAMESPACE_OID, path))
@@ -102,10 +104,7 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     return df
 
 def get_method_metadata(name: str) -> str:
-    modulepath = os.path.dirname(
-    os.path.realpath(__file__)).replace('\\', '/')
-    datapath = modulepath + '/../lciafmt/data/'
-    if name == "TRACI 2.1": 
+    if "TRACI 2.1" in name: 
         method = 'TRACI'
     elif "ReCiPe 2016" in name:
         if "Endpoint" in name:
