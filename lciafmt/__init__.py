@@ -9,9 +9,9 @@ import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 import lciafmt.recipe as recipe
+import lciafmt.util as util
 
 from enum import Enum
-
 
 class Method(Enum):
     TRACI = "TRACI 2.1"
@@ -26,15 +26,19 @@ def supported_methods() -> list:
         return json.load(f)
 
 
-def get_method(method_id, add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFrame:
+def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False, summary=False, file=None, url=None) -> pd.DataFrame:
     """Returns the data frame of the method with the given ID. You can get the
        IDs of the supported methods from the `supported_methods` function or
        directly use the constants defined in the Method enumeration type."""
     if method_id == Method.TRACI.value or method_id == Method.TRACI:
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
-        return recipe.get(add_factors_for_missing_contexts, file=file, url=url)
+        return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
 
+def get_modification(source, method_id) -> pd.DataFrame:
+    """Returns a dataframe of modified CFs based on csv"""
+    modified_factors = pd.read_csv(util.datapath+"/"+source+"_"+method_id+".csv")
+    return modified_factors
 
 def clear_cache():
     cache.clear()

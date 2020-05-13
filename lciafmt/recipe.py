@@ -2,7 +2,6 @@ import logging as log
 
 import pandas
 import xlrd
-import os
 
 import lciafmt.cache as cache
 import lciafmt.df as df
@@ -26,10 +25,11 @@ contexts = {
         'sea water' : 'water/sea water',
         'Sea water' : 'water/sea water',
         'marine water' : 'water/sea water'}
-datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data'
-flowables_split = pandas.read_csv(datapath+'/ReCiPe2016_split.csv')
 
-def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
+flowables_split = pandas.read_csv(util.datapath+'ReCiPe2016_split.csv')
+
+
+def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, file=None, url=None) -> pandas.DataFrame:
     log.info("get method ReCiPe 2016")
     f = file
     if f is None:
@@ -38,11 +38,30 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
             url = ("http://www.rivm.nl/sites/default/files/2018-11/" +
                    "ReCiPe2016_CFs_v1.1_20180117.xlsx")
         f = cache.get_or_download(fname, url)
+
+    if endpoint:
+        endpoint_df, endpoint_df_by_flow = _read_endpoints(f)
+
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("Adding average factors for primary contexts")
         df = util.aggregate_factors_for_primary_contexts(df)    
-    
+   
+    if endpoint:
+        log.info("Converting midpoints to endpoints")
+        #first assesses endpoint factors that are specific to flowables
+        flowdf = df.merge(endpoint_df_by_flow, how="inner",on=["Method","Flowable"])
+        flowdf.rename(columns={'Indicator_x':'Indicator','Indicator_y':'EndpointIndicator'}, inplace=True)
+        #next apply endpoint factors by indicator
+        df = df.merge(endpoint_df, how="inner",on=["Method","Indicator"])
+        df = df.append(flowdf, ignore_index=True, sort=False)
+        #reformat dataframe and apply conversion
+        df['Characterization Factor']=df['Characterization Factor']*df['EndpointConversion']
+        df['Method']=df['EndpointMethod']
+        df['Indicator']=df['EndpointIndicator']
+        df['Indicator unit']=df['EndpointUnit']
+        df=df.drop(columns=['EndpointMethod','EndpointIndicator','EndpointUnit','EndpointConversion'])
+ 
     log.info("Handling manual replacements")
     """ due to substances listed more than once with the same name but different CAS
     this replaces all instances of the Original Flowable with a New Flowable
@@ -57,6 +76,29 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
     length=length-len(df)
     log.info("%s duplicate entries removed", length)
     
+    if summary:
+        log.info("Summarizing endpoint categories")
+        endpoint_categories = df.groupby(['Method','Method UUID','Indicator unit','Flowable','Flow UUID',
+                             'Context','Unit','CAS No','Location','Location UUID',
+                             'EndpointCategory'], as_index=False)['Characterization Factor'].sum()
+        endpoint_categories['Indicator']=endpoint_categories['EndpointCategory']
+        endpoint_categories['Indicator UUID']=""
+        endpoint_categories=endpoint_categories.drop(columns=['EndpointCategory'])
+        
+        #To append endpoint categories to exisiting endpointLCIA, set append = True
+        #otherwise replaces endpoint LCIA
+        append = False        
+        if append:
+            log.info("Appending endpoint categories")
+            df = pandas.concat([df,endpoint_categories], sort=False)
+        else:
+            log.info("Applying endpoint categories")
+            df = endpoint_categories
+        
+        #reorder columns in DF
+        df=df.reindex(columns=["Method","Method UUID","Indicator","Indicator UUID",
+            "Indicator unit","Flowable","Flow UUID","Context","Unit",
+            "CAS No","Location","Location UUID","Characterization Factor"])
     return df
 
 
@@ -72,6 +114,59 @@ def _read(file: str) -> pandas.DataFrame:
 
     return df.data_frame(records)
 
+def _read_endpoints(file: str) -> pandas.DataFrame:
+    log.info("reading endpoint factors from file")
+    wb = xlrd.open_workbook(file)
+    endpoint_cols = ['Method','EndpointMethod', 'EndpointIndicator', 'EndpointUnit','EndpointConversion']
+    endpoint = pandas.DataFrame(columns = endpoint_cols)
+    endpoints = []
+    perspectives = ["I", "H", "E"]
+    indicator = ""
+    indicator_unit = ""
+    for name in wb.sheet_names():
+        if _eqstr(name, "Midpoint to endpoint factors"):
+            sheet = wb.sheet_by_name(name)
+            start_row, data_col, with_perspectives = _find_data_start(sheet)
+            #impact categories in column 1
+            flow_col = 0
+            
+            endpoint_factor_count = 0
+            for row in range(start_row, sheet.nrows):
+                indicator = xls.cell_str(sheet, row, flow_col)
+                indicator_unit = xls.cell_str(sheet, row, flow_col+1)
+                for i in range(0, 3):
+                    val = xls.cell_f64(sheet, row, data_col + i)
+                    if val == 0.0:
+                        continue
+                    endpoints.append("ReCiPe 2016 - Midpoint/" + perspectives[i])
+                    endpoints.append("ReCiPe 2016 - Endpoint/" + perspectives[i])
+                    endpoints.append(indicator)
+                    endpoints.append(indicator_unit)
+                    endpoints.append(val)
+                    to_add=pandas.Series(endpoints, index=endpoint_cols)
+                    endpoint=endpoint.append(to_add, ignore_index=True)
+                    endpoints=[]
+                    endpoint_factor_count += 1        
+            log.debug("extracted %i endpoint factors", endpoint_factor_count)
+        else:
+            continue
+    log.info("processing endpoint factors")
+    endpoint.loc[endpoint['EndpointUnit'].str.contains('daly', case=False), 'EndpointUnit']='DALY'
+    endpoint.loc[endpoint['EndpointUnit'].str.contains('species', case=False), 'EndpointUnit']='species-year'
+    endpoint.loc[endpoint['EndpointUnit'].str.contains('USD', case=False), 'EndpointUnit']='USD2013'
+    
+    log.info("reading endpoint map from csv")
+    endpoint_map = pandas.read_csv(util.datapath+'ReCiPe2016_endpoint_to_midpoint.csv')
+    endpoint=endpoint.merge(endpoint_map,how="left",on='EndpointIndicator')
+    
+    #split into two dataframes
+    endpoint_by_flow = endpoint[endpoint['FlowFlag']==1]
+    endpoint_by_flow = endpoint_by_flow.drop(columns='FlowFlag')
+    endpoint_by_flow.rename(columns={'EndpointIndicator':'Flowable'}, inplace=True)
+    endpoint = endpoint[endpoint['FlowFlag'].isna()]
+    endpoint = endpoint.drop(columns='FlowFlag')    
+    #return endpoint and endpoint by flow
+    return endpoint, endpoint_by_flow
 
 def _read_mid_points(sheet: xlrd.book.sheet, records: list):
     log.info("try to read midpoint factors from sheet %s", sheet.name)
@@ -144,7 +239,7 @@ def _find_data_start(sheet: xlrd.book.sheet) -> (int, int, bool):
         s = xls.cell_str(sheet, row, col)
         if s is None or s == "":
             continue
-        if _eqstr(s, "I") or _containstr(s, "Individualist"):
+        if _eqstr(s, "I") or _containstr(s, "Individualist") or _containstr(s, "Individualistic"):
             return row + 1, col, True
         if _eqstr(s, "all perspectives"):
             return row + 1, col, False
