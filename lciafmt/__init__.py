@@ -3,7 +3,6 @@ import logging as log
 import pkg_resources
 
 import pandas as pd
-import fedelemflowlist as flowlist
 
 import lciafmt.cache as cache
 import lciafmt.fmap as fmap
@@ -11,7 +10,6 @@ import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 import lciafmt.recipe as recipe
 import lciafmt.util as util
-import lciafmt.df as df
 
 from enum import Enum
 
@@ -36,23 +34,6 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
-
-def get_inventory_methods() -> pd.DataFrame:
-    """
-    Returns a dataframe of inventory based methods.
-
-    :return: df in standard LCIAmethod format
-    """
-    method = df.data_frame(list())
-    for inventory in flowlist.subset_list.subsets:
-        flows = flowlist.get_flows(subset=inventory)
-        flows.drop(['Formula','Synonyms','Class','External Reference','Preferred','AltUnit','AltUnitConversionFactor'], axis=1, inplace=True)
-        flows['Indicator']=inventory
-        flows['Indicator unit']=flows['Unit']
-        method = pd.concat([method,flows], ignore_index=True)
-    method['Method']='Inventory'
-    method['Characterization Factor']=1
-    return method
 
 def get_modification(source, method_id) -> pd.DataFrame:
     """Returns a dataframe of modified CFs based on csv"""
