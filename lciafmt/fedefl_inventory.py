@@ -17,13 +17,20 @@ def get(subset=None) -> pd.DataFrame:
         list_of_inventories = subsets.get_subsets()
     else:
         list_of_inventories = subset
+    
     for inventory in list_of_inventories:
         flows = flowlist.get_flows(subset=inventory)
         flows.drop(['Formula','Synonyms','Class','External Reference',
-                    'Preferred','AltUnit','AltUnitConversionFactor'], axis=1, inplace=True)
+                    'Preferred'], axis=1, inplace=True)
         flows['Indicator']=inventory
-        flows['Indicator unit']=flows['Unit']
+        flows['Indicator unit']=subsets.get_inventory_unit(inventory)
+        flows['Characterization Factor']=1
+        
+        # Apply unit conversions where flow unit differs from indicator unit
+        flows.loc[(flows['AltUnit']==flows['Indicator unit']),
+                  'Characterization Factor'] = flows['AltUnitConversionFactor']
+        flows.drop(['AltUnit','AltUnitConversionFactor'], inplace=True)
         method = pd.concat([method,flows], ignore_index=True)
+
     method['Method']='Inventory'
-    method['Characterization Factor']=1
     return method
