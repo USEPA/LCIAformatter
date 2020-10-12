@@ -6,7 +6,9 @@ import os
 from os.path import join
 import logging as log
 
-datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data/'
+modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
+outputpath = modulepath + '/../output/'
+datapath = modulepath + '/data/'
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)

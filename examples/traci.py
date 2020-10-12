@@ -2,15 +2,13 @@ import logging as log
 import os
 
 import lciafmt
+from lciafmt.util import outputpath
 
 mod = None
 
 def main():
-    modulepath = os.path.dirname(
-        os.path.realpath(__file__)).replace('\\', '/')
-    outputpath = modulepath + '/../output/'
     os.makedirs(outputpath, exist_ok=True)
-
+    file = "traci_2.1"
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(lciafmt.Method.TRACI)
     
@@ -29,9 +27,9 @@ def main():
 
     # write the result to JSON-LD and CSV
     if mod is not None:
-        outputpath=outputpath+mod+"_"
-    mapped_data.to_csv(outputpath+"traci_2.1.csv", index=False)
-    json_pack = outputpath+"traci_2.1_json.zip"
+        file=mod+"_"+file
+    mapped_data.to_csv(outputpath+file+".csv", index=False)
+    json_pack = outputpath+file+"_json.zip"
     if os.path.exists(json_pack):
         os.remove(json_pack)
     lciafmt.to_jsonld(mapped_data, json_pack)

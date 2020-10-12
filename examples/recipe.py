@@ -2,6 +2,7 @@ import logging as log
 import os
 
 import lciafmt
+from lciafmt.util import outputpath
 
 #To obtain LCIA endpoint set to True
 apply_endpoint = True
@@ -10,9 +11,6 @@ apply_endpoint = True
 apply_summary = False
 
 def main():
-    modulepath = os.path.dirname(
-        os.path.realpath(__file__)).replace('\\', '/')
-    outputpath = modulepath + '/../output/'
     os.makedirs(outputpath, exist_ok=True)
 
     log.basicConfig(level=log.INFO)
