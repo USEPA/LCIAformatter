@@ -124,3 +124,10 @@ def get_method_metadata(name: str) -> str:
     except:
         log.info("No further detail in description")
     return method_description
+
+def store_method(method, filename):
+    """Prints the method as a dataframe to parquet file"""
+    try:
+        method.to_parquet(outputpath+filename+".parquet")
+    except:
+        log.error('Failed to save method')

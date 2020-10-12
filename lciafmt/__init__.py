@@ -64,3 +64,13 @@ def supported_mapping_systems() -> list:
     """Returns the mapping systems that are supported in the `map_flows`
        function."""
     return fmap.supported_mapping_systems()
+
+def read_method(method_id):
+    """Returns the method stored in output."""
+    method = pd.DataFrame()
+    file = util.outputpath+method_id+".parquet"
+    try:
+        method = pd.read_parquet(file)
+    except FileNotFoundError:
+        log.error('No file identified for ' + method_id)
+    return method
