@@ -29,7 +29,7 @@ def get(subset=None) -> pd.DataFrame:
         # Apply unit conversions where flow unit differs from indicator unit
         flows.loc[(flows['AltUnit']==flows['Indicator unit']),
                   'Characterization Factor'] = flows['AltUnitConversionFactor']
-        flows.drop(['AltUnit','AltUnitConversionFactor'], inplace=True)
+        flows.drop(['AltUnit','AltUnitConversionFactor'], axis=1, inplace=True)
         method = pd.concat([method,flows], ignore_index=True)
 
     method['Method']='Inventory'
