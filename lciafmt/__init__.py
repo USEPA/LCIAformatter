@@ -3,6 +3,7 @@ import logging as log
 import pkg_resources
 
 import pandas as pd
+import os
 
 import lciafmt.cache as cache
 import lciafmt.fmap as fmap
@@ -65,11 +66,26 @@ def supported_mapping_systems() -> list:
        function."""
     return fmap.supported_mapping_systems()
 
+def get_mapped_method(method_id):
+    if os.path.exists(util.outputpath+method_id.name+".parquet"):
+        return read_method(method_id)
+    method = get_method(method_id)
+    if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
+        case_insensitive = True
+        mapping_system = 'ReCiPe2016'
+        method['Flowable'] = method['Flowable'].str.lower()
+    else:
+        case_insensitive = False
+        mapping_system = method_id
+    mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
+    return mapped_method
+
 def read_method(method_id):
     """Returns the method stored in output."""
     method = pd.DataFrame()
-    file = util.outputpath+method_id+".parquet"
+    file = util.outputpath+method_id.name+".parquet"
     try:
+        log.info('reading stored method file')
         method = pd.read_parquet(file)
     except FileNotFoundError:
         log.error('No file identified for ' + method_id)
