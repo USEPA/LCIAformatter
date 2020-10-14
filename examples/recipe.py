@@ -2,7 +2,7 @@ import logging as log
 import os
 
 import lciafmt
-from lciafmt.util import outputpath
+from lciafmt.util import outputpath, store_method
 
 #To obtain LCIA endpoint set to True
 apply_endpoint = True
@@ -23,6 +23,7 @@ def main():
     # set preserve_unmapped=True if you want to keep unmapped
     # flows in the resulting data frame
     mapped_data = lciafmt.map_flows(data, system="ReCiPe2016", case_insensitive=True)
+    store_method(mapped_data, lciafmt.Method.RECIPE_2016.name)
 
     # write the result to JSON-LD and CSV
     for method in mapped_data['Method'].unique():

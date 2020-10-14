@@ -2,13 +2,13 @@ import logging as log
 import os
 
 import lciafmt
-from lciafmt.util import outputpath
+from lciafmt.util import outputpath, store_method
 
 mod = None
 
 def main():
     os.makedirs(outputpath, exist_ok=True)
-    file = "traci_2.1"
+    file = lciafmt.Method.TRACI.name
     log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(lciafmt.Method.TRACI)
     
@@ -29,6 +29,7 @@ def main():
     if mod is not None:
         file=mod+"_"+file
     mapped_data.to_csv(outputpath+file+".csv", index=False)
+    store_method(mapped_data, file)
     json_pack = outputpath+file+"_json.zip"
     if os.path.exists(json_pack):
         os.remove(json_pack)
