@@ -1,16 +1,20 @@
 [
   {
-    "id": "TRACI 2.1",
+    "id": "TRACI",
     "name": "TRACI 2.1",
     "version": "2.1",
+    "mapping": "TRACI2.1",
     "description": "...",
+    "case_insensitivity": "False",
     "url": "https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx"
   },
   {
-    "id": "ReCiPe 2016",
+    "id": "RECIPE_2016",
     "name": "ReCiPe 2016",
     "version": "1.1",
+    "mapping": "ReCiPe2016",
     "description": "...",
+    "case_insensitivity": "True",
     "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx"
   }
 ]

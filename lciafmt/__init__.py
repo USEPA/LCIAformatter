@@ -17,7 +17,20 @@ from enum import Enum
 class Method(Enum):
     TRACI = "TRACI 2.1"
     RECIPE_2016 = "ReCiPe 2016"
-
+    
+    def get_metadata(cls):
+        metadata = supported_methods()
+        for m in metadata:
+            if m['case_insensitivity']=='True':
+                m['case_insensitivity'] = True
+            else:
+                 m['case_insensitivity'] = False
+            if m['id'] == cls.name:
+                return m
+    
+    def get_filename(cls):
+        filename = cls.get_metadata()['name'].replace(" ", "_")
+        return filename
 
 def supported_methods() -> list:
     """Returns a list of dictionaries that contain meta-data of the supported
@@ -36,9 +49,9 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
 
-def get_modification(source, method_id) -> pd.DataFrame:
+def get_modification(source, name) -> pd.DataFrame:
     """Returns a dataframe of modified CFs based on csv"""
-    modified_factors = pd.read_csv(util.datapath+"/"+source+"_"+method_id+".csv")
+    modified_factors = pd.read_csv(util.datapath+"/"+source+"_"+name+".csv")
     return modified_factors
 
 def clear_cache():
@@ -66,24 +79,28 @@ def supported_mapping_systems() -> list:
        function."""
     return fmap.supported_mapping_systems()
 
-def get_mapped_method(method_id):
-    if os.path.exists(util.outputpath+method_id.name+".parquet"):
-        return read_method(method_id)
-    method = get_method(method_id)
-    if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
-        case_insensitive = True
-        mapping_system = 'ReCiPe2016'
-        method['Flowable'] = method['Flowable'].str.lower()
+def get_mapped_method(method_id, subset=None):
+    filename = method_id.get_filename()
+    if os.path.exists(util.outputpath+filename+".parquet"):
+        mapped_method = read_method(method_id)
     else:
-        case_insensitive = False
-        mapping_system = method_id
-    mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
+        method = get_method(method_id)
+        case_insensitive = method_id.get_metadata()['case_insensitivity']
+        mapping_system = method_id.get_metadata()['mapping']
+        if case_insensitive:
+            method['Flowable'] = method['Flowable'].str.lower()
+        mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
+    if subset is not None:
+        mapped_method = mapped_method[mapped_method['Indicator'].isin(subset)]
+        if len(mapped_method) == 0:
+            log.info('subset not found')
     return mapped_method
 
 def read_method(method_id):
     """Returns the method stored in output."""
+    filename = method_id.get_filename()
     method = pd.DataFrame()
-    file = util.outputpath+method_id.name+".parquet"
+    file = util.outputpath+filename+".parquet"
     try:
         log.info('reading stored method file')
         method = pd.read_parquet(file)
