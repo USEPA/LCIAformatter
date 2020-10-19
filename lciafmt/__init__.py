@@ -80,6 +80,8 @@ def supported_mapping_systems() -> list:
     return fmap.supported_mapping_systems()
 
 def get_mapped_method(method_id, indicator=None, method=None):
+    """Obtains a mapped method stored as parquet, if that file does not exist
+    locally, it is generated"""
     filename = method_id.get_filename()
     if os.path.exists(util.outputpath+filename+".parquet"):
         mapped_method = read_method(method_id)
