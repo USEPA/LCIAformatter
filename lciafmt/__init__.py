@@ -93,11 +93,11 @@ def get_mapped_method(method_id, indicator=None, method=None):
     if indicator is not None:
         mapped_method = mapped_method[mapped_method['Indicator'].isin(indicator)]
         if len(mapped_method) == 0:
-            log.info('indicator not found')
+            log.error('indicator not found')
     if method is not None:
         mapped_method = mapped_method[mapped_method['Method'].isin(method)]
         if len(mapped_method) == 0:
-            log.info('specified method not found')
+            log.error('specified method not found')
     return mapped_method
 
 def read_method(method_id):
@@ -111,3 +111,20 @@ def read_method(method_id):
     except FileNotFoundError:
         log.error('No file identified for ' + method_id)
     return method
+
+def supported_indicators(method_id):
+    """Returns a list of indicators for the identified method."""
+    method = read_method(method_id)
+    indicators = set(list(method['Indicator']))
+    return list(indicators)
+
+def supported_stored_methods():
+    """Returns a list of methods stored as parquet."""
+    methods = pd.DataFrame()
+    files = os.listdir(util.outputpath)
+    for name in files:
+        if name.endswith(".parquet"):
+            method = pd.read_parquet(util.outputpath+name)
+            methods = pd.concat([methods, method])
+    methods_list = set(list(methods['Method']))
+    return list(methods_list)   
