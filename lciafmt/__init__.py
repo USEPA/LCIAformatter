@@ -79,7 +79,7 @@ def supported_mapping_systems() -> list:
        function."""
     return fmap.supported_mapping_systems()
 
-def get_mapped_method(method_id, subset=None):
+def get_mapped_method(method_id, indicator=None, method=None):
     filename = method_id.get_filename()
     if os.path.exists(util.outputpath+filename+".parquet"):
         mapped_method = read_method(method_id)
@@ -90,10 +90,14 @@ def get_mapped_method(method_id, subset=None):
         if case_insensitive:
             method['Flowable'] = method['Flowable'].str.lower()
         mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
-    if subset is not None:
-        mapped_method = mapped_method[mapped_method['Indicator'].isin(subset)]
+    if indicator is not None:
+        mapped_method = mapped_method[mapped_method['Indicator'].isin(indicator)]
         if len(mapped_method) == 0:
-            log.info('subset not found')
+            log.info('indicator not found')
+    if method is not None:
+        mapped_method = mapped_method[mapped_method['Method'].isin(method)]
+        if len(mapped_method) == 0:
+            log.info('specified method not found')
     return mapped_method
 
 def read_method(method_id):
