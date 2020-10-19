@@ -6,11 +6,14 @@ from lciafmt.util import outputpath, store_method
 
 mod = None
 
+method = lciafmt.Method.TRACI
+
 def main():
     os.makedirs(outputpath, exist_ok=True)
-    file = lciafmt.Method.TRACI.name
     log.basicConfig(level=log.INFO)
-    data = lciafmt.get_method(lciafmt.Method.TRACI)
+    file = method.get_filename()
+
+    data = lciafmt.get_method(method)
     
     if mod is not None:
         log.info("getting modified CFs")
@@ -23,18 +26,17 @@ def main():
     # map the flows to the Fed.LCA commons flows
     # set preserve_unmapped=True if you want to keep unmapped
     # flows in the resulting data frame
-    mapped_data = lciafmt.map_flows(data, system="TRACI2.1")
+    mapping = method.get_metadata()['mapping']
+    mapped_data = lciafmt.map_flows(data, system=mapping)
 
-    # write the result to JSON-LD and CSV
+    # write the result to parquet and JSON-LD
+    store_method(mapped_data, method)
     if mod is not None:
         file=mod+"_"+file
-    mapped_data.to_csv(outputpath+file+".csv", index=False)
-    store_method(mapped_data, file)
     json_pack = outputpath+file+"_json.zip"
     if os.path.exists(json_pack):
         os.remove(json_pack)
     lciafmt.to_jsonld(mapped_data, json_pack)
-
 
 
 if __name__ == "__main__":
