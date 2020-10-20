@@ -6,7 +6,9 @@ import os
 from os.path import join
 import logging as log
 
-datapath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')+'/data/'
+modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
+outputpath = modulepath + '/../output/'
+datapath = modulepath + '/data/'
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -122,3 +124,11 @@ def get_method_metadata(name: str) -> str:
     except:
         log.info("No further detail in description")
     return method_description
+
+def store_method(df, method_id):
+    """Prints the method as a dataframe to parquet file"""
+    filename = method_id.get_filename()
+    try:
+        df.to_parquet(outputpath+filename+".parquet")
+    except:
+        log.error('Failed to save method')
