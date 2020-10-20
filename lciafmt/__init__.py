@@ -91,7 +91,7 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     locally, it is generated"""
     filename = method_id.get_filename()
     if os.path.exists(util.outputpath+filename+".parquet"):
-        mapped_method = read_method(method_id)
+        mapped_method = util.read_method(method_id)
     else:
         method = get_method(method_id)
         if 'mapping' in method_id.get_metadata():
@@ -112,23 +112,13 @@ def get_mapped_method(method_id, indicators=None, methods=None):
             log.error('specified method not found')
     return mapped_method
 
-def read_method(method_id):
-    """Returns the method stored in output."""
-    filename = method_id.get_filename()
-    method = pd.DataFrame()
-    file = util.outputpath+filename+".parquet"
-    try:
-        log.info('reading stored method file')
-        method = pd.read_parquet(file)
-    except FileNotFoundError:
-        log.error('No file identified for ' + method_id)
-    return method
-
 def supported_indicators(method_id):
     """Returns a list of indicators for the identified method."""
-    method = read_method(method_id)
-    indicators = set(list(method['Indicator']))
-    return list(indicators)
+    method = util.read_method(method_id)
+    if method is not None:
+        indicators = set(list(method['Indicator']))
+        return list(indicators)
+    else: return None
 
 def supported_stored_methods():
     """Returns a list of methods stored as parquet."""

@@ -132,3 +132,15 @@ def store_method(df, method_id):
         df.to_parquet(outputpath+filename+".parquet")
     except:
         log.error('Failed to save method')
+
+def read_method(method_id):
+    """Returns the method stored in output."""
+    filename = method_id.get_filename()
+    file = outputpath+filename+".parquet"
+    try:
+        log.info('reading stored method file')
+        method = pd.read_parquet(file)
+        return method
+    except (FileNotFoundError, OSError):
+        log.error('No parquet file identified for ' + method_id.value)
+        return None
