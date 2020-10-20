@@ -35,6 +35,11 @@ class Method(Enum):
         filename = cls.get_metadata()['name'].replace(" ", "_")
         return filename
 
+    def get_class(name):
+        for n,c in Method.__members__.items():
+            if n == name or c.value == name:
+                return c
+        log.error('Method not found')
 
 def supported_methods() -> list:
     """Returns a list of dictionaries that contain meta-data of the supported
@@ -49,11 +54,12 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     """Returns the data frame of the method with the given ID. You can get the
        IDs of the supported methods from the `supported_methods` function or
        directly use the constants defined in the Method enumeration type."""
-    if method_id == Method.TRACI.value or method_id == Method.TRACI:
+    method_id = _check_as_class(method_id)
+    if method_id == Method.TRACI:
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
-    if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
+    if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
-    if method_id == Method.FEDEFL_INV.value or method_id == Method.FEDEFL_INV:
+    if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset=None)
 
 def get_modification(source, name) -> pd.DataFrame:
@@ -89,6 +95,7 @@ def supported_mapping_systems() -> list:
 def get_mapped_method(method_id, indicators=None, methods=None):
     """Obtains a mapped method stored as parquet, if that file does not exist
     locally, it is generated"""
+    method_id = _check_as_class(method_id)
     filename = method_id.get_filename()
     if os.path.exists(util.outputpath+filename+".parquet"):
         mapped_method = util.read_method(method_id)
@@ -130,3 +137,8 @@ def supported_stored_methods():
             methods = pd.concat([methods, method])
     methods_list = set(list(methods['Method']))
     return list(methods_list)   
+
+def _check_as_class(method_id):
+    if not isinstance(method_id, Method):
+        method_id = Method.get_class(method_id)
+    return method_id
