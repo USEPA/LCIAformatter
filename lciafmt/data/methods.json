@@ -3,8 +3,8 @@
     "id": "TRACI",
     "name": "TRACI 2.1",
     "version": "2.1",
-    "mapping": "TRACI2.1",
     "description": "...",
+    "mapping": "TRACI2.1",
     "case_insensitivity": "False",
     "url": "https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx"
   },
@@ -12,13 +12,13 @@
     "id": "RECIPE_2016",
     "name": "ReCiPe 2016",
     "version": "1.1",
-    "mapping": "ReCiPe2016",
     "description": "...",
+    "mapping": "ReCiPe2016",
     "case_insensitivity": "True",
     "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx"
   },
   {
-    "id": "FEDEFL Inventory",
+    "id": "FEDEFL_INV",
     "name": "FEDEFL Inventory",
     "version": "0.5",
     "description": "...",

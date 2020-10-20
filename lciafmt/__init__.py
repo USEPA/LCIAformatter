@@ -23,10 +23,11 @@ class Method(Enum):
     def get_metadata(cls):
         metadata = supported_methods()
         for m in metadata:
-            if m['case_insensitivity']=='True':
-                m['case_insensitivity'] = True
-            else:
-                 m['case_insensitivity'] = False
+            if 'case_insensitivity' in m:
+                if m['case_insensitivity']=='True':
+                    m['case_insensitivity'] = True
+                else:
+                    m['case_insensitivity'] = False
             if m['id'] == cls.name:
                 return m
     
@@ -44,7 +45,7 @@ def supported_methods() -> list:
 
 
 def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False, summary=False,
-               file=None, url=None, subset=None) -> pd.DataFrame:
+               file=None, url=None) -> pd.DataFrame:
     """Returns the data frame of the method with the given ID. You can get the
        IDs of the supported methods from the `supported_methods` function or
        directly use the constants defined in the Method enumeration type."""
@@ -53,7 +54,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.RECIPE_2016.value or method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
     if method_id == Method.FEDEFL_INV.value or method_id == Method.FEDEFL_INV:
-        return fedefl_inventory.get(subset)
+        return fedefl_inventory.get(subset=None)
 
 def get_modification(source, name) -> pd.DataFrame:
     """Returns a dataframe of modified CFs based on csv"""
@@ -85,7 +86,7 @@ def supported_mapping_systems() -> list:
        function."""
     return fmap.supported_mapping_systems()
 
-def get_mapped_method(method_id, indicator=None, method=None):
+def get_mapped_method(method_id, indicators=None, methods=None):
     """Obtains a mapped method stored as parquet, if that file does not exist
     locally, it is generated"""
     filename = method_id.get_filename()
@@ -93,17 +94,20 @@ def get_mapped_method(method_id, indicator=None, method=None):
         mapped_method = read_method(method_id)
     else:
         method = get_method(method_id)
-        case_insensitive = method_id.get_metadata()['case_insensitivity']
-        mapping_system = method_id.get_metadata()['mapping']
-        if case_insensitive:
-            method['Flowable'] = method['Flowable'].str.lower()
-        mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
-    if indicator is not None:
-        mapped_method = mapped_method[mapped_method['Indicator'].isin(indicator)]
+        if 'mapping' in method_id.get_metadata():
+            mapping_system = method_id.get_metadata()['mapping']
+            case_insensitive = method_id.get_metadata()['case_insensitivity']
+            if case_insensitive:
+                method['Flowable'] = method['Flowable'].str.lower()
+            mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
+        else:
+            mapped_method = method
+    if indicators is not None:
+        mapped_method = mapped_method[mapped_method['Indicator'].isin(indicators)]
         if len(mapped_method) == 0:
             log.error('indicator not found')
-    if method is not None:
-        mapped_method = mapped_method[mapped_method['Method'].isin(method)]
+    if methods is not None:
+        mapped_method = mapped_method[mapped_method['Method'].isin(methods)]
         if len(mapped_method) == 0:
             log.error('specified method not found')
     return mapped_method
