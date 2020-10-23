@@ -13,6 +13,8 @@ def get(subset=None) -> pd.DataFrame:
     :return: df in standard LCIAmethod format
     """
     method = df.data_frame(list())
+    method['Characterization Factor'] = pd.to_numeric(method['Characterization Factor'])
+
     if subset == None:
         list_of_inventories = subsets.get_subsets()
     else:
