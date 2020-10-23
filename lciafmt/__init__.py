@@ -37,7 +37,10 @@ class Method(Enum):
 
     def get_class(name):
         for n,c in Method.__members__.items():
-            if n == name or c.value == name:
+            m = c.get_metadata()
+            mapping = None
+            if 'mapping' in m: mapping = m['mapping']
+            if n == name or c.value == name or mapping == name:
                 return c
         log.error('Method not found')
 
