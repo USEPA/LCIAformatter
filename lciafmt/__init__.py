@@ -13,6 +13,7 @@ import lciafmt.recipe as recipe
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
 
+
 from enum import Enum
 
 class Method(Enum):
