@@ -3,6 +3,8 @@ import logging as log
 import pandas
 import lciafmt.cache as cache
 import lciafmt.df as df
+import lciafmt.util as util
+
 
 print('position 1')
 print([x for x in pyodbc.drivers() if x.startswith('Microsoft Access Driver')])
@@ -46,9 +48,9 @@ def _read(access_file: str) -> pandas.DataFrame:
             indicator = row[1],
             indicator_unit=row[2],
             flow=row[5],
-            flow_category=row[3],
+            flow_category=row[3] + "/" + row[4],
             flow_unit=row[8],
-            cas_number=row[6],
+            cas_number=util.format_cas(row[6]).lstrip("0"),
             factor=row[7])
 
     print(records[:3])
