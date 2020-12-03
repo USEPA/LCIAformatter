@@ -5,8 +5,6 @@ import lciafmt.cache as cache
 import lciafmt.df as df
 import lciafmt.util as util
 
-
-print('position 1')
 print([x for x in pyodbc.drivers() if x.startswith('Microsoft Access Driver')])
 
 def get(file=None, url=None) -> pandas.DataFrame:
@@ -28,13 +26,11 @@ def _read(access_file: str) -> pandas.DataFrame:
     log.info("read Impact World from file %s", access_file)
 
     path = cache.get_path(access_file)
-    print(path)
 
     connStr = (
         r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
         r'DBQ=' + path + ";")
 
-    print(connStr)
     cnxn = pyodbc.connect(connStr)
     crsr = cnxn.cursor()
     crsr.execute("SELECT * FROM [CF - not regionalized - All other impact categories]")
@@ -52,8 +48,6 @@ def _read(access_file: str) -> pandas.DataFrame:
             flow_unit=row[8],
             cas_number=util.format_cas(row[6]).lstrip("0"),
             factor=row[7])
-
-    print(records[:3])
 
     return df.data_frame(records)
 
