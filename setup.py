@@ -10,7 +10,7 @@ setup(
     install_requires=["fedelemflowlist @ git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.4#egg=fedelemflowlist",
                       "olca-ipc", "pandas", "xlrd"],
     license="CC0",
-    author='Michael Srocka, Troy Hottle, Ben Young, Wesley Ingwersen',
+    author='Michael Srocka, Troy Hottle, Ben Young, Wesley Ingwersen, Ben Morelli',
     author_email='ingwersen.wesley@epa.gov',
     classifiers=[
         "Development Status :: 4 - Beta",
