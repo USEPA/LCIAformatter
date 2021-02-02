@@ -20,19 +20,25 @@ def get(subset=None) -> pd.DataFrame:
     else:
         list_of_inventories = subset
     
+    alt_units = flowlist.get_alt_conversion()
+    
     for inventory in list_of_inventories:
         flows = flowlist.get_flows(subset=inventory)
         flows.drop(['Formula','Synonyms','Class','External Reference',
-                    'Preferred'], axis=1, inplace=True)
+                    'Preferred', 'AltUnit','AltUnitConversionFactor'], axis=1, inplace=True)
         flows['Indicator']=inventory
         flows['Indicator unit']=subsets.get_inventory_unit(inventory)
         flows['Characterization Factor']=1
-        
+
         # Apply unit conversions where flow unit differs from indicator unit
-        flows.loc[(flows['AltUnit']==flows['Indicator unit']),
-                  'Characterization Factor'] = flows['AltUnitConversionFactor']
-        flows.drop(['AltUnit','AltUnitConversionFactor'], axis=1, inplace=True)
-        method = pd.concat([method,flows], ignore_index=True)
+        flows_w_conversion = pd.merge(flows, alt_units, how='left',
+                                      left_on=['Flowable','Indicator unit', 'Unit'],
+                                      right_on=['Flowable','AltUnit', 'Unit'])
+        flows_w_conversion.loc[(flows_w_conversion['AltUnit']==flows_w_conversion['Indicator unit']),
+                  'Characterization Factor'] = flows_w_conversion['AltUnitConversionFactor']
+        flows_w_conversion.drop(['AltUnit','AltUnitConversionFactor','InverseConversionFactor'], axis=1, inplace=True)
+
+        method = pd.concat([method,flows_w_conversion], ignore_index=True)
 
     method['Method']='Inventory'
     return method
