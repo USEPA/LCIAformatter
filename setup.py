@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="lciafmt",
-    version="0.4",
+    version="0.4.1",
     packages=["lciafmt"],
     package_dir={'lciafmt': 'lciafmt'},
     package_data={'lciafmt': ["data/*.*"]},
