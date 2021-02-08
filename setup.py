@@ -7,7 +7,7 @@ setup(
     package_dir={'lciafmt': 'lciafmt'},
     package_data={'lciafmt': ["data/*.*"]},
     include_package_data=True,
-    install_requires=["fedelemflowlist @ git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.4#egg=fedelemflowlist",
+    install_requires=["fedelemflowlist @ git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.6#egg=fedelemflowlist",
                       "olca-ipc", "pandas", "xlrd"],
     license="CC0",
     author='Michael Srocka, Troy Hottle, Ben Young, Wesley Ingwersen',
