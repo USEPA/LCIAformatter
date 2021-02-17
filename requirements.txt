@@ -3,3 +3,4 @@ olca-ipc>=0.0.8
 pandas>=0.23
 requests>=2.21.0
 xlrd>=1.2.0
+pyyaml>=5.3
