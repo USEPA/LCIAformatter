@@ -66,7 +66,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
     if method_id == Method.ImpactWorld:
-        return impactworld.get(file=file, url=url)
+        return impactworld.get(endpoint, file=file, url=url)
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset=None)
 
