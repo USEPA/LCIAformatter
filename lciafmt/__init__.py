@@ -12,6 +12,7 @@ import lciafmt.traci as traci
 import lciafmt.recipe as recipe
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
+import lciafmt.endpoint as ep
 
 from enum import Enum
 
@@ -114,6 +115,13 @@ def get_mapped_method(method_id, indicators=None, methods=None):
         if len(mapped_method) == 0:
             log.error('specified method not found')
     return mapped_method
+
+def generate_endpoints(file):
+    """Generates an endpoint method for a supplied file based on specs"""
+    endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
+    method = ep.apply_endpoints(endpoints)
+    method['Method']=file
+    return method
 
 def supported_indicators(method_id):
     """Returns a list of indicators for the identified method."""
