@@ -2,7 +2,7 @@ import logging as log
 import os
 
 import lciafmt
-from lciafmt.util import outputpath, store_method
+from lciafmt.util import outputpath, store_method, get_modification
 
 mod = None
 
@@ -17,7 +17,7 @@ def main():
     
     if mod is not None:
         log.info("getting modified CFs")
-        modified_cfs=lciafmt.get_modification(mod,"TRACI2.1")
+        modified_cfs=get_modification(mod,"TRACI2.1")
         data = data.merge(modified_cfs,how='left',on=['Flowable','Context','Indicator'])
         data.loc[data['Updated CF'].notnull(),'Characterization Factor']=data['Updated CF']
         data = data.drop(columns=['Updated CF','Note'])

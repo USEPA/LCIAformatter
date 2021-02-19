@@ -65,20 +65,13 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
 
-def get_modification(source, name) -> pd.DataFrame:
-    """Returns a dataframe of modified CFs based on csv"""
-    modified_factors = pd.read_csv(util.datapath+"/"+source+"_"+name+".csv")
-    return modified_factors
-
 def clear_cache():
     cache.clear()
-
 
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
     log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows)
-
 
 def map_flows(df: pd.DataFrame, system=None, mapping=None,
               preserve_unmapped=False, case_insensitive=False) -> pd.DataFrame:
