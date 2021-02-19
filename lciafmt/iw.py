@@ -20,8 +20,10 @@ def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
     
     if endpoint:
         df = df[df["Indicator unit"]=='DALY']
+        df["Method"] = "Impact World - Endpoint"
     else:
         df = df[df["Indicator unit"]!='DALY']
+        df["Method"] = "Impact World - Midpoint"
     
     return df
 
