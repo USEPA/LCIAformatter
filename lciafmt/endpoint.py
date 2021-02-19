@@ -41,7 +41,7 @@ def apply_endpoints(endpoints, matching_fields = ['Indicator']):
         endpoint_method.dropna(subset=['Characterization Factor'], inplace=True)
         if (len(endpoint_method.index) != len(mapped_method.index)):
             log.warn("some characterization factors lost")
+        
         method = method.append(endpoint_method, ignore_index = True)
     
-    method.dropna(subset=['Characterization Factor'], inplace=True)
     return method
