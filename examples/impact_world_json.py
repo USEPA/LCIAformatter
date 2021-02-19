@@ -4,8 +4,6 @@ import os
 import lciafmt
 from lciafmt.util import outputpath, store_method
 
-mod = None
-
 method = lciafmt.Method.ImpactWorld
 
 #To obtain LCIA endpoint categories (damage assessment) set to True
