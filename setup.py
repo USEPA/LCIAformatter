@@ -2,13 +2,14 @@ from setuptools import setup
 
 setup(
     name="lciafmt",
-    version="0.4-beta",
+    version="0.4",
     packages=["lciafmt"],
     package_dir={'lciafmt': 'lciafmt'},
     package_data={'lciafmt': ["data/*.*"]},
     include_package_data=True,
-    install_requires=["fedelemflowlist @ git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.3#egg=fedelemflowlist",
-                      "olca-ipc", "pandas", "xlrd"],
+    install_requires=["fedelemflowlist @ git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.4#egg=fedelemflowlist",
+                      "olca-ipc", "pandas", "xlrd",
+                      "pyyaml>=5.3"],
     license="CC0",
     author='Michael Srocka, Troy Hottle, Ben Young, Wesley Ingwersen, Ben Morelli',
     author_email='ingwersen.wesley@epa.gov',

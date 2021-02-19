@@ -56,7 +56,7 @@ def supported_methods() -> list:
 
 
 def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False, summary=False,
-               file=None, url=None) -> pd.DataFrame:
+               file=None, subset=None, url=None) -> pd.DataFrame:
     """Returns the data frame of the method with the given ID. You can get the
        IDs of the supported methods from the `supported_methods` function or
        directly use the constants defined in the Method enumeration type."""
@@ -68,7 +68,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.ImpactWorld:
         return impactworld.get(endpoint, file=file, url=url)
     if method_id == Method.FEDEFL_INV:
-        return fedefl_inventory.get(subset=None)
+        return fedefl_inventory.get(subset)
 
 def get_modification(source, name) -> pd.DataFrame:
     """Returns a dataframe of modified CFs based on csv"""
