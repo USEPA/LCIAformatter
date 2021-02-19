@@ -116,11 +116,14 @@ def get_mapped_method(method_id, indicators=None, methods=None):
             log.error('specified method not found')
     return mapped_method
 
-def generate_endpoints(file):
+def generate_endpoints(file, name = None, matching_fields = ['Indicator']):
     """Generates an endpoint method for a supplied file based on specs"""
     endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
-    method = ep.apply_endpoints(endpoints)
-    method['Method']=file
+    method = ep.apply_endpoints(endpoints, matching_fields)
+    if name is None:
+        method['Method']=file
+    else:
+        method['Method']=name
     return method
 
 def supported_indicators(method_id):
