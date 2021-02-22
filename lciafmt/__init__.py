@@ -34,6 +34,10 @@ class Method(Enum):
     def get_filename(cls):
         filename = cls.get_metadata()['name'].replace(" ", "_")
         return filename
+    
+    def get_path(cls):
+        path = cls.get_metadata()['path']
+        return path
 
     def get_class(name):
         for n,c in Method.__members__.items():
