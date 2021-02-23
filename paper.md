@@ -1,4 +1,3 @@
-template sourced from: https://joss.readthedocs.io/en/latest/submitting.html#typical-paper-submission-flow
 ---
 title: 'Title'
 tags:
