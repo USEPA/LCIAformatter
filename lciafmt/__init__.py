@@ -103,10 +103,9 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     """Obtains a mapped method stored as parquet, if that file does not exist
     locally, it is generated"""
     method_id = _check_as_class(method_id)
-    filename = method_id.get_filename()
-    if os.path.exists(util.outputpath+filename+".parquet"):
-        mapped_method = util.read_method(method_id)
-    else:
+    mapped_method = util.read_method(method_id)
+    if mapped_method is None:
+        log.info('method not found, generating method')
         method = get_method(method_id)
         if 'mapping' in method_id.get_metadata():
             mapping_system = method_id.get_metadata()['mapping']
@@ -134,6 +133,7 @@ def supported_indicators(method_id):
         return list(indicators)
     else: return None
 
+''' function needs to be updated for esupy
 def supported_stored_methods():
     """Returns a list of methods stored as parquet."""
     methods = pd.DataFrame()
@@ -144,6 +144,7 @@ def supported_stored_methods():
             methods = pd.concat([methods, method])
     methods_list = set(list(methods['Method']))
     return list(methods_list)   
+'''
 
 def _check_as_class(method_id):
     if not isinstance(method_id, Method):
