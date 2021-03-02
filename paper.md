@@ -32,7 +32,7 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 
 # Summary
 
-Overview-Sarah
+Overview and highlight relationship to other ecosystem LCA tools-Sarah
 
 # Statement of need
 
@@ -40,7 +40,16 @@ Life cycle impact assessment (LCIA) methods can be implemented in life cycle ass
 
 # Structure
 
-Ben Y
+Describe package structure etc. - Ben Y
+
+The code is written in the Python 3.x language and primarily use the latest pandas package for data storage/manipulation. The code is stored on a USEPA GitHub repository and is available for public access. LCIA methods are created in openLCA JSON-LD formats....
+
+# Applied Uses
+
+TRACI - Sarah
+ReCiPe - Ben Y
+ImpactWorld+ - Ben M
+Valuation - Andrew
 
 $$\Theta(x) = \left\{\begin{array}{l}
 0\textrm{ if } x < 0\cr
@@ -53,16 +62,9 @@ You can also use plain \LaTeX for equations
 \end{equation}
 and refer to \autoref{eq:fourier} from text.
 
-# Applied Uses
-
-TRACI - Sarah
-ReCiPe - Ben Y
-ImpactWorld+ - Ben M
-Valuation - Andrew
-
 # Conclusions and Future Applications
 
-TBD
+The system was built to be flexible enough to support creating outputs for LCIA spatially-explicit characterization factors.
 
 # Citations
 
