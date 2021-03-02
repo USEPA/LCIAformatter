@@ -1,8 +1,7 @@
-import logging as log
 import os
 
 import lciafmt
-from lciafmt.util import outputpath, store_method
+from lciafmt.util import outputpath, store_method, log
 
 mod = None
 
@@ -10,7 +9,6 @@ method = lciafmt.Method.TRACI
 
 def main():
     os.makedirs(outputpath, exist_ok=True)
-    log.basicConfig(level=log.INFO)
     file = method.get_filename()
 
     data = lciafmt.get_method(method)

@@ -1,17 +1,16 @@
-import logging as log
-
-import pandas
+import pandas as pd
 import xlrd
 
 import lciafmt.cache as cache
 import lciafmt.df as df
-import lciafmt.util as util
 import lciafmt.xls as xls
 
-flowables_replace = pandas.read_csv(util.datapath+'TRACI_2.1_replacement.csv')
-flowables_split = pandas.read_csv(util.datapath+'TRACI_2.1_split.csv')
+from .util import log, aggregate_factors_for_primary_contexts, format_cas, datapath
 
-def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.DataFrame:
+flowables_replace = pd.read_csv(datapath+'TRACI_2.1_replacement.csv')
+flowables_split = pd.read_csv(datapath+'TRACI_2.1_split.csv')
+
+def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFrame:
     log.info("get method Traci 2.1")
     f = file
     if f is None:
@@ -23,7 +22,7 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("Adding average factors for primary contexts")
-        df = util.aggregate_factors_for_primary_contexts(df)
+        df = aggregate_factors_for_primary_contexts(df)
     
     log.info("Handling manual replacements")
     """ due to substances listed more than once with different names
@@ -51,7 +50,7 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pandas.Da
     return df
 
 
-def _read(xls_file: str) -> pandas.DataFrame:
+def _read(xls_file: str) -> pd.DataFrame:
     """Read the data from the Excel file with the given path into a Pandas
        data frame."""
 
@@ -73,7 +72,7 @@ def _read(xls_file: str) -> pandas.DataFrame:
         flow = xls.cell_str(sheet, row, 2)
         if flow == "":
             break
-        cas = util.format_cas(xls.cell_val(sheet, row, 1))
+        cas = format_cas(xls.cell_val(sheet, row, 1))
         for col in range(3, sheet.ncols):
             cat_info = categories.get(col)
             if cat_info is None:

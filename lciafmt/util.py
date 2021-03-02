@@ -10,6 +10,8 @@ modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 outputpath = modulepath + '/../output/'
 datapath = modulepath + '/data/'
 
+log.basicConfig(level=log.INFO)
+
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
     return str(uuid.uuid3(uuid.NAMESPACE_OID, path))

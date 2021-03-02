@@ -1,12 +1,11 @@
-import logging as log
-
-import pandas
+import pandas as pd
 import xlrd
 
 import lciafmt.cache as cache
 import lciafmt.df as df
-import lciafmt.util as util
 import lciafmt.xls as xls
+
+from .util import datapath, aggregate_factors_for_primary_contexts, log, format_cas
 
 contexts = {
         'urban air' : 'air/urban',
@@ -26,10 +25,10 @@ contexts = {
         'Sea water' : 'water/sea water',
         'marine water' : 'water/sea water'}
 
-flowables_split = pandas.read_csv(util.datapath+'ReCiPe2016_split.csv')
+flowables_split = pd.read_csv(datapath+'ReCiPe2016_split.csv')
 
 
-def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, file=None, url=None) -> pandas.DataFrame:
+def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, file=None, url=None) -> pd.DataFrame:
     log.info("get method ReCiPe 2016")
     f = file
     if f is None:
@@ -45,7 +44,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, fi
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("Adding average factors for primary contexts")
-        df = util.aggregate_factors_for_primary_contexts(df)    
+        df = aggregate_factors_for_primary_contexts(df)    
    
     if endpoint:
         log.info("Converting midpoints to endpoints")
@@ -67,7 +66,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, fi
     this replaces all instances of the Original Flowable with a New Flowable
     based on a csv input file according to the CAS"""
     for index, row in flowables_split.iterrows():
-        newCAS = util.format_cas(row['CAS'])
+        newCAS = format_cas(row['CAS'])
         newFlow = row['New Flowable']
         df.loc[df['CAS No'] == newCAS, 'Flowable'] = newFlow
     
@@ -90,7 +89,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, fi
         append = False        
         if append:
             log.info("Appending endpoint categories")
-            df = pandas.concat([df,endpoint_categories], sort=False)
+            df = pd.concat([df,endpoint_categories], sort=False)
         else:
             log.info("Applying endpoint categories")
             df = endpoint_categories
@@ -102,7 +101,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=False, summary=False, fi
     return df
 
 
-def _read(file: str) -> pandas.DataFrame:
+def _read(file: str) -> pd.DataFrame:
     log.info("read ReCiPe 2016 from file %s", file)
     wb = xlrd.open_workbook(file)
     records = []
@@ -114,11 +113,11 @@ def _read(file: str) -> pandas.DataFrame:
 
     return df.data_frame(records)
 
-def _read_endpoints(file: str) -> pandas.DataFrame:
+def _read_endpoints(file: str) -> pd.DataFrame:
     log.info("reading endpoint factors from file")
     wb = xlrd.open_workbook(file)
     endpoint_cols = ['Method','EndpointMethod', 'EndpointIndicator', 'EndpointUnit','EndpointConversion']
-    endpoint = pandas.DataFrame(columns = endpoint_cols)
+    endpoint = pd.DataFrame(columns = endpoint_cols)
     endpoints = []
     perspectives = ["I", "H", "E"]
     indicator = ""
@@ -143,7 +142,7 @@ def _read_endpoints(file: str) -> pandas.DataFrame:
                     endpoints.append(indicator)
                     endpoints.append(indicator_unit)
                     endpoints.append(val)
-                    to_add=pandas.Series(endpoints, index=endpoint_cols)
+                    to_add=pd.Series(endpoints, index=endpoint_cols)
                     endpoint=endpoint.append(to_add, ignore_index=True)
                     endpoints=[]
                     endpoint_factor_count += 1        
@@ -156,7 +155,7 @@ def _read_endpoints(file: str) -> pandas.DataFrame:
     endpoint.loc[endpoint['EndpointUnit'].str.contains('USD', case=False), 'EndpointUnit']='USD2013'
     
     log.info("reading endpoint map from csv")
-    endpoint_map = pandas.read_csv(util.datapath+'ReCiPe2016_endpoint_to_midpoint.csv')
+    endpoint_map = pd.read_csv(datapath+'ReCiPe2016_endpoint_to_midpoint.csv')
     endpoint=endpoint.merge(endpoint_map,how="left",on='EndpointIndicator')
     
     #split into two dataframes
@@ -199,7 +198,7 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
                 flow_unit = flow_unit.split("/")[1].strip()
         cas = ""
         if cas_col > -1:
-            cas=util.format_cas(xls.cell_f64(sheet, row, cas_col))
+            cas=format_cas(xls.cell_f64(sheet, row, cas_col))
 
         if with_perspectives:
             for i in range(0, 3):

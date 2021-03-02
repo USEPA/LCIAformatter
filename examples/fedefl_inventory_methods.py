@@ -1,17 +1,15 @@
-import logging as log
 import os
 import lciafmt
 import fedelemflowlist as fedefl
-from lciafmt.util import outputpath, store_method
+from lciafmt.util import outputpath, store_method, log
 
 method = lciafmt.Method.FEDEFL_INV
 
 def main():
 
     os.makedirs(outputpath, exist_ok=True)
-    log.basicConfig(level=log.INFO)
     file = method.get_filename()
-    log.info(fedefl.subset_list.get_subsets())
+    log.debug('Subsets available: ' + ", ".join(map(str, fedefl.subset_list.get_subsets())))
     subsets = None
 
     inventory_methods = lciafmt.get_method(method_id='FEDEFL Inventory',subset=subsets)

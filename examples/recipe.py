@@ -1,6 +1,4 @@
-import logging as log
 import os
-
 import lciafmt
 from lciafmt.util import outputpath, store_method
 
@@ -12,7 +10,6 @@ apply_summary = False
 def main():
     os.makedirs(outputpath, exist_ok=True)
 
-    log.basicConfig(level=log.INFO)
     data = lciafmt.get_method(method, endpoint = False, 
                               summary = False)
     data_endpoint = lciafmt.get_method(method, endpoint = True, 

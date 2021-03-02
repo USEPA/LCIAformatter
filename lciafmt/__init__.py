@@ -1,5 +1,4 @@
 import json
-import logging as log
 import pkg_resources
 
 import pandas as pd
@@ -42,7 +41,7 @@ class Method(Enum):
             if 'mapping' in m: mapping = m['mapping']
             if n == name or c.value == name or mapping == name:
                 return c
-        log.error('Method not found')
+        util.log.error('Method not found')
 
 def supported_methods() -> list:
     """Returns a list of dictionaries that contain meta-data of the supported
@@ -75,7 +74,7 @@ def clear_cache():
 
 
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
-    log.info("write JSON-LD package to %s", zip_file)
+    util.log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows)
 
@@ -115,11 +114,11 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     if indicators is not None:
         mapped_method = mapped_method[mapped_method['Indicator'].isin(indicators)]
         if len(mapped_method) == 0:
-            log.error('indicator not found')
+            util.log.error('indicator not found')
     if methods is not None:
         mapped_method = mapped_method[mapped_method['Method'].isin(methods)]
         if len(mapped_method) == 0:
-            log.error('specified method not found')
+            util.log.error('specified method not found')
     return mapped_method
 
 def supported_indicators(method_id):
