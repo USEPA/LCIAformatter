@@ -5,17 +5,19 @@ import lciafmt.cache as cache
 import lciafmt.df as df
 import lciafmt.util as util
 
-# Check for drivers and display help message if absent
-Driver_Check = ([x for x in pyodbc.drivers()])
-if any('Microsoft Access Driver' in word for word in Driver_Check):
-    print("Drivers Available")
-else:
-    print("Please install drivers to remotely connect to Access Database. Drivers only available on windows platform. "
-          "For instructions visit: https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access")
-
-# Download Access file and call read function to transfer into dataframe
 def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
+    # Download Access file and call read function to transfer into dataframe
     log.info("get method Impact World")
+
+    # Check for drivers and display help message if absent
+    driver_check = ([x for x in pyodbc.drivers()])
+    if any('Microsoft Access Driver' in word for word in driver_check):
+        log.debug("Drivers Available")
+    else:
+        log.warning(
+            "Please install drivers to remotely connect to Access Database. Drivers only available on windows platform. "
+            "For instructions visit: https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access")
+
     f = file
     if f is None:
         fname = "Impact_World.accdb"
@@ -36,9 +38,8 @@ def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
     
     return df
 
-# Read cached Access file into dataframe.
 def _read(access_file: str) -> pandas.DataFrame:
-    """Read the data from the Access database with the given path into a Pandas data frame."""
+    # Read the data from the Access database with the given path into a Pandas data frame.
 
     log.info("read Impact World from file %s", access_file)
 
@@ -55,7 +56,7 @@ def _read(access_file: str) -> pandas.DataFrame:
 # Compartment for water categories are not included in access file, defined below.
 # Elementary flow names are used to define the compartment for land transformation and occupation
 # Compartment and Subcompartment data is available in the Access file for other categories.
-    Regional_sheets = [("CF - regionalized - WaterScarc - aggregated", "Raw/in water"),
+    regional_sheets = [("CF - regionalized - WaterScarc - aggregated", "Raw/in water"),
                        ("CF - regionalized - WaterAvailab_HH - aggregated", "Raw/in water"),
                        ("CF - regionalized - LandTrans - aggregated", "Elementary Flow"),
                        ("CF - regionalized - LandOcc - aggregated", "Elementary Flow"),
@@ -68,7 +69,7 @@ def _read(access_file: str) -> pandas.DataFrame:
 
     records = []
 
-    for x in Regional_sheets:
+    for x in regional_sheets:
         # Extract all data from Access sheet containing non-regionalized flows and write to records.
         if x[0] == "CF - not regionalized - All other impact categories":
             crsr.execute("SELECT * FROM [CF - not regionalized - All other impact categories]")
@@ -109,10 +110,10 @@ def _read(access_file: str) -> pandas.DataFrame:
             crsr.execute(sql)
             rows = crsr.fetchall()
 
+            # extract column headers from Access sheet for exception testing
             cols = [column[0] for column in crsr.description]
 
             for row in rows:
-
                 #Add water to detailed context information available in Access file
                 if x[0] in ['CF - regionalized - WaterScarc - aggregated', 'CF - regionalized - WaterAvailab_HH - aggregated']:
                     flow_stmt = 'Water, ' + row.__getattribute__('Elem flow')
