@@ -40,7 +40,7 @@ the gravitating components of galaxies to study their structure and evolution,
 is now well-established, commonly taught, and frequently used in astronomy.
 Aside from toy problems and demonstrations, the majority of problems require
 efficient numerical tools, many of which require the same base code (e.g., for
-performing numerical orbit integration).
+performing numerical orbit integration). Example.
 
 # Statement of need
 
