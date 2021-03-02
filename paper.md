@@ -1,5 +1,5 @@
 ---
-title: 'Title'
+title: 'Example Title'
 tags:
   - Python
   - astronomy
