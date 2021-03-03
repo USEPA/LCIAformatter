@@ -4,6 +4,7 @@ import numpy as np
 import yaml
 import os
 from os.path import join
+import lciafmt
 import logging as log
 import pkg_resources
 import subprocess
@@ -11,7 +12,6 @@ from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,
     write_df_to_file
 
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
-outputpath = modulepath + '/../output/'
 datapath = modulepath + '/data/'
 
 #Common declaration of write format for package data products
@@ -19,6 +19,7 @@ write_format = "parquet"
 
 paths = Paths
 paths.local_path = os.path.realpath(paths.local_path + "/lciafmt")
+outputpath = paths.local_path
 
 #pkg = pkg_resources.get_distribution('lciafmt')
 try:
@@ -170,3 +171,18 @@ def read_method(method_id):
     except (FileNotFoundError, OSError):
         log.error('No parquet file identified for ' + method_id.value)
         return None
+
+def save_json(method_id, mapped_data, method=None):
+    """Saves a method as json file in the outputpath
+    param method: str name of method to subset the passed mapped_data"""
+    meta = set_lcia_method_meta(method_id)
+    filename = meta.name_data
+    if method is not None:
+        filename = method.replace('/','_')
+        mapped_data = mapped_data[mapped_data['Method'] == method]
+    path = outputpath+'/'+meta.category
+    os.makedirs(outputpath, exist_ok=True)
+    json_pack = path +'/'+filename+"_json.zip"
+    if os.path.exists(json_pack):
+        os.remove(json_pack)
+    lciafmt.to_jsonld(mapped_data, json_pack)
