@@ -21,7 +21,7 @@ paths = Paths
 paths.local_path = os.path.realpath(paths.local_path + "/lciafmt")
 outputpath = paths.local_path
 
-#pkg = pkg_resources.get_distribution('lciafmt')
+pkg = pkg_resources.get_distribution('lciafmt')
 try:
     git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode(
         'ascii')[0:7]
@@ -31,8 +31,8 @@ except:
 def set_lcia_method_meta(method_id):
     lcia_method_meta = FileMeta
     lcia_method_meta.name_data = method_id.get_filename()
-    #lcia_method_meta.tool = pkg.project_name
-    #lcia_method_meta.tool_version = pkg.version
+    lcia_method_meta.tool = pkg.project_name
+    lcia_method_meta.tool_version = pkg.version
     lcia_method_meta.category = method_id.get_path()
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
