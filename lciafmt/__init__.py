@@ -133,19 +133,6 @@ def supported_indicators(method_id):
         return list(indicators)
     else: return None
 
-''' function needs to be updated for esupy
-def supported_stored_methods():
-    """Returns a list of methods stored as parquet."""
-    methods = pd.DataFrame()
-    files = os.listdir(util.outputpath)
-    for name in files:
-        if name.endswith(".parquet"):
-            method = pd.read_parquet(util.outputpath+name)
-            methods = pd.concat([methods, method])
-    methods_list = set(list(methods['Method']))
-    return list(methods_list)   
-'''
-
 def _check_as_class(method_id):
     if not isinstance(method_id, Method):
         method_id = Method.get_class(method_id)
