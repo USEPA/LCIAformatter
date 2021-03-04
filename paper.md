@@ -40,27 +40,45 @@ Life cycle impact assessment (LCIA) methods can be implemented in life cycle ass
 
 # Structure
 
-Describe package structure etc. - Ben Y
-
 The code is written in the Python 3.x language and primarily use the latest pandas package for data storage/manipulation. The code is stored on a USEPA GitHub repository and is available for public access. LCIA methods are created in openLCA JSON-LD formats....
+
+Describe package structure etc. - Ben Y
+1. Accesses LCIA methods directly from the source (currently includes excel files and access databases), downloading and saving in a temporary cache
+2. Flow names, indicators, characterization factors, and other metadata are compiled in a standard format
+3. Adjustments are made as needed to improve consistency between indicators and across methods
+-handling duplicate entries for the same flow
+-data cleaning: e.g. cleaning string names, adjusting capitalization, formatting of CAS
+-supporting non specified secondary contexts where non are provided
+4. Parsing midpoints from endpoints within a single source, if necessary
+5. Applying flow mapping to FEDEFL
+-unit conversion as needed
+6. Mapped methods are stored locally as parquet files for future access by LCIAformatter or other tools
+7. Optionally, mapped methods can be exportd as JSON-LD format for use in LCA software tools such as openLCA.
+
 
 # Applied Uses
 
-TRACI - Sarah
-ReCiPe - Ben Y
+TRACI2.1 - Sarah
+
+ReCiPe2016 - Ben Y
+
 ImpactWorld+ - Ben M
-Valuation - Andrew
 
+FEDEFL Inventory Methods - Ben Y
+The LCIAformatter generates Life Cycle Inventory Methods based on groups of elementary flows identified in the FEDEFL. For example, an inventory method for energy resource use would represent a summation of all instances of these flows within a dataset. Where necessary unit conversions are applied to achieve a consistent indicator unit. 
 
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
+Valuation and other Endpoint Methods - Andrew
+
+Current use by other ecosystem tools (i.e. USEEIOr)?
+
 
 # Conclusions and Future Applications
 
 The system was built to be flexible enough to support creating outputs for LCIA spatially-explicit characterization factors.
+
+Future applications:
+-regionalization
+-custom methods
 
 # Citations
 
