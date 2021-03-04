@@ -1,8 +1,16 @@
+# traci.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+This module contains functions needed to compile LCIA methods from EPA's
+Tool for Reduction and Assessment of Chemicals and Other Environmental
+Impacts (TRACI)
+"""
 import pandas as pd
 import xlrd
 
 import lciafmt.cache as cache
-import lciafmt.df as df
+import lciafmt.df as dataframe
 import lciafmt.xls as xls
 
 from .util import log, aggregate_factors_for_primary_contexts, format_cas, datapath
@@ -10,7 +18,9 @@ from .util import log, aggregate_factors_for_primary_contexts, format_cas, datap
 flowables_replace = pd.read_csv(datapath+'TRACI_2.1_replacement.csv')
 flowables_split = pd.read_csv(datapath+'TRACI_2.1_split.csv')
 
+
 def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFrame:
+    """  Downloads and processes the TRACI impact method. """
     log.info("get method Traci 2.1")
     f = file
     if f is None:
@@ -23,7 +33,7 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFr
     if add_factors_for_missing_contexts:
         log.info("Adding average factors for primary contexts")
         df = aggregate_factors_for_primary_contexts(df)
-    
+
     log.info("Handling manual replacements")
     """ due to substances listed more than once with different names
     this replaces all instances of the Original Flowable with a New Flowable
@@ -32,21 +42,21 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFr
     for index, row in flowables_replace.iterrows():
         orig = row['Original Flowable']
         new = row['New Flowable']
-        df['Flowable']=df['Flowable'].replace(orig, new) 
-        
+        df['Flowable']=df['Flowable'].replace(orig, new)
+
     """ due to substances listed more than once with the same name but different CAS
     this replaces all instances of the Original Flowable with a New Flowable
     based on a csv input file according to the CAS"""
     for index, row in flowables_split.iterrows():
-        CAS = row['CAS']
+        cas = row['CAS']
         new = row['New Flowable']
-        df.loc[df['CAS No'] == CAS, 'Flowable'] = new
-    
+        df.loc[df['CAS No'] == cas, 'Flowable'] = new
+
     length=len(df)
     df.drop_duplicates(keep='first',inplace=True)
     length=length-len(df)
     log.info("%s duplicate entries removed", length)
-    
+
     return df
 
 
@@ -80,7 +90,7 @@ def _read(xls_file: str) -> pd.DataFrame:
             factor = xls.cell_f64(sheet, row, col)
             if factor == 0.0:
                 continue
-            df.record(
+            dataframe.record(
                 records,
                 method="TRACI 2.1",
                 indicator=cat_info[0],
@@ -91,7 +101,7 @@ def _read(xls_file: str) -> pd.DataFrame:
                 cas_number=cas,
                 factor=factor)
 
-    return df.data_frame(records)
+    return dataframe.data_frame(records)
 
 
 def _category_info(c: str):

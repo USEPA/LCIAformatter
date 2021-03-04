@@ -1,16 +1,23 @@
+# util.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+This module contains common functions for processing LCIA methods
+"""
 import uuid
-import pandas as pd
-import numpy as np
-import yaml
 import os
 from os.path import join
 import logging as log
+import pandas as pd
+import numpy as np
+import yaml
 
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 outputpath = modulepath + '/../output/'
 datapath = modulepath + '/data/'
 
 log.basicConfig(level=log.INFO)
+
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -71,15 +78,15 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     #Ignore the following impact categories for generating averages
     ignored_categories = ['Land transformation', 'Land occupation',
                           'Water consumption','Mineral resource scarcity',
-                          'Fossil resource scarcity']    
+                          'Fossil resource scarcity']
     indices = df['Context'].str.find('/')
     ignored_list = df['Indicator'].isin(ignored_categories)
     i = 0
     for k in ignored_list.iteritems():
-        if k[1] == True:
+        if k[1]:
             indices.update(pd.Series([-1], index=[i]))
         i = i + 1
-                 
+
     primary_context = []
     i = 0
     for c in df['Context']:
@@ -107,8 +114,9 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     df = pd.concat([df, df_secondary_agg], ignore_index=True, sort=False)
     return df
 
+
 def get_method_metadata(name: str) -> str:
-    if "TRACI 2.1" in name: 
+    if "TRACI 2.1" in name:
         method = 'TRACI'
     elif "ReCiPe 2016" in name:
         if "Endpoint" in name:
@@ -127,18 +135,20 @@ def get_method_metadata(name: str) -> str:
         log.info("No further detail in description")
     return method_description
 
+
 def store_method(df, method_id):
     """Prints the method as a dataframe to parquet file"""
     filename = method_id.get_filename()
     try:
-        df.to_parquet(outputpath+filename+".parquet")
+        df.to_parquet(outputpath + filename + ".parquet")
     except:
         log.error('Failed to save method')
+
 
 def read_method(method_id):
     """Returns the method stored in output."""
     filename = method_id.get_filename()
-    file = outputpath+filename+".parquet"
+    file = outputpath + filename + ".parquet"
     try:
         log.info('reading stored method file')
         method = pd.read_parquet(file)
