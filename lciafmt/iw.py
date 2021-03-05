@@ -15,14 +15,14 @@ def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
         log.debug("Drivers Available")
     else:
         log.warning(
-            "Please install drivers to remotely connect to Access Database. Drivers only available on windows platform. "
+            "Please install drivers to remotely connect to Access Database. Drivers only available on windows platform."
             "For instructions visit: https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access")
 
     f = file
     if f is None:
         fname = "Impact_World.accdb"
         if url is None:
-            url = ("https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1")
+            url = "https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1"
         f = cache.get_or_download(fname, url)
     df = _read(f)
 
@@ -35,6 +35,9 @@ def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
     else:
         df = df[~df["Indicator unit"].isin(end_point_units)]
         df["Method"] = "Impact World - Midpoint"
+
+    # call function to replace contexts for unspecified water and air flows.
+    df = update_context(df)
     
     return df
 
@@ -115,7 +118,8 @@ def _read(access_file: str) -> pandas.DataFrame:
 
             for row in rows:
                 #Add water to detailed context information available in Access file
-                if x[0] in ['CF - regionalized - WaterScarc - aggregated', 'CF - regionalized - WaterAvailab_HH - aggregated']:
+                if x[0] in ['CF - regionalized - WaterScarc - aggregated',
+                            'CF - regionalized - WaterAvailab_HH - aggregated']:
                     flow_stmt = 'Water, ' + row.__getattribute__('Elem flow')
                 else:
                     flow_stmt = row.__getattribute__('Elem flow')
@@ -142,4 +146,22 @@ def _read(access_file: str) -> pandas.DataFrame:
     return df.data_frame(records)
 
 
+def update_context(df_context) -> pandas.DataFrame:
 
+    # replace unspecified air and water flows for impact categories that don't rely on sub-compartments for
+    # characterization factor selection.
+    single_context = ['Freshwater acidification', 'Terrestrial acidification', 'Climate change, long term',
+                      'Climate change, short term', 'Climate change, ecosystem quality, short term',
+                      'Climate change, ecosystem quality, long term', 'Climate change, human health, short term',
+                      'Climate change, human health, long term', 'Photochemical oxidant formation',
+                      'Ozone Layer Depletion', 'Ozone layer depletion','Marine acidification, short term',
+                      'Marine acidification, long term','Ionizing radiations']
+
+    context = { 'Air/(unspecified)' : 'Air',
+                # 'Water/(unspecified)' : 'Water',
+                }
+
+    df_context.loc[df_context['Indicator'].isin(single_context), 'Context'] = df_context['Context'].map(context)
+    x = df_context
+
+    return df_context
