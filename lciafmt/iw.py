@@ -127,8 +127,12 @@ def _read(access_file: str) -> pandas.DataFrame:
                 # Define context/compartment for flow based on impact category.
                 if {'Compartment', 'Subcompartment'}.issubset(cols):
                     category_stmt = row.Compartment + "/" + row.Subcompartment
-                elif x[0] in ['CF - regionalized - LandTrans - aggregated', 'CF - regionalized - LandOcc - aggregated']:
+                elif x[0] in ['CF - regionalized - LandTrans - aggregated',
+                              'CF - regionalized - LandOcc - aggregated']:
                     category_stmt = row.__getattribute__('Elem flow')
+                elif x[0] in ['CF - regionalized - WaterScarc - aggregated',
+                              'CF - regionalized - WaterAvailab_HH - aggregated']:
+                    category_stmt = flow_stmt
                 else:
                     category_stmt = x[1]
 
