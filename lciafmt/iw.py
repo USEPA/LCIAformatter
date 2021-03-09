@@ -165,7 +165,7 @@ def update_context(df_context) -> pandas.DataFrame:
                 # 'Water/(unspecified)' : 'Water',
                 }
 
-    df_context.loc[df_context['Indicator'].isin(single_context), 'Context'] = df_context['Context'].map(context)
-    x = df_context
+    df_context.loc[df_context['Indicator'].isin(single_context),
+                   'Context'] = df_context['Context'].map(context).fillna(df_context['Context'])
 
     return df_context
