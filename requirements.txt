@@ -1,10 +1,8 @@
-git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@v1.0.4#egg=fedelemflowlist
+git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@v1.0.7#egg=fedelemflowlist
 olca-ipc>=0.0.8
 pandas>=0.23
 requests>=2.21.0
 xlrd>=1.2.0
-numpy~=1.18.1
-pyodbc~=4.0.30
-setuptools~=41.2.0
+pyodbc>=4.0.30
 pyyaml>=5.3
 
