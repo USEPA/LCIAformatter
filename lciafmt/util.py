@@ -108,7 +108,7 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
 def collapse_indicators(df) -> pd.DataFrame:
     """For a given flow for an indicator, only one characterization factor
     should be present. In some cases, due to lack of detail in target flow list,
-    this assumption is validated. This function collapses those instances and
+    this assumption is invalid. This function collapses those instances and
     returns an average characterization factor"""
     
     cols = ['Method', 'Indicator', 'Indicator unit', 'Flow UUID']
