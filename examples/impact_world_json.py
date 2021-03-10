@@ -2,7 +2,7 @@ import logging as log
 import os
 
 import lciafmt
-from lciafmt.util import outputpath, store_method
+from lciafmt.util import outputpath, store_method, collapse_indicators
 
 method = lciafmt.Method.ImpactWorld
 
@@ -21,6 +21,8 @@ def main():
     # flows in the resulting data frame
     mapping = method.get_metadata()['mapping']
     mapped_data = lciafmt.map_flows(data, system=mapping)
+
+    mapped_data = collapse_indicators(mapped_data)
 
     # write the result to parquet and JSON-LD
     store_method(mapped_data, method)
