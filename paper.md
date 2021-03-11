@@ -1,33 +1,37 @@
 ---
 title: 'LCIA Formatter'
 tags:
+  - life cycle assessment
+  - impact assessment
   - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
 authors:
-  - name: Adrian M. Price-Whelan^[Custom footnotes for e.g. denoting who the corresponding author is can be included like this.]
-    orcid: 0000-0003-0872-7098
-    affiliation: "1, 2" # (Multiple affiliations must be quoted)
-  - name: Author Without ORCID
+  - name: Ben Young
+    orcid:
+    affiliation: 1
+  - name: Michael Srocka
+    orcid:
     affiliation: 2
-  - name: Author with no affiliation
+  - name: Wesley Ingwersen^[Corresponding author]
+    orcid:
     affiliation: 3
+  - name: Ben Morelli
+    orcid:
+    affiliation: 1
+  - name: Sarah Cashman
+    orcid:
+    affiliation: 1
+  - name: Andrew Henderson
+    orcid:
+    affiliation: 1
 affiliations:
- - name: Lyman Spitzer, Jr. Fellow, Princeton University
+ - name: Eastern Research Group, Inc. 
    index: 1
- - name: Institution Name
+ - name: GreenDelta
    index: 2
- - name: Independent Researcher
+ - name: U.S. Environmental Protection Agency
    index: 3
-date: 13 August 2017
+date: 15 March 2021
 bibliography: paper.bib
-
-# Optional fields if submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
@@ -40,51 +44,45 @@ Life cycle impact assessment (LCIA) methods can be implemented in life cycle ass
 
 # Structure
 
-The code is written in the Python 3.x language and primarily use the latest pandas package for data storage/manipulation. The code is stored on a USEPA GitHub repository and is available for public access. LCIA methods are created in openLCA JSON-LD formats....
+The code is written in the Python 3.x language and primarily uses the latest pandas package for data storage and manipulation. The code is stored on a USEPA GitHub repository and is available for public access.
 
-Describe package structure etc. - Ben Y
-1. Accesses LCIA methods directly from the source (currently includes excel files and access databases), downloading and saving in a temporary cache
-2. Flow names, indicators, characterization factors, and other metadata are compiled in a standard format
-3. Adjustments are made as needed to improve consistency between indicators and across methods
--handling duplicate entries for the same flow
--data cleaning: e.g. cleaning string names, adjusting capitalization, formatting of CAS
--supporting non specified secondary contexts where non are provided
-4. Parsing midpoints from endpoints within a single source, if necessary
-5. Applying flow mapping to FEDEFL
--unit conversion as needed
-6. Mapped methods are stored locally as parquet files for future access by LCIAformatter or other tools
-7. Optionally, mapped methods can be exportd as JSON-LD format for use in LCA software tools such as openLCA.
+The LCIAformatter access source methods directly from the data provider. These methods take the format of excel files or access databases. Source data are downloaded and saved in a temporary cache.
+To support the specific functions necessary to access and parse individual methods, each method is processed within its own module. Flow names, indicators, characterization factors, and other metadata are compiled in a [standard format](https://github.com/USEPA/LCIAformatter/tree/documentation/format%20specs).
+Adjustments are made as needed to improve consistency between indicators and across methods. This includes handling duplicate entries for the same elementary flow, data cleaning (such as cleaning string names, adjusting capitalization, formatting of CAS Registry Numbers).
+Additionally, the LCIAformatter supports the inclusion of non specified secondary contexts where none are provided.
+Where methods provide both midpoint and endpoint categories within a single source, the LCIAformatter parses these methods for separate use.
+Finally, source flow data are mapped to elementary flows in the Federal Elementary Flow List [cite], through mapping files provided within that package. These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
+Mapped methods are stored locally as parquet files for future access by LCIAformatter or other tools.
+Additionally, mapped methods can be exported as JSON-LD format for use in LCA software tools such as openLCA.
 
 
-# Applied Uses
+# Available Methods
 
-TRACI2.1 - Sarah
+## TRACI2.1 - Sarah
 TRACI 2.1 source file: https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx
 Source citation: [@bare_traci_2011]
 
-ReCiPe2016 - Ben Y
-[@huijbregts_recipe_2017]
+## ReCiPe2016 
+ReCiPe 2016 characterizes impacts across XX midpiont indicators and three perspectives: Individualistic, Hierarchist, and Egalitarian [@huijbregts_recipe_2017]. The LCIAformatter generates endpoint impacts through a series of midpoint conversion factors provided for each indicator.  
+As is done for TRACI2.1, where characterization factors are not supplied for unspecified secondary contexts, an average factor across the possible contexts is generated. This ensures that users that do not specify a secondary context (e.g. emission/air with no indication of population density) can still obtain a characterization factor for a flow. 
 
-ImpactWorld+ - Ben M
+
+## ImpactWorld+ - Ben M
 [@bulle_impact_2019]
 2-3 sentences on instances where mapping is not 1:1 (e.g., excludes regionalization) and include original source citation. egionalized flowables are excluded
   from the output files generated by the LCIA Formatter at this time.
 
-FEDEFL Inventory Methods - Ben Y
-The LCIAformatter generates Life Cycle Inventory Methods based on groups of elementary flows identified in the FEDEFL. For example, an inventory method for energy resource use would represent a summation of all instances of these flows within a dataset. Where necessary unit conversions are applied to achieve a consistent indicator unit. 
+## FEDEFL Inventory Methods - Ben Y
+The LCIAformatter generates life cycle inventory methods based on groups of elementary flows identified in the FEDEFL. For example, an inventory method for energy resource use would represent a summation of all instances of these flows within a dataset. Where necessary unit conversions are applied to achieve a consistent indicator unit. 
+
+# Applications
 
 Valuation and other Endpoint Methods - Andrew
 
-Current use by other ecosystem tools (i.e. USEEIOr)?
-
-
-# Conclusions and Future Applications
-
+The LCIA methods generated by the LCIAformatter for use with the FEDEFL are hosted publicly on the Federal LCA Commons for use by practitioners and researchers. These methods support life cycle assessments performed by many parties, including member agencies for the Federal LCA Commons such as U.S. EPA, U.S. DOE, USDA, DOD, and others. These methods also enable impact assessment for researchers utilizing the US Life Cycle Inventory (USLCI) Database.
+As a Python-based package, the LCIAformatter can also be accessed by the expanding network of publicly available tools for LCA automation, including [useeior](https://github.com/USEPA/useeior) and the Electricity Life Cycle Inventory ([electricitylci](https://github.com/USEPA/ElectricityLCI))
 The system was built to be flexible enough to support creating outputs for LCIA spatially-explicit characterization factors.
 
-Future applications:
--regionalization
--custom methods
 
 
 # Acknowledgements
