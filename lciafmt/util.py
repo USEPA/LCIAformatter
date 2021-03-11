@@ -128,6 +128,8 @@ def get_method_metadata(name: str) -> str:
         if "Endpoint" in name:
             method = 'ReCiPe2016_endpoint'
         method = 'ReCiPe2016'
+    elif "Impact World" in name:
+        method = 'ImpactWorld'
     else:
         return ""
     with open(join(datapath, method + "_description.yaml")) as f:
