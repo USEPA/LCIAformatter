@@ -40,8 +40,10 @@ class Method(Enum):
         for n,c in Method.__members__.items():
             m = c.get_metadata()
             mapping = None
+            methods = []
             if 'mapping' in m: mapping = m['mapping']
-            if n == name or c.value == name or mapping == name:
+            if 'methods' in m: methods = m['methods']
+            if n == name or c.value == name or mapping == name or name in methods:
                 return c
         log.error('Method not found')
 
