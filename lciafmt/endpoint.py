@@ -15,21 +15,19 @@ def apply_endpoints(endpoints, matching_fields = ['Indicator']):
     
     method = pd.DataFrame()
     
-    # TODO handle methods with multiple methods eg. recipe E/H/I
-    
     for e in matching_fields:
         endpoints[e].fillna("", inplace=True)
     
     for m in indicators['Method'].unique():
         method_indicators = indicators[indicators['Method']==m]
-        indicator_list = list(method_indicators['Indicator'].unique())
-        mapped_method = lciafmt.get_mapped_method(m, indicators=indicator_list)
+        mapped_method = lciafmt.get_mapped_method(m, methods=[m])
         endpoint_method = mapped_method.merge(endpoints[matching_fields +
-                                                  ['Endpoint Indicator',
+                                                  ['Method',
+                                                  'Endpoint Indicator',
                                                   'Endpoint Indicator unit',
                                                   'Conversion factor']],
                                        how = 'left',
-                                       on = matching_fields)
+                                       on = matching_fields + ['Method'])
         endpoint_method['Indicator']=endpoint_method['Endpoint Indicator']
         endpoint_method['Indicator unit']=endpoint_method['Endpoint Indicator unit']
         endpoint_method['Characterization Factor']=endpoint_method['Characterization Factor']\
@@ -41,7 +39,16 @@ def apply_endpoints(endpoints, matching_fields = ['Indicator']):
         endpoint_method.dropna(subset=['Characterization Factor'], inplace=True)
         if (len(endpoint_method.index) != len(mapped_method.index)):
             log.warn("some characterization factors lost")
+
+        #Determine fields to aggregate over. Use all fields except CF which are summed
+        agg_fields = list(set(endpoint_method.columns) - {'Characterization Factor'})
+        endpoint_method_agg = endpoint_method.groupby(agg_fields, as_index=False).agg(
+            {'Characterization Factor': 'sum'})
         
-        method = method.append(endpoint_method, ignore_index = True)
+        # Sort
+        endpoint_method_agg = endpoint_method_agg[endpoint_method.columns]
+        endpoint_method_agg.sort_values(by=['Indicator','Flowable','Context'], inplace=True)
+        
+        method = method.append(endpoint_method_agg, ignore_index = True)
     
     return method
