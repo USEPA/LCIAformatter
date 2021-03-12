@@ -6,22 +6,22 @@ tags:
   - Python
 authors:
   - name: Ben Young
-    orcid:0000-0001-6276-8670
+    orcid: 0000-0001-6276-8670
     affiliation: 1
   - name: Michael Srocka
     orcid:
     affiliation: 2
   - name: Wesley Ingwersen^[Corresponding author]
-    orcid:0000-0002-9614-701X
+    orcid: 0000-0002-9614-701X
     affiliation: 3
   - name: Ben Morelli
     orcid:
     affiliation: 1
   - name: Sarah Cashman
-    orcid:0000-0001-9859-9557
+    orcid: 0000-0001-9859-9557
     affiliation: 1
   - name: Andrew Henderson
-    orcid:0000-0003-2436-7512
+    orcid: 0000-0003-2436-7512
     affiliation: 1
 affiliations:
  - name: Eastern Research Group, Inc. 
