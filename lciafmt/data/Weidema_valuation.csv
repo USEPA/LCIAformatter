@@ -1,0 +1,10 @@
+Method,Indicator,Indicator unit,Endpoint Indicator,Endpoint Indicator unit,Conversion factor
+ReCiPe 2016 - Endpoint/I,Human Health,DALY,Valuation,USD2014,129744.6666
+ReCiPe 2016 - Endpoint/I,Ecosystem Quality,species-year,Valuation,USD2014,17787165.43
+ReCiPe 2016 - Endpoint/I,Resources,USD2013,Valuation,USD2014,1.0146
+ReCiPe 2016 - Endpoint/H,Human Health,DALY,Valuation,USD2014,129744.6666
+ReCiPe 2016 - Endpoint/H,Ecosystem Quality,species-year,Valuation,USD2014,17787165.43
+ReCiPe 2016 - Endpoint/H,Resources,USD2013,Valuation,USD2014,1.0146
+ReCiPe 2016 - Endpoint/E,Human Health,DALY,Valuation,USD2014,129744.6666
+ReCiPe 2016 - Endpoint/E,Ecosystem Quality,species-year,Valuation,USD2014,17787165.43
+ReCiPe 2016 - Endpoint/E,Resources,USD2013,Valuation,USD2014,1.0146
