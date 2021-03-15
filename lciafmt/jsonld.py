@@ -3,7 +3,7 @@ from typing import Optional
 import olca
 import olca.units as units
 import olca.pack as pack
-import pandas
+import pandas as pd
 
 from .util import make_uuid, is_non_empty_str, get_method_metadata, log
 
@@ -24,7 +24,7 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pandas.DataFrame, write_flows=False):
+    def write(self, df: pd.DataFrame, write_flows=False):
         for _, row in df.iterrows():
             indicator = self.__indicator(row)
             factor = olca.ImpactFactor()

@@ -1,6 +1,6 @@
 from typing import List
 
-import pandas
+import pandas as pd
 import fedelemflowlist as flowlist
 
 import lciafmt.df as dfutil
@@ -8,7 +8,7 @@ from .util import make_uuid, log
 
 
 def supported_mapping_systems() -> list:
-    fmap = flowlist.get_flowmapping()  # type: pandas.DataFrame
+    fmap = flowlist.get_flowmapping()  # type: pd.DataFrame
     systems = set()
     for i in range(0, len(fmap.index)):
         systems.add(fmap.iat[i, 0])
@@ -97,7 +97,7 @@ class _FlowInfo(object):
 
 class Mapper(object):
 
-    def __init__(self, df: pandas.DataFrame, system=None,
+    def __init__(self, df: pd.DataFrame, system=None,
                  mapping=None, preserve_unmapped=False, case_insensitive=False):
         self.__df = df
         self.__system = system
@@ -107,10 +107,10 @@ class Mapper(object):
             mapping = flowlist.get_flowmapping(source=system)
             if self.__case_insensitive:
                 mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
-        self.__mapping = mapping  # type: pandas.DataFrame
+        self.__mapping = mapping  # type: pd.DataFrame
         self.__preserve_unmapped = preserve_unmapped
 
-    def run(self) -> pandas.DataFrame:
+    def run(self) -> pd.DataFrame:
         log.info("apply flow mapping")
         map_idx = self._build_map_index()
         mapped = 0
