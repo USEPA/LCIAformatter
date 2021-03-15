@@ -184,11 +184,11 @@ def _read_endpoints(file: str) -> pd.DataFrame:
 
 
 def _read_mid_points(sheet: xlrd.book.sheet, records: list):
-    log.info("try to read midpoint factors from sheet %s", sheet.name)
+    log.debug("try to read midpoint factors from sheet %s", sheet.name)
 
     start_row, data_col, with_perspectives = _find_data_start(sheet)
     if start_row < 0:
-        log.warning("could not find a value column in sheet %s", sheet.name)
+        log.debug("could not find a value column in sheet %s", sheet.name)
         return
 
     flow_col = _find_flow_column(sheet)
@@ -271,7 +271,7 @@ def _find_flow_column(sheet: xlrd.book.sheet) -> int:
             log.debug("identified column %i %s for flow names", ncol, s)
             break
     if ncol < 0:
-        log.warning("no 'name' column in %s, take col=0 for that", sheet.name)
+        log.debug("no 'name' column in %s, take col=0 for that", sheet.name)
         ncol = 0
     return ncol
 
@@ -315,16 +315,16 @@ def _determine_units(sheet: xlrd.book.sheet) -> (str, str, int):
     if indicator_unit != "?":
         log.debug("determined indicator unit: %s", indicator_unit)
     elif _containstr(sheet.name, "land", "transformation"):
-        log.warning("unknown indicator unit; assuming it is m2")
+        log.debug("unknown indicator unit; assuming it is m2")
         indicator_unit = "m2"
     elif _containstr(sheet.name, "land", "occupation"):
-        log.warning("unknown indicator unit; assuming it is m2*a")
+        log.debug("unknown indicator unit; assuming it is m2*a")
         indicator_unit = "m2*a"
     elif _containstr(sheet.name, "water", "consumption"):
-        log.warning("unknown indicator unit; assuming it is m3")
+        log.debug("unknown indicator unit; assuming it is m3")
         indicator_unit = "m3"
     else:
-        log.warning("unknown indicator unit")
+        log.debug("unknown indicator unit")
 
     if _containstr(flow_unit, "kg"):
         flow_unit = "kg"
@@ -334,16 +334,16 @@ def _determine_units(sheet: xlrd.book.sheet) -> (str, str, int):
     elif flow_unit != "?":
         log.debug("determined flow unit: %s", flow_unit)
     elif _containstr(sheet.name, "land", "transformation"):
-        log.warning("unknown flow unit; assume it is m2")
+        log.debug("unknown flow unit; assume it is m2")
         flow_unit = "m2"
     elif _containstr(sheet.name, "land", "occupation"):
-        log.warning("unknown flow unit; assuming it is m2*a")
+        log.debug("unknown flow unit; assuming it is m2*a")
         flow_unit = "m2*a"
     elif _containstr(sheet.name, "water", "consumption"):
-        log.warning("unknown flow unit; assuming it is m3")
+        log.debug("unknown flow unit; assuming it is m3")
         flow_unit = "m3"
     else:
-        log.warning("unknown flow unit; assuming it is 'kg'")
+        log.debug("unknown flow unit; assuming it is 'kg'")
         flow_unit = "kg"
 
     return indicator_unit, flow_unit, unit_col
@@ -368,22 +368,22 @@ def _determine_compartments(sheet: xlrd.book.sheet) -> (str, int):
             or _containstr(sheet.name, "ozone") \
             or _containstr(sheet.name, "particulate") \
             or _containstr(sheet.name, "acidification"):
-        log.warning("no compartment column; assuming 'air'")
+        log.debug("no compartment column; assuming 'air'")
         return "air", -1
 
     elif _containstr(sheet.name, "mineral", "resource", "scarcity"):
-        log.warning("no compartment column; assuming 'resource/ground'")
+        log.debug("no compartment column; assuming 'resource/ground'")
         return "resource/ground", -1
 
     elif _containstr(sheet.name, "fossil", "resource", "scarcity"):
-        log.warning("no compartment column; assuming 'resource'")
+        log.debug("no compartment column; assuming 'resource'")
         return "resource", -1
 
     if _containstr(sheet.name, "water", "consumption"):
-        log.warning("no compartment column; assuming 'resource/fresh water'")
+        log.debug("no compartment column; assuming 'resource/fresh water'")
         return "resource/fresh water", -1
 
-    log.warning("no compartment column")
+    log.debug("no compartment column")
     return "", -1
 
 

@@ -11,7 +11,7 @@ from .util import make_uuid, is_non_empty_str, get_method_metadata, log
 class Writer(object):
 
     def __init__(self, zip_file: str):
-        log.info("create JSON-LD writer on %s", zip_file)
+        log.debug("create JSON-LD writer on %s", zip_file)
         self.__writer = pack.Writer(zip_file)
         self.__methods = {}
         self.__indicators = {}
@@ -80,7 +80,7 @@ class Writer(object):
         m = self.__methods.get(uid)
         if m is not None:
             return m
-        log.info("init method %s", row[0])
+        log.debug("init method %s", row[0])
         m = olca.ImpactMethod()
         m.id = uid
         m.name = row[0]
@@ -139,7 +139,7 @@ class Writer(object):
             c = self.__categories.get(cpath)
             if c is not None:
                 continue
-            log.info("init category %s", cpath)
+            log.debug("init category %s", cpath)
             c = olca.Category()
             c.id = make_uuid("category/flow/" + cpath)
             c.name = parts[i]

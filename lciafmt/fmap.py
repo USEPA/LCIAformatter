@@ -103,7 +103,7 @@ class Mapper(object):
         self.__system = system
         self.__case_insensitive = case_insensitive
         if mapping is None:
-            log.info("load flow mapping v=%s from fed.elem.flows")
+            log.info("load flow mapping v=%s from fed.elem.flows", system)
             mapping = flowlist.get_flowmapping(source=system)
             if self.__case_insensitive:
                 mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
@@ -148,7 +148,7 @@ class Mapper(object):
         return dfutil.data_frame(records)
 
     def _build_map_index(self) -> dict:
-        log.info("index flows")
+        log.debug("index flows")
         map_idx = {}
         for _, row in self.__mapping.iterrows():
             sys = row["SourceListName"]

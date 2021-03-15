@@ -7,6 +7,7 @@ This module contains common functions for processing LCIA methods
 import uuid
 import os
 from os.path import join
+import sys
 import lciafmt
 import logging as log
 import pandas as pd
@@ -21,7 +22,8 @@ from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 datapath = modulepath + '/data/'
 
-log.basicConfig(level=log.INFO)
+log.basicConfig(level=log.INFO, format='%(asctime)s %(levelname)-8s %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S', stream=sys.stdout)
 
 #Common declaration of write format for package data products
 write_format = "parquet"
@@ -186,7 +188,7 @@ def get_method_metadata(name: str) -> str:
         detail = metadata[name]
         method_description = method_description+detail
     except:
-        log.info("No further detail in description")
+        log.debug("No further detail in description")
     return method_description
 
 
