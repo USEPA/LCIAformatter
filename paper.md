@@ -53,7 +53,7 @@ Additionally, the LCIAformatter supports the inclusion of non specified secondar
 Where methods provide both midpoint and endpoint categories within a single source, the LCIAformatter parses these methods for separate use.
 Finally, source flow data are mapped to elementary flows in the Federal Elementary Flow List [@edelen_federal_2019], through mapping files provided within that ([package](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)). These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
 Mapped methods are stored locally as parquet files for future access by LCIAformatter or other tools.
-Additionally, mapped methods can be exported as JSON-LD format for use in LCA software tools such as openLCA.
+Additionally, mapped methods can be exported as JSON-LD format for use in LCA software tools such as ([openLCA](https://www.openlca.org/)).
 
 
 # Available Methods
