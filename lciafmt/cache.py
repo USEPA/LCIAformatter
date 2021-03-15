@@ -1,9 +1,10 @@
-import logging as log
 import os
 import shutil
 import tempfile
 
 import requests
+
+from .util import log
 
 
 def clear():

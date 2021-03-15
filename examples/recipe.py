@@ -1,5 +1,3 @@
-import logging as log
-
 import lciafmt
 from lciafmt.util import store_method, save_json
 
@@ -9,7 +7,7 @@ method = lciafmt.Method.RECIPE_2016
 apply_summary = False
 
 def main():
-    log.basicConfig(level=log.INFO)
+
     data = lciafmt.get_method(method, endpoint = False, 
                               summary = False)
     data_endpoint = lciafmt.get_method(method, endpoint = True, 

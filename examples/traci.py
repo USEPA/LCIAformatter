@@ -1,14 +1,12 @@
-import logging as log
-
 import lciafmt
-from lciafmt.util import store_method, save_json, get_modification
+from lciafmt.util import store_method, save_json, get_modification, log
+
 
 mod = None
 
 method = lciafmt.Method.TRACI
 
 def main():
-    log.basicConfig(level=log.INFO)
 
     data = lciafmt.get_method(method)
     

@@ -1,4 +1,3 @@
-import logging as log
 from typing import Optional
 
 import olca
@@ -6,7 +5,7 @@ import olca.units as units
 import olca.pack as pack
 import pandas
 
-from .util import make_uuid, is_non_empty_str, get_method_metadata
+from .util import make_uuid, is_non_empty_str, get_method_metadata, log
 
 
 class Writer(object):

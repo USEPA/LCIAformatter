@@ -1,11 +1,10 @@
-import logging as log
 from typing import List
 
 import pandas
 import fedelemflowlist as flowlist
 
 import lciafmt.df as dfutil
-from .util import make_uuid
+from .util import make_uuid, log
 
 
 def supported_mapping_systems() -> list:

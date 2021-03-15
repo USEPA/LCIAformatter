@@ -1,18 +1,27 @@
+# util.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+This module contains common functions for processing LCIA methods
+"""
 import uuid
-import pandas as pd
-import numpy as np
-import yaml
 import os
 from os.path import join
 import lciafmt
 import logging as log
+import pandas as pd
+import numpy as np
+import yaml
 import pkg_resources
 import subprocess
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
     write_df_to_file
 
+
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 datapath = modulepath + '/data/'
+
+log.basicConfig(level=log.INFO)
 
 #Common declaration of write format for package data products
 write_format = "parquet"
@@ -37,6 +46,7 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
+
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -97,15 +107,15 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     #Ignore the following impact categories for generating averages
     ignored_categories = ['Land transformation', 'Land occupation',
                           'Water consumption','Mineral resource scarcity',
-                          'Fossil resource scarcity']    
+                          'Fossil resource scarcity']
     indices = df['Context'].str.find('/')
     ignored_list = df['Indicator'].isin(ignored_categories)
     i = 0
     for k in ignored_list.iteritems():
-        if k[1] == True:
+        if k[1]:
             indices.update(pd.Series([-1], index=[i]))
         i = i + 1
-                 
+
     primary_context = []
     i = 0
     for c in df['Context']:
@@ -158,7 +168,7 @@ def collapse_indicators(df) -> pd.DataFrame:
 
 
 def get_method_metadata(name: str) -> str:
-    if "TRACI 2.1" in name: 
+    if "TRACI 2.1" in name:
         method = 'TRACI'
     elif "ReCiPe 2016" in name:
         if "Endpoint" in name:
@@ -179,6 +189,7 @@ def get_method_metadata(name: str) -> str:
         log.info("No further detail in description")
     return method_description
 
+
 def store_method(df, method_id):
     """Prints the method as a dataframe to parquet file"""
     meta = set_lcia_method_meta(method_id)
@@ -186,6 +197,7 @@ def store_method(df, method_id):
         write_df_to_file(df,paths,meta)
     except:
         log.error('Failed to save method')
+
 
 def read_method(method_id):
     """Returns the method stored in output."""
