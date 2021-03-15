@@ -4,11 +4,39 @@ import numpy as np
 import yaml
 import os
 from os.path import join
+import lciafmt
 import logging as log
+import pkg_resources
+import subprocess
+from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
+    write_df_to_file
 
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
-outputpath = modulepath + '/../output/'
 datapath = modulepath + '/data/'
+
+#Common declaration of write format for package data products
+write_format = "parquet"
+
+paths = Paths
+paths.local_path = os.path.realpath(paths.local_path + "/lciafmt")
+outputpath = paths.local_path
+
+pkg = pkg_resources.get_distribution('lciafmt')
+try:
+    git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode(
+        'ascii')[0:7]
+except:
+    git_hash = None
+
+def set_lcia_method_meta(method_id):
+    lcia_method_meta = FileMeta
+    lcia_method_meta.name_data = method_id.get_filename()
+    lcia_method_meta.tool = pkg.project_name
+    lcia_method_meta.tool_version = pkg.version
+    lcia_method_meta.category = method_id.get_path()
+    lcia_method_meta.ext = write_format
+    lcia_method_meta.git_hash = git_hash
+    return lcia_method_meta
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -105,10 +133,29 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     df = pd.concat([df, df_secondary_agg], ignore_index=True, sort=False)
     return df
 
+
 def get_modification(source, name) -> pd.DataFrame:
     """Returns a dataframe of modified CFs based on csv"""
     modified_factors = pd.read_csv(datapath+"/"+source+"_"+name+".csv")
     return modified_factors
+
+  
+def collapse_indicators(df) -> pd.DataFrame:
+    """For a given flow for an indicator, only one characterization factor
+    should be present. In some cases, due to lack of detail in target flow list,
+    this assumption is invalid. This function collapses those instances and
+    returns an average characterization factor"""
+    
+    cols = ['Method', 'Indicator', 'Indicator unit', 'Flow UUID']
+    duplicates = df[df.duplicated(subset=cols, keep=False)]
+    cols_to_keep = [c for c in df.columns.values.tolist()]
+    cols_to_keep.remove('Characterization Factor')
+    df2 = df.groupby(cols_to_keep, as_index=False)['Characterization Factor'].mean()
+    log.info(str(len(duplicates))+" duplicate factors consolidated to "
+              +str(len(duplicates)-(len(df)-len(df2))))
+   
+    return df2
+
 
 def get_method_metadata(name: str) -> str:
     if "TRACI 2.1" in name: 
@@ -117,6 +164,8 @@ def get_method_metadata(name: str) -> str:
         if "Endpoint" in name:
             method = 'ReCiPe2016_endpoint'
         method = 'ReCiPe2016'
+    elif "Impact World" in name:
+        method = 'ImpactWorld'
     else:
         return ""
     with open(join(datapath, method + "_description.yaml")) as f:
@@ -132,20 +181,34 @@ def get_method_metadata(name: str) -> str:
 
 def store_method(df, method_id):
     """Prints the method as a dataframe to parquet file"""
-    filename = method_id.get_filename()
+    meta = set_lcia_method_meta(method_id)
     try:
-        df.to_parquet(outputpath+filename+".parquet")
+        write_df_to_file(df,paths,meta)
     except:
         log.error('Failed to save method')
 
 def read_method(method_id):
     """Returns the method stored in output."""
-    filename = method_id.get_filename()
-    file = outputpath+filename+".parquet"
+    meta = set_lcia_method_meta(method_id)
     try:
         log.info('reading stored method file')
-        method = pd.read_parquet(file)
+        method = load_preprocessed_output(meta, paths)
         return method
     except (FileNotFoundError, OSError):
         log.error('No parquet file identified for ' + method_id.value)
         return None
+
+def save_json(method_id, mapped_data, method=None):
+    """Saves a method as json file in the outputpath
+    param method: str name of method to subset the passed mapped_data"""
+    meta = set_lcia_method_meta(method_id)
+    filename = meta.name_data
+    if method is not None:
+        filename = method.replace('/','_')
+        mapped_data = mapped_data[mapped_data['Method'] == method]
+    path = outputpath+'/'+meta.category
+    os.makedirs(outputpath, exist_ok=True)
+    json_pack = path +'/'+filename+"_json.zip"
+    if os.path.exists(json_pack):
+        os.remove(json_pack)
+    lciafmt.to_jsonld(mapped_data, json_pack)

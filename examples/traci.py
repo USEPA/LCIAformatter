@@ -1,17 +1,14 @@
 import logging as log
-import os
 
 import lciafmt
-from lciafmt.util import outputpath, store_method, get_modification
+from lciafmt.util import store_method, save_json, get_modification
 
 mod = None
 
 method = lciafmt.Method.TRACI
 
 def main():
-    os.makedirs(outputpath, exist_ok=True)
     log.basicConfig(level=log.INFO)
-    file = method.get_filename()
 
     data = lciafmt.get_method(method)
     
@@ -31,13 +28,7 @@ def main():
 
     # write the result to parquet and JSON-LD
     store_method(mapped_data, method)
-    if mod is not None:
-        file=mod+"_"+file
-    json_pack = outputpath+file+"_json.zip"
-    if os.path.exists(json_pack):
-        os.remove(json_pack)
-    lciafmt.to_jsonld(mapped_data, json_pack)
-
+    save_json(method, mapped_data)
 
 if __name__ == "__main__":
     main()

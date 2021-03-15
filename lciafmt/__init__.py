@@ -10,9 +10,11 @@ import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 import lciafmt.recipe as recipe
+import lciafmt.iw as impactworld
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
 import lciafmt.endpoint as ep
+
 
 from enum import Enum
 
@@ -20,6 +22,7 @@ class Method(Enum):
     TRACI = "TRACI 2.1"
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
+    ImpactWorld = "ImpactWorld"
     
     def get_metadata(cls):
         metadata = supported_methods()
@@ -35,6 +38,10 @@ class Method(Enum):
     def get_filename(cls):
         filename = cls.get_metadata()['name'].replace(" ", "_")
         return filename
+    
+    def get_path(cls):
+        path = cls.get_metadata()['path']
+        return path
 
     def get_class(name):
         for n,c in Method.__members__.items():
@@ -65,6 +72,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
+    if method_id == Method.ImpactWorld:
+        return impactworld.get(endpoint, file=file, url=url)
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
 
@@ -95,10 +104,9 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     """Obtains a mapped method stored as parquet, if that file does not exist
     locally, it is generated"""
     method_id = _check_as_class(method_id)
-    filename = method_id.get_filename()
-    if os.path.exists(util.outputpath+filename+".parquet"):
-        mapped_method = util.read_method(method_id)
-    else:
+    mapped_method = util.read_method(method_id)
+    if mapped_method is None:
+        log.info('method not found, generating method')
         method = get_method(method_id)
         if 'mapping' in method_id.get_metadata():
             mapping_system = method_id.get_metadata()['mapping']
@@ -135,17 +143,6 @@ def supported_indicators(method_id):
         indicators = set(list(method['Indicator']))
         return list(indicators)
     else: return None
-
-def supported_stored_methods():
-    """Returns a list of methods stored as parquet."""
-    methods = pd.DataFrame()
-    files = os.listdir(util.outputpath)
-    for name in files:
-        if name.endswith(".parquet"):
-            method = pd.read_parquet(util.outputpath+name)
-            methods = pd.concat([methods, method])
-    methods_list = set(list(methods['Method']))
-    return list(methods_list)   
 
 def _check_as_class(method_id):
     if not isinstance(method_id, Method):
