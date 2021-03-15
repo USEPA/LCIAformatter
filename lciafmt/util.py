@@ -15,7 +15,7 @@ import yaml
 import pkg_resources
 import subprocess
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
-    write_df_to_file
+    write_df_to_file, get_version_number
 
 
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
@@ -41,7 +41,7 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta = FileMeta
     lcia_method_meta.name_data = method_id.get_filename()
     lcia_method_meta.tool = pkg.project_name
-    lcia_method_meta.tool_version = pkg.version
+    lcia_method_meta.tool_version = get_version_number(lcia_method_meta.tool)
     lcia_method_meta.category = method_id.get_path()
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
