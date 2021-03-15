@@ -1,11 +1,18 @@
+# iw.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+This module contains functions needed to compile LCIA methods from ImpactWorld+
+"""
 import pyodbc
-import logging as log
-import pandas
+import pandas as pd
+
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
-import lciafmt.util as util
 
-def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
+from .util import log, format_cas
+
+def get(endpoint=False, file=None, url=None) -> pd.DataFrame:
     """Download Access file and call read function to transfer into dataframe"""
     log.info("get method Impact World")
 
@@ -41,7 +48,7 @@ def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
     
     return df
 
-def _read(access_file: str) -> pandas.DataFrame:
+def _read(access_file: str) -> pd.DataFrame:
     """Read the data from the Access database with the given path into a
     Pandas data frame."""
 
@@ -68,7 +75,7 @@ def _read(access_file: str) -> pandas.DataFrame:
                       flow=row[5],
                       flow_category=row[3] + "/" + row[4],
                       flow_unit=row[8],
-                      cas_number=util.format_cas(row[6]).lstrip("0"),
+                      cas_number=format_cas(row[6]).lstrip("0"),
                       factor=row[7])
 
     """List relevant sheets in Impact World Access file. Second item in tuple
@@ -147,7 +154,7 @@ def _read(access_file: str) -> pandas.DataFrame:
     return dfutil.data_frame(records)
 
 
-def update_context(df_context) -> pandas.DataFrame:
+def update_context(df_context) -> pd.DataFrame:
     """replaces unspecified air and water flows for impact categories that 
     don't rely on sub-compartments for  characterization factor selection."""
     single_context = ['Freshwater acidification',
