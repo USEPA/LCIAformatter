@@ -11,7 +11,7 @@ import pandas as pd
 import fedelemflowlist as flowlist
 import fedelemflowlist.subset_list as subsets
 
-import lciafmt.df as df
+import lciafmt.df as dfutil
 
 
 def get(subset=None) -> pd.DataFrame:
@@ -21,7 +21,7 @@ def get(subset=None) -> pd.DataFrame:
     none selected all availabile inventories will be generated
     :return: df in standard LCIAmethod format
     """
-    method = df.data_frame(list())
+    method = dfutil.data_frame(list())
     method['Characterization Factor'] = pd.to_numeric(method['Characterization Factor'])
 
     if subset is None:

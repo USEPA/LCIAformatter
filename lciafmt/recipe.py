@@ -9,7 +9,7 @@ import pandas as pd
 import xlrd
 
 import lciafmt.cache as cache
-import lciafmt.df as dataframe
+import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
 from .util import datapath, aggregate_factors_for_primary_contexts, log, format_cas
@@ -125,7 +125,7 @@ def _read(file: str) -> pd.DataFrame:
             continue
         _read_mid_points(wb.sheet_by_name(name), records)
 
-    return dataframe.data_frame(records)
+    return dfutil.data_frame(records)
 
 
 def _read_endpoints(file: str) -> pd.DataFrame:
@@ -219,30 +219,30 @@ def _read_mid_points(sheet: xlrd.book.sheet, records: list):
                 val = xls.cell_f64(sheet, row, data_col + i)
                 if val == 0.0:
                     continue
-                dataframe.record(records,
-                                 method="ReCiPe 2016 - Midpoint/" + perspectives[i],
-                                 indicator=sheet.name,
-                                 indicator_unit=indicator_unit,
-                                 flow=xls.cell_str(sheet, row, flow_col),
-                                 flow_category=compartment,
-                                 flow_unit=flow_unit,
-                                 cas_number=cas,
-                                 factor=val)
+                dfutil.record(records,
+                              method="ReCiPe 2016 - Midpoint/" + perspectives[i],
+                              indicator=sheet.name,
+                              indicator_unit=indicator_unit,
+                              flow=xls.cell_str(sheet, row, flow_col),
+                              flow_category=compartment,
+                              flow_unit=flow_unit,
+                              cas_number=cas,
+                              factor=val)
                 factor_count += 1
         else:
             val = xls.cell_f64(sheet, row, data_col)
             if val == 0.0:
                 continue
             for p in perspectives:
-                dataframe.record(records,
-                                 method="ReCiPe 2016 - Midpoint/" + p,
-                                 indicator=sheet.name,
-                                 indicator_unit=indicator_unit,
-                                 flow=xls.cell_str(sheet, row, flow_col),
-                                 flow_category=compartment,
-                                 flow_unit=flow_unit,
-                                 cas_number=cas,
-                                 factor=val)
+                dfutil.record(records,
+                              method="ReCiPe 2016 - Midpoint/" + p,
+                              indicator=sheet.name,
+                              indicator_unit=indicator_unit,
+                              flow=xls.cell_str(sheet, row, flow_col),
+                              flow_category=compartment,
+                              flow_unit=flow_unit,
+                              cas_number=cas,
+                              factor=val)
                 factor_count += 1
     log.debug("extracted %i factors", factor_count)
 

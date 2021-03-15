@@ -2,7 +2,7 @@ import pyodbc
 import logging as log
 import pandas
 import lciafmt.cache as cache
-import lciafmt.df as df
+import lciafmt.df as dfutil
 import lciafmt.util as util
 
 def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
@@ -61,16 +61,15 @@ def _read(access_file: str) -> pandas.DataFrame:
     crsr.execute("SELECT * FROM [CF - not regionalized - All other impact categories]")
     rows = crsr.fetchall()
     for row in rows:
-        df.record(
-            records,
-            method="Impact World",
-            indicator = row[1],
-            indicator_unit=row[2],
-            flow=row[5],
-            flow_category=row[3] + "/" + row[4],
-            flow_unit=row[8],
-            cas_number=util.format_cas(row[6]).lstrip("0"),
-            factor=row[7])
+        dfutil.record(records,
+                      method="Impact World",
+                      indicator = row[1],
+                      indicator_unit=row[2],
+                      flow=row[5],
+                      flow_category=row[3] + "/" + row[4],
+                      flow_unit=row[8],
+                      cas_number=util.format_cas(row[6]).lstrip("0"),
+                      factor=row[7])
 
     """List relevant sheets in Impact World Access file. Second item in tuple
     tells the source of compartment information. Compartment for water
@@ -98,16 +97,15 @@ def _read(access_file: str) -> pandas.DataFrame:
             rows = crsr.fetchall()
 
             for row in rows:
-                df.record(
-                    records,
-                    method="Impact World",
-                    indicator=row.ImpCat,
-                    indicator_unit=row.Unit.strip('[]').split('/')[0],
-                    flow=row.__getattribute__('Elem flow'),
-                    flow_category="Air/" + row.__getattribute__("Archetype 1"),
-                    flow_unit=row.Unit.strip('[]').split('/')[1],
-                    cas_number="",
-                    factor=row.CFvalue)
+                dfutil.record(records,
+                              method="Impact World",
+                              indicator=row.ImpCat,
+                              indicator_unit=row.Unit.strip('[]').split('/')[0],
+                              flow=row.__getattribute__('Elem flow'),
+                              flow_category="Air/" + row.__getattribute__("Archetype 1"),
+                              flow_unit=row.Unit.strip('[]').split('/')[1],
+                              cas_number="",
+                              factor=row.CFvalue)
 
         else:
             sql = "SELECT * FROM [" + x[0] + "] WHERE (([" + x[0] + "].Resolution In('Global', 'Not regionalized')))"
@@ -136,18 +134,17 @@ def _read(access_file: str) -> pandas.DataFrame:
                 else:
                     category_stmt = x[1]
 
-                df.record(
-                    records,
-                    method="Impact World",
-                    indicator = row.ImpCat,
-                    indicator_unit=row.Unit.strip('[]').split('/')[0],
-                    flow=flow_stmt,
-                    flow_category=category_stmt,
-                    flow_unit=row.Unit.strip('[]').split('/')[1],
-                    cas_number="",
-                    factor=row.__getattribute__('Weighted Average'))
+                dfutil.record(records,
+                              method="Impact World",
+                              indicator = row.ImpCat,
+                              indicator_unit=row.Unit.strip('[]').split('/')[0],
+                              flow=flow_stmt,
+                              flow_category=category_stmt,
+                              flow_unit=row.Unit.strip('[]').split('/')[1],
+                              cas_number="",
+                              factor=row.__getattribute__('Weighted Average'))
 
-    return df.data_frame(records)
+    return dfutil.data_frame(records)
 
 
 def update_context(df_context) -> pandas.DataFrame:

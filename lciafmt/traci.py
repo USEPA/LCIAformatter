@@ -10,7 +10,7 @@ import pandas as pd
 import xlrd
 
 import lciafmt.cache as cache
-import lciafmt.df as dataframe
+import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
 from .util import log, aggregate_factors_for_primary_contexts, format_cas, datapath
@@ -90,18 +90,17 @@ def _read(xls_file: str) -> pd.DataFrame:
             factor = xls.cell_f64(sheet, row, col)
             if factor == 0.0:
                 continue
-            dataframe.record(
-                records,
-                method="TRACI 2.1",
-                indicator=cat_info[0],
-                indicator_unit=cat_info[1],
-                flow=flow,
-                flow_category=cat_info[2],
-                flow_unit=cat_info[3],
-                cas_number=cas,
-                factor=factor)
+            dfutil.record(records,
+                          method="TRACI 2.1",
+                          indicator=cat_info[0],
+                          indicator_unit=cat_info[1],
+                          flow=flow,
+                          flow_category=cat_info[2],
+                          flow_unit=cat_info[3],
+                          cas_number=cas,
+                          factor=factor)
 
-    return dataframe.data_frame(records)
+    return dfutil.data_frame(records)
 
 
 def _category_info(c: str):
