@@ -46,21 +46,21 @@ LCIA methods can be implemented in LCA software to provide impact assessment res
 
 The code is written in the Python 3.x language and primarily uses the latest pandas package for data storage and manipulation. The code is stored on a USEPA GitHub [repository](https://github.com/USEPA/LCIAformatter) and is available for public access.
 
-The LCIAformatter accesses source methods directly from the data provider. These methods take the format of excel files or access databases. Source data are downloaded and saved in a temporary cache.
+The LCIAformatter accesses source methods directly from the data provider. These methods take the format of Excel files or Access databases. Source data are downloaded and saved in a temporary cache.
 To support the specific functions necessary to access and parse individual methods, each method is processed within its own module. Flow names, indicators, characterization factors, and other metadata are compiled in a [standard format](https://github.com/USEPA/LCIAformatter/tree/documentation/format%20specs).
 Adjustments are made as needed to improve consistency between indicators and across methods. This includes handling duplicate entries for the same elementary flow, data cleaning (such as cleaning string names, adjusting capitalization, formatting of CAS Registry Numbers).
 Additionally, the LCIAformatter supports the inclusion of non specified secondary contexts (emission locations) where none are provided.
 Where methods provide both midpoint and endpoint categories within a single source, the LCIAformatter parses these methods for separate use.
-Finally, source flow data are mapped to elementary flows in the Federal Elementary Flow List [@edelen_federal_2019], through mapping files provided within that [package](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List). These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
+Finally, source flow data are mapped to elementary flows in the FEDEFL [@edelen_federal_2019], through mapping files provided within that [package](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List). These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
 Mapped methods are stored locally as parquet files for future access by LCIAformatter or other tools.
 Additionally, mapped methods can be exported as JSON-LD format for use in LCA software tools such as [openLCA](https://www.openlca.org/).
 
 
 # Available Methods
-The LCIAformatter is structured to easily convert original source data from existing LCIA methods. Currently, version 1.0 of the LCIAformatter converts three commonly used LCIA methods: TRACI 2,1, ReCiPe2016, and ImpactWorld+. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIAformatter. 
+The LCIAformatter is structured to easily convert original source data from existing LCIA methods. Currently, version 1.0 of the LCIA formatter converts three commonly used LCIA methods: TRACI 2,1, ReCiPe2016, and ImpactWorld+. Available LCIA methods cover both midpoint and endpoint impact categories (add definition). Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIAformatter.
 
 ## TRACI2.1
-USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI) is widely used for LCA across the Federal Government and by external researchers [@bare_traci_2011]. The LCIAformatter accesses the TRACI Excel-based source file and characterizes impacts across 9 midpiont indicators for use in U.S.-focused analyses.
+USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI) is widely used for LCA across the Federal Government and by external researchers [@bare_traci_2011]. The LCIAformatter accesses the TRACI Excel-based source file and characterizes impacts across 9 midpiont indicators for use in U.S.-focused analyses. When available, flow characterization factors are mapped to the context with the greatest level of detail. For example, an air emission may be linked to the specific release height and population density of release. If such secondary context data is unkown, the LCIA formatter generates an average factor across the possible contexts to ensure the flow will still be captured in model calculations.
 
 ## ReCiPe2016 
 ReCiPe 2016 characterizes impacts across 18 midpiont indicators and three perspectives: Individualist, Hierarchist, and Egalitarian [@huijbregts_recipe_2017]. The LCIAformatter generates endpoint impacts through a series of midpoint conversion factors provided for each indicator.
