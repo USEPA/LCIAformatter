@@ -36,11 +36,11 @@ bibliography: paper.bib
 
 # Summary
 
-The United States Environmental Protection Agency (USEPA) is developing an automated and structured life cycle assessment (LCA) tool ecosystem to comprehensively assess environmental and public health metrics across industries and commodities. The ecosystem include tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support classification and characterization of the cumulative LCI to potential impacts. This paper describes a USEPA LCA ecosystem tool 'LCIA formatter' that extracts LCIA information from original source methods and converts the data for interoperability with the rest of the USEPA LCA ecosystem tools.   
+The United States Environmental Protection Agency (USEPA) is developing an automated life cycle assessment (LCA) tool ecosystem to comprehensively assess environmental and public health metrics across industries and commodities. The ecosystem include tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support classification and characterization of the cumulative LCI to potential impacts. This paper describes a USEPA LCA ecosystem tool 'LCIA formatter' that extracts LCIA information from original source methods and converts the data for interoperability with the rest of the USEPA LCA ecosystem tools.   
 
 # Statement of need
 
-LCIA methods can be implemented in LCA software to provide impact assessment results for LCI data loaded into the software, but the flows used in these LCIA methods must match exactly the flows in the LCI data to ensure all relevant flows are captured in the LCA model results. As LCI flows are updated, the impact methods should also be made available, and vice versa, as LCIA method developers update characterization factors, they should be available as soon as possible to work with existing LCI data. The LCIA formatter module this paper describes is a specific solution to take LCIA methods from original providers, map them to an authoritative flow list, and export them in common data formats.
+LCIA methods can be implemented in LCA software to provide impact assessment results for LCI data loaded into the software, but the flows used in these LCIA methods must match exactly the flows in the LCI data to ensure all relevant flows are captured in the LCA model results. As LCI flows are updated, the impact methods should also be made available, and vice versa, as LCIA method developers update characterization factors, they should be available as soon as possible to work with existing LCI data. The LCIA formatter module this paper describes is a specific solution to take LCIA methods from original providers, map them to an authoritative flow list, and export them in common data formats for use with LCI datasets mapped to the same authoritative flow list.
 
 # Structure
 
@@ -57,8 +57,9 @@ Additionally, mapped methods can be exported as JSON-LD format for use in LCA so
 
 
 # Available Methods
+The LCIAformatter is structured to easily convert original source data from existing LCIA methods. Currently, version 1.0 of the LCIAformatter converts three commonly used LCIA methods: TRACI 2,1, ReCiPe2016, and ImpactWorld+. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIAformatter.
 
-## TRACI2.1 - Sarah
+## TRACI2.1
 USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI) is widely used for LCA across the Federal Government and by external researchers [@bare_traci_2011]. 
 
 ## ReCiPe2016 
