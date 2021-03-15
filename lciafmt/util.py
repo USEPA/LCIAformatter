@@ -133,6 +133,22 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     df = pd.concat([df, df_secondary_agg], ignore_index=True, sort=False)
     return df
 
+def collapse_indicators(df) -> pd.DataFrame:
+    """For a given flow for an indicator, only one characterization factor
+    should be present. In some cases, due to lack of detail in target flow list,
+    this assumption is invalid. This function collapses those instances and
+    returns an average characterization factor"""
+    
+    cols = ['Method', 'Indicator', 'Indicator unit', 'Flow UUID']
+    duplicates = df[df.duplicated(subset=cols, keep=False)]
+    cols_to_keep = [c for c in df.columns.values.tolist()]
+    cols_to_keep.remove('Characterization Factor')
+    df2 = df.groupby(cols_to_keep, as_index=False)['Characterization Factor'].mean()
+    log.info(str(len(duplicates))+" duplicate factors consolidated to "
+              +str(len(duplicates)-(len(df)-len(df2))))
+   
+    return df2
+
 def get_method_metadata(name: str) -> str:
     if "TRACI 2.1" in name: 
         method = 'TRACI'
@@ -140,6 +156,8 @@ def get_method_metadata(name: str) -> str:
         if "Endpoint" in name:
             method = 'ReCiPe2016_endpoint'
         method = 'ReCiPe2016'
+    elif "Impact World" in name:
+        method = 'ImpactWorld'
     else:
         return ""
     with open(join(datapath, method + "_description.yaml")) as f:
