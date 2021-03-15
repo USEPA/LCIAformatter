@@ -13,6 +13,7 @@ import lciafmt.recipe as recipe
 import lciafmt.iw as impactworld
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
+import lciafmt.endpoint as ep
 
 
 from enum import Enum
@@ -46,8 +47,10 @@ class Method(Enum):
         for n,c in Method.__members__.items():
             m = c.get_metadata()
             mapping = None
+            methods = []
             if 'mapping' in m: mapping = m['mapping']
-            if n == name or c.value == name or mapping == name:
+            if 'methods' in m: methods = m['methods']
+            if n == name or c.value == name or mapping == name or name in methods:
                 return c
         log.error('Method not found')
 
@@ -74,20 +77,13 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
 
-def get_modification(source, name) -> pd.DataFrame:
-    """Returns a dataframe of modified CFs based on csv"""
-    modified_factors = pd.read_csv(util.datapath+"/"+source+"_"+name+".csv")
-    return modified_factors
-
 def clear_cache():
     cache.clear()
-
 
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
     log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows)
-
 
 def map_flows(df: pd.DataFrame, system=None, mapping=None,
               preserve_unmapped=False, case_insensitive=False) -> pd.DataFrame:
@@ -129,6 +125,16 @@ def get_mapped_method(method_id, indicators=None, methods=None):
         if len(mapped_method) == 0:
             log.error('specified method not found')
     return mapped_method
+
+def generate_endpoints(file, name = None, matching_fields = ['Indicator']):
+    """Generates an endpoint method for a supplied file based on specs"""
+    endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
+    method = ep.apply_endpoints(endpoints, matching_fields)
+    if name is None:
+        method['Method']=file
+    else:
+        method['Method']=name
+    return method
 
 def supported_indicators(method_id):
     """Returns a list of indicators for the identified method."""

@@ -15,6 +15,7 @@
     "version": "1.1",
     "description": "...",
     "mapping": "ReCiPe2016",
+    "methods": ["ReCiPe 2016 - Endpoint/I", "ReCiPe 2016 - Endpoint/H", "ReCiPe 2016 - Endpoint/E"],
     "path": "recipe_2016",
     "case_insensitivity": "True",
     "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx"

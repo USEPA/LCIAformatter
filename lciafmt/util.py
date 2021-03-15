@@ -133,6 +133,13 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     df = pd.concat([df, df_secondary_agg], ignore_index=True, sort=False)
     return df
 
+
+def get_modification(source, name) -> pd.DataFrame:
+    """Returns a dataframe of modified CFs based on csv"""
+    modified_factors = pd.read_csv(datapath+"/"+source+"_"+name+".csv")
+    return modified_factors
+
+  
 def collapse_indicators(df) -> pd.DataFrame:
     """For a given flow for an indicator, only one characterization factor
     should be present. In some cases, due to lack of detail in target flow list,
@@ -148,6 +155,7 @@ def collapse_indicators(df) -> pd.DataFrame:
               +str(len(duplicates)-(len(df)-len(df2))))
    
     return df2
+
 
 def get_method_metadata(name: str) -> str:
     if "TRACI 2.1" in name: 
