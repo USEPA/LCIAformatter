@@ -10,8 +10,10 @@ import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 import lciafmt.recipe as recipe
+import lciafmt.iw as impactworld
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
+
 
 from enum import Enum
 
@@ -19,6 +21,7 @@ class Method(Enum):
     TRACI = "TRACI 2.1"
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
+    ImpactWorld = "ImpactWorld"
     
     def get_metadata(cls):
         metadata = supported_methods()
@@ -62,6 +65,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
+    if method_id == Method.ImpactWorld:
+        return impactworld.get(endpoint, file=file, url=url)
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
 

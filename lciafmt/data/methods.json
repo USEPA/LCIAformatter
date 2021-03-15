@@ -23,6 +23,15 @@
     "version": "0.5",
     "description": "...",
     "url": "http://www.github.com/usepa//Federal-LCA-Commons-Elementary-Flow-List"
+  },
+  {
+    "id": "ImpactWorld",
+    "name": "ImpactWorld",
+    "version": "1.3",
+    "description": "Global impact factors for all available impact categories. Developed in a partnership with CIRAIG, University of Michigan, Quantis International, Technical University of Denmark and école Polytechnique de Lausanne (EPFL).",
+    "mapping": "ImpactWorld+",
+    "case_insensitivity": "False",
+    "url": "http://www.impactworldplus.org/en/writeToFile.php"
   }
 
 ]
