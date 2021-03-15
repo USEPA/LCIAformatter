@@ -36,11 +36,11 @@ bibliography: paper.bib
 
 # Summary
 
-Overview and highlight relationship to other ecosystem LCA tools-Sarah
+The United States Environmental Protection Agency (USEPA) is developing an automated and structured life cycle assessment (LCA) tool ecosystem to comprehensively assess environmental metrics across industries and commodities. The ecosystem include tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support characterization of the cumulative LCI to potential environmental and human health impacts.   
 
 # Statement of need
 
-Life cycle impact assessment (LCIA) methods can be implemented in life cycle assessment (LCA) software to provide impact assessment results for life cycle inventory (LCI) data loaded into the software, but the flows used in these methods must match exactly the flows in the LCI data (add ref). As LCI flows are updated, the impact methods should also be made available, and vice versa, as LCIA method developers update characterization factors, they should be available as soon as possible to work with existing LCI data. The LCIA formatter module this paper describes is a specific solution to take LCIA methods from original providers, map them to an authoritative flow list, and export them in common data formats.
+LCIA methods can be implemented in life cycle assessment (LCA) software to provide impact assessment results for life cycle inventory (LCI) data loaded into the software, but the flows used in these methods must match exactly the flows in the LCI data (add ref). As LCI flows are updated, the impact methods should also be made available, and vice versa, as LCIA method developers update characterization factors, they should be available as soon as possible to work with existing LCI data. The LCIA formatter module this paper describes is a specific solution to take LCIA methods from original providers, map them to an authoritative flow list, and export them in common data formats.
 
 # Structure
 
@@ -59,11 +59,10 @@ Additionally, mapped methods can be exported as JSON-LD format for use in LCA so
 # Available Methods
 
 ## TRACI2.1 - Sarah
-TRACI 2.1 source file: https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx
-Source citation: [@bare_traci_2011]
+USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI) is widely used for LCA across the Federal Government and by external researchers [@bare_traci_2011]. 
 
 ## ReCiPe2016 
-ReCiPe 2016 characterizes impacts across XX midpiont indicators and three perspectives: Individualist, Hierarchist, and Egalitarian [@huijbregts_recipe_2017]. The LCIAformatter generates endpoint impacts through a series of midpoint conversion factors provided for each indicator.
+ReCiPe 2016 characterizes impacts across 18 midpiont indicators and three perspectives: Individualist, Hierarchist, and Egalitarian [@huijbregts_recipe_2017]. The LCIAformatter generates endpoint impacts through a series of midpoint conversion factors provided for each indicator.
 As is done for TRACI2.1, where characterization factors are not supplied for unspecified secondary contexts, an average factor across the possible contexts is generated. This ensures that users that do not specify a secondary context (e.g. emission/air with no indication of population density) can still obtain a characterization factor for a flow. 
 
 
