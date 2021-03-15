@@ -57,10 +57,10 @@ Additionally, mapped methods can be exported as JSON-LD format for use in LCA so
 
 
 # Available Methods
-The LCIAformatter is structured to easily convert original source data from existing LCIA methods. Currently, version 1.0 of the LCIAformatter converts three commonly used LCIA methods: TRACI 2,1, ReCiPe2016, and ImpactWorld+. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIAformatter. The LCIAformatter accesses the ([RACI_Excel_Source_File](https://www.epa.gov/chemical-research/tool-reduction-and-assessment-chemicals-and-other-environmental-impacts-traci))haracterizes impacts across 9 midpiont indicators.
+The LCIAformatter is structured to easily convert original source data from existing LCIA methods. Currently, version 1.0 of the LCIAformatter converts three commonly used LCIA methods: TRACI 2,1, ReCiPe2016, and ImpactWorld+. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIAformatter. 
 
 ## TRACI2.1
-USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI) is widely used for LCA across the Federal Government and by external researchers [@bare_traci_2011]. 
+USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI) is widely used for LCA across the Federal Government and by external researchers [@bare_traci_2011]. The LCIAformatter accesses the TRACI Excel-based source file and characterizes impacts across 9 midpiont indicators for use in U.S.-focused analyses.
 
 ## ReCiPe2016 
 ReCiPe 2016 characterizes impacts across 18 midpiont indicators and three perspectives: Individualist, Hierarchist, and Egalitarian [@huijbregts_recipe_2017]. The LCIAformatter generates endpoint impacts through a series of midpoint conversion factors provided for each indicator.
