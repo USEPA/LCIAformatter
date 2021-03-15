@@ -2,7 +2,6 @@ import json
 import pkg_resources
 
 import pandas as pd
-import os
 
 import lciafmt.cache as cache
 import lciafmt.fmap as fmap
@@ -105,7 +104,7 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     method_id = _check_as_class(method_id)
     mapped_method = util.read_method(method_id)
     if mapped_method is None:
-        log.info('method not found, generating method')
+        util.log.info('method not found, generating method')
         method = get_method(method_id)
         if 'mapping' in method_id.get_metadata():
             mapping_system = method_id.get_metadata()['mapping']
@@ -113,6 +112,7 @@ def get_mapped_method(method_id, indicators=None, methods=None):
             if case_insensitive:
                 method['Flowable'] = method['Flowable'].str.lower()
             mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
+            util.store_method(mapped_method, method_id)
         else:
             mapped_method = method
     if indicators is not None:
