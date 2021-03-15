@@ -44,14 +44,14 @@ LCIA methods can be implemented in LCA software to provide impact assessment res
 
 # Structure
 
-The code is written in the Python 3.x language and primarily uses the latest pandas package for data storage and manipulation. The code is stored on a USEPA GitHub repository and is available for public access.
+The code is written in the Python 3.x language and primarily uses the latest pandas package for data storage and manipulation. The code is stored on a USEPA GitHub ([repository](https://github.com/USEPA/LCIAformatter)) and is available for public access.
 
 The LCIAformatter accesses source methods directly from the data provider. These methods take the format of excel files or access databases. Source data are downloaded and saved in a temporary cache.
 To support the specific functions necessary to access and parse individual methods, each method is processed within its own module. Flow names, indicators, characterization factors, and other metadata are compiled in a [standard format](https://github.com/USEPA/LCIAformatter/tree/documentation/format%20specs).
 Adjustments are made as needed to improve consistency between indicators and across methods. This includes handling duplicate entries for the same elementary flow, data cleaning (such as cleaning string names, adjusting capitalization, formatting of CAS Registry Numbers).
 Additionally, the LCIAformatter supports the inclusion of non specified secondary contexts (emission locations) where none are provided.
 Where methods provide both midpoint and endpoint categories within a single source, the LCIAformatter parses these methods for separate use.
-Finally, source flow data are mapped to elementary flows in the Federal Elementary Flow List [@edelen_federal_2019], through mapping files provided within that package. These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
+Finally, source flow data are mapped to elementary flows in the Federal Elementary Flow List [@edelen_federal_2019], through mapping files provided within that ([package](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)). These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
 Mapped methods are stored locally as parquet files for future access by LCIAformatter or other tools.
 Additionally, mapped methods can be exported as JSON-LD format for use in LCA software tools such as openLCA.
 
