@@ -36,7 +36,7 @@ bibliography: paper.bib
 
 # Summary
 
-The United States Environmental Protection Agency (USEPA) is developing an automated and structured life cycle assessment (LCA) tool ecosystem to comprehensively assess environmental metrics across industries and commodities. The ecosystem include tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support characterization of the cumulative LCI to potential environmental and human health impacts.   
+The United States Environmental Protection Agency (USEPA) is developing an automated and structured life cycle assessment (LCA) tool ecosystem to comprehensively assess environmental and public health metrics across industries and commodities. The ecosystem include tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support classification and characterization of the cumulative LCI to potential impacts. This paper describes a USEPA LCA ecosystem tool 'LCIAformatter' that extracts LCIA information from original source methods and converts the data for interoperability with the rest of the USEPA LCA ecosystem tools.   
 
 # Statement of need
 
@@ -51,7 +51,7 @@ To support the specific functions necessary to access and parse individual metho
 Adjustments are made as needed to improve consistency between indicators and across methods. This includes handling duplicate entries for the same elementary flow, data cleaning (such as cleaning string names, adjusting capitalization, formatting of CAS Registry Numbers).
 Additionally, the LCIAformatter supports the inclusion of non specified secondary contexts (emission locations) where none are provided.
 Where methods provide both midpoint and endpoint categories within a single source, the LCIAformatter parses these methods for separate use.
-Finally, source flow data are mapped to elementary flows in the Federal Elementary Flow List [cite], through mapping files provided within that package. These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
+Finally, source flow data are mapped to elementary flows in the Federal Elementary Flow List [@edelen_federal_2019], through mapping files provided within that package. These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the US EPA.
 Mapped methods are stored locally as parquet files for future access by LCIAformatter or other tools.
 Additionally, mapped methods can be exported as JSON-LD format for use in LCA software tools such as openLCA.
 
