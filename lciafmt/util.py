@@ -41,10 +41,14 @@ except:
 
 def set_lcia_method_meta(method_id):
     lcia_method_meta = FileMeta
-    lcia_method_meta.name_data = method_id.get_filename()
+    if method_id is not None:
+        lcia_method_meta.name_data = method_id.get_filename()
+        lcia_method_meta.category = method_id.get_path()
+    else:
+        lcia_method_meta.name_data = ""
+        lcia_method_meta.category = ""
     lcia_method_meta.tool = pkg.project_name
     lcia_method_meta.tool_version = get_version_number(modulepath)
-    lcia_method_meta.category = method_id.get_path()
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
@@ -173,8 +177,6 @@ def get_method_metadata(name: str) -> str:
     if "TRACI 2.1" in name:
         method = 'TRACI'
     elif "ReCiPe 2016" in name:
-        if "Endpoint" in name:
-            method = 'ReCiPe2016_endpoint'
         method = 'ReCiPe2016'
     elif "Impact World" in name:
         method = 'ImpactWorld'
@@ -195,6 +197,8 @@ def get_method_metadata(name: str) -> str:
 def store_method(df, method_id):
     """Prints the method as a dataframe to parquet file"""
     meta = set_lcia_method_meta(method_id)
+    if meta.name_data == "":
+        meta.name_data = df['Method'][0]
     try:
         write_df_to_file(df,paths,meta)
     except:
