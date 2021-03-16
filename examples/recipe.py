@@ -1,5 +1,5 @@
 import lciafmt
-from lciafmt.util import store_method, save_json
+from lciafmt.util import store_method, save_json, collapse_indicators
 
 method = lciafmt.Method.RECIPE_2016
 
@@ -22,6 +22,8 @@ def main():
     # flows in the resulting data frame
     mapping = method.get_metadata()['mapping']
     mapped_data = lciafmt.map_flows(data, system=mapping, case_insensitive=True)
+    
+    mapped_data = collapse_indicators(mapped_data)
     
     # write the result to parquet and JSON-LD
     store_method(mapped_data, method)
