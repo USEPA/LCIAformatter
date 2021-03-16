@@ -43,7 +43,7 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta = FileMeta
     lcia_method_meta.name_data = method_id.get_filename()
     lcia_method_meta.tool = pkg.project_name
-    lcia_method_meta.tool_version = get_version_number(lcia_method_meta.tool)
+    lcia_method_meta.tool_version = get_version_number(modulepath)
     lcia_method_meta.category = method_id.get_path()
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
