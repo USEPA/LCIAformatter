@@ -60,7 +60,7 @@ def supported_methods() -> list:
         return json.load(f)
 
 
-def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False, summary=False,
+def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=True, summary=False,
                file=None, subset=None, url=None) -> pd.DataFrame:
     """Returns the data frame of the method with the given ID. You can get the
        IDs of the supported methods from the `supported_methods` function or
@@ -71,7 +71,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
     if method_id == Method.ImpactWorld:
-        return impactworld.get(endpoint, file=file, url=url)
+        return impactworld.get(file=file, url=url)
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
 

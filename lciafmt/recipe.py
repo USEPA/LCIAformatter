@@ -34,10 +34,10 @@ contexts = {
 flowables_split = pd.read_csv(datapath+'ReCiPe2016_split.csv')
 
 
-def get(add_factors_for_missing_contexts=True, endpoint=False,
+def get(add_factors_for_missing_contexts=True, endpoint=True,
         summary=False, file=None, url=None) -> pd.DataFrame:
     """Downloads and processes the ReCiPe impact method. """
-    log.info("get method ReCiPe 2016")
+    log.info("getting method ReCiPe 2016")
     f = file
     if f is None:
         fname = "recipe_2016.xlsx"
@@ -45,32 +45,30 @@ def get(add_factors_for_missing_contexts=True, endpoint=False,
             url = ("http://www.rivm.nl/sites/default/files/2018-11/" +
                    "ReCiPe2016_CFs_v1.1_20180117.xlsx")
         f = cache.get_or_download(fname, url)
-
-    if endpoint:
-        endpoint_df, endpoint_df_by_flow = _read_endpoints(f)
-
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("Adding average factors for primary contexts")
         df = aggregate_factors_for_primary_contexts(df)
 
     if endpoint:
+        endpoint_df, endpoint_df_by_flow = _read_endpoints(f)
         log.info("Converting midpoints to endpoints")
         #first assesses endpoint factors that are specific to flowables
         flowdf = df.merge(endpoint_df_by_flow, how="inner",on=["Method","Flowable"])
         flowdf.rename(columns={'Indicator_x':'Indicator','Indicator_y':'EndpointIndicator'},
                       inplace=True)
         #next apply endpoint factors by indicator
-        df = df.merge(endpoint_df, how="inner",on=["Method","Indicator"])
-        df = df.append(flowdf, ignore_index=True, sort=False)
+        df2 = df.merge(endpoint_df, how="inner",on=["Method","Indicator"])
+        df2 = df2.append(flowdf, ignore_index=True, sort=False)
         #reformat dataframe and apply conversion
-        df['Characterization Factor']=df['Characterization Factor']*df['EndpointConversion']
-        df['Method'] = df['EndpointMethod']
-        df['Indicator'] = df['EndpointIndicator']
-        df['Indicator unit'] = df['EndpointUnit']
-        df.drop(columns=['EndpointMethod','EndpointIndicator',
+        df2['Characterization Factor']=df2['Characterization Factor']*df2['EndpointConversion']
+        df2['Method'] = df2['EndpointMethod']
+        df2['Indicator'] = df2['EndpointIndicator']
+        df2['Indicator unit'] = df2['EndpointUnit']
+        df2.drop(columns=['EndpointMethod','EndpointIndicator',
                          'EndpointUnit','EndpointConversion'],
                 inplace=True)
+        df = df.append(df2, ignore_index=True, sort = False)
 
     log.info("Handling manual replacements")
     """ due to substances listed more than once with the same name but different CAS

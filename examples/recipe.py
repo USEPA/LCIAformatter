@@ -8,11 +8,8 @@ apply_summary = False
 
 def main():
 
-    data = lciafmt.get_method(method, endpoint = False, 
-                              summary = False)
-    data_endpoint = lciafmt.get_method(method, endpoint = True, 
-                                       summary = apply_summary)
-    data = data.append(data_endpoint, ignore_index = True)
+    data = lciafmt.get_method(method, endpoint = True, 
+                              summary = apply_summary)
     
     # make flowables case insensitive to handle lack of consistent structure in source file
     data['Flowable'] = data['Flowable'].str.lower()

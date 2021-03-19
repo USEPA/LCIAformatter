@@ -12,7 +12,7 @@ import lciafmt.df as dfutil
 
 from .util import log, format_cas
 
-def get(endpoint=False, file=None, url=None) -> pd.DataFrame:
+def get(file=None, url=None) -> pd.DataFrame:
     """Download Access file and call read function to transfer into dataframe"""
     log.info("get method Impact World")
 
@@ -36,12 +36,8 @@ def get(endpoint=False, file=None, url=None) -> pd.DataFrame:
     # Identify midpoint and endpoint records and differentiate in data frame.
     end_point_units = ['DALY', 'PDF.m2.yr']
 
-    if endpoint:
-        df = df[df["Indicator unit"].isin(end_point_units)]
-        df["Method"] = "Impact World - Endpoint"
-    else:
-        df = df[~df["Indicator unit"].isin(end_point_units)]
-        df["Method"] = "Impact World - Midpoint"
+    df.loc[df["Indicator unit"].isin(end_point_units), ["Method"]] = "Impact World - Endpoint"
+    df.loc[~df["Indicator unit"].isin(end_point_units), ["Method"]] = "Impact World - Midpoint"
 
     # call function to replace contexts for unspecified water and air flows.
     df = update_context(df)

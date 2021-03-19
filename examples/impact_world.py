@@ -5,9 +5,7 @@ method = lciafmt.Method.ImpactWorld
 
 def main():
 
-    data = lciafmt.get_method(method, endpoint = False)
-    data_endpoint = lciafmt.get_method(method, endpoint = True)
-    data = data.append(data_endpoint, ignore_index = True)
+    data = lciafmt.get_method(method)
 
     # map the flows to the Fed.LCA commons flows
     # set preserve_unmapped=True if you want to keep unmapped
