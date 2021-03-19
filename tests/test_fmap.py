@@ -8,10 +8,11 @@ class NormCategoryTest(unittest.TestCase):
 
     def test_remove_norels(self):
         self.assertEqual(
-            norm("Elementary flows / Emission to air / unspecified"), "air")
+            norm("Elementary flows / Emission to air / unspecified"),
+            "air/unspecified")
         self.assertEqual(
             norm("Elementary flows / Emission to water / unspecified"),
-            "water")
+            "water/unspecified")
 
     def test_skip_duplicates(self):
         self.assertEqual(
