@@ -16,14 +16,15 @@ setup(
                       "pyodbc>=4.0.30",
                       ],
     license="CC0",
-    author='Michael Srocka, Troy Hottle, Ben Young, Wesley Ingwersen, Ben Morelli',
+    author='Ben Young, Michael Srocka, Wesley Ingwersen, Troy Hottle, Ben Morelli',
     author_email='ingwersen.wesley@epa.gov',
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: IDE",
         "Intended Audience :: Science/Research",
         "License :: CC0",
         "Programming Language :: Python :: 3.x",
         "Topic :: Utilities",
     ],
+    description='Standardizes the format and flows of life cycle impact assessment data'
 )
