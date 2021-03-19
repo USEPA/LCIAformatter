@@ -200,6 +200,7 @@ def store_method(df, method_id):
     if meta.name_data == "":
         meta.name_data = df['Method'][0]
     try:
+        log.info('saving ' + meta.name_data + ' to ' + outputpath)
         write_df_to_file(df,paths,meta)
     except:
         log.error('Failed to save method')
@@ -208,13 +209,13 @@ def store_method(df, method_id):
 def read_method(method_id):
     """Returns the method stored in output."""
     meta = set_lcia_method_meta(method_id)
-    try:
-        log.info('reading stored method file')
-        method = load_preprocessed_output(meta, paths)
-        return method
-    except (FileNotFoundError, OSError):
-        log.error('No parquet file identified for ' + method_id.value)
-        return None
+    method = load_preprocessed_output(meta, paths)
+    if method is None:
+        log.info(meta.name_data + ' not found in ' + outputpath)
+    else:
+        log.info('loaded ' + meta.name_data + ' from ' + outputpath)
+    return method
+
 
 def save_json(method_id, mapped_data, method=None):
     """Saves a method as json file in the outputpath

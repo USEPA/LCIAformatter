@@ -36,7 +36,7 @@ class Writer(object):
             factor.value = row[12]
             indicator.impact_factors.append(factor)
 
-        log.info("write entities")
+        log.debug("write entities")
         dicts = [
             self.__indicators,
             self.__methods
@@ -56,7 +56,7 @@ class Writer(object):
         ind = self.__indicators.get(uid)
         if ind is not None:
             return ind
-        log.info("init indicator %s", row[2])
+        log.info("writing %s indicator ...", row[2])
         ind = olca.ImpactCategory()
         ind.id = uid
         ind.name = row[2]
@@ -80,7 +80,7 @@ class Writer(object):
         m = self.__methods.get(uid)
         if m is not None:
             return m
-        log.debug("init method %s", row[0])
+        log.info("writing %s method ...", row[0])
         m = olca.ImpactMethod()
         m.id = uid
         m.name = row[0]

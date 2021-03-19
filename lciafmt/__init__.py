@@ -104,7 +104,7 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     method_id = _check_as_class(method_id)
     mapped_method = util.read_method(method_id)
     if mapped_method is None:
-        util.log.info('method not found, generating method')
+        util.log.info('generating ' + method_id.name)
         method = get_method(method_id)
         if 'mapping' in method_id.get_metadata():
             mapping_system = method_id.get_metadata()['mapping']
