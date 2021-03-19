@@ -19,6 +19,7 @@ def apply_endpoints(endpoints, matching_fields = ['Indicator']):
     param matching_fields: list of fields on which to apply unique endpoint
         conversions
     """
+    log.info('developing endpoint methods...')
     indicators = endpoints[['Method'] + matching_fields]
     
     method = pd.DataFrame()

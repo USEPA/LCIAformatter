@@ -47,12 +47,12 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
         f = cache.get_or_download(fname, url)
     df = _read(f)
     if add_factors_for_missing_contexts:
-        log.info("Adding average factors for primary contexts")
+        log.info("adding average factors for primary contexts")
         df = aggregate_factors_for_primary_contexts(df)
 
     if endpoint:
         endpoint_df, endpoint_df_by_flow = _read_endpoints(f)
-        log.info("Converting midpoints to endpoints")
+        log.info("converting midpoints to endpoints")
         #first assesses endpoint factors that are specific to flowables
         flowdf = df.merge(endpoint_df_by_flow, how="inner",on=["Method","Flowable"])
         flowdf.rename(columns={'Indicator_x':'Indicator','Indicator_y':'EndpointIndicator'},
@@ -70,7 +70,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
                 inplace=True)
         df = df.append(df2, ignore_index=True, sort = False)
 
-    log.info("Handling manual replacements")
+    log.info("handling manual replacements")
     """ due to substances listed more than once with the same name but different CAS
     this replaces all instances of the Original Flowable with a New Flowable
     based on a csv input file according to the CAS"""
@@ -85,7 +85,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
     log.info("%s duplicate entries removed", length)
 
     if summary:
-        log.info("Summarizing endpoint categories")
+        log.info("summarizing endpoint categories")
         endpoint_categories = df.groupby(['Method','Method UUID',
                                           'Indicator unit','Flowable',
                                           'Flow UUID','Context','Unit',
@@ -100,10 +100,10 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
         #otherwise replaces endpoint LCIA
         append = False
         if append:
-            log.info("Appending endpoint categories")
+            log.info("appending endpoint categories")
             df = pd.concat([df,endpoint_categories], sort=False)
         else:
-            log.info("Applying endpoint categories")
+            log.info("applying endpoint categories")
             df = endpoint_categories
 
         #reorder columns in DF
@@ -127,7 +127,7 @@ def _read(file: str) -> pd.DataFrame:
 
 
 def _read_endpoints(file: str) -> pd.DataFrame:
-    log.info("reading endpoint factors from file")
+    log.info("reading endpoint factors from file %s", file)
     wb = xlrd.open_workbook(file)
     endpoint_cols = ['Method','EndpointMethod', 'EndpointIndicator', 'EndpointUnit','EndpointConversion']
     endpoint = pd.DataFrame(columns = endpoint_cols)
@@ -167,7 +167,6 @@ def _read_endpoints(file: str) -> pd.DataFrame:
     endpoint.loc[endpoint['EndpointUnit'].str.contains('species', case=False), 'EndpointUnit'] = 'species-year'
     endpoint.loc[endpoint['EndpointUnit'].str.contains('USD', case=False), 'EndpointUnit'] = 'USD2013'
 
-    log.info("reading endpoint map from csv")
     endpoint_map = pd.read_csv(datapath+'ReCiPe2016_endpoint_to_midpoint.csv')
     endpoint = endpoint.merge(endpoint_map,how="left",on='EndpointIndicator')
 

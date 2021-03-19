@@ -19,7 +19,8 @@ from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,
     write_df_to_file
 
 
-version = '1.0.0'
+# set version number of package, needs to be updated with setup.py
+pkg_version_number = '1.0.0'
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 datapath = modulepath + '/data/'
 
@@ -49,7 +50,7 @@ def set_lcia_method_meta(method_id):
         lcia_method_meta.name_data = ""
         lcia_method_meta.category = ""
     lcia_method_meta.tool = pkg.project_name
-    lcia_method_meta.tool_version = version
+    lcia_method_meta.tool_version = pkg_version_number
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
@@ -198,10 +199,11 @@ def get_method_metadata(name: str) -> str:
 def store_method(df, method_id):
     """Prints the method as a dataframe to parquet file"""
     meta = set_lcia_method_meta(method_id)
+    method_path = outputpath + '/' + meta.category
     if meta.name_data == "":
         meta.name_data = df['Method'][0]
     try:
-        log.info('saving ' + meta.name_data + ' to ' + outputpath)
+        log.info('saving ' + meta.name_data + ' to ' + method_path)
         write_df_to_file(df,paths,meta)
     except:
         log.error('Failed to save method')
@@ -211,10 +213,11 @@ def read_method(method_id):
     """Returns the method stored in output."""
     meta = set_lcia_method_meta(method_id)
     method = load_preprocessed_output(meta, paths)
+    method_path = outputpath + '/' + meta.category
     if method is None:
-        log.info(meta.name_data + ' not found in ' + outputpath)
+        log.info(meta.name_data + ' not found in ' + method_path)
     else:
-        log.info('loaded ' + meta.name_data + ' from ' + outputpath)
+        log.info('loaded ' + meta.name_data + ' from ' + method_path)
     return method
 
 
