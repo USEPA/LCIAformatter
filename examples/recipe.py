@@ -1,8 +1,5 @@
-import logging as log
-import os
-
 import lciafmt
-from lciafmt.util import outputpath, store_method
+from lciafmt.util import store_method, save_json, collapse_indicators
 
 method = lciafmt.Method.RECIPE_2016
 
@@ -10,14 +7,9 @@ method = lciafmt.Method.RECIPE_2016
 apply_summary = False
 
 def main():
-    os.makedirs(outputpath, exist_ok=True)
 
-    log.basicConfig(level=log.INFO)
-    data = lciafmt.get_method(method, endpoint = False, 
-                              summary = False)
-    data_endpoint = lciafmt.get_method(method, endpoint = True, 
+    data = lciafmt.get_method(method, endpoint = True, 
                               summary = apply_summary)
-    data = data.append(data_endpoint, ignore_index = True)
     
     # make flowables case insensitive to handle lack of consistent structure in source file
     data['Flowable'] = data['Flowable'].str.lower()
@@ -28,17 +20,12 @@ def main():
     mapping = method.get_metadata()['mapping']
     mapped_data = lciafmt.map_flows(data, system=mapping, case_insensitive=True)
     
+    mapped_data = collapse_indicators(mapped_data)
+    
     # write the result to parquet and JSON-LD
     store_method(mapped_data, method)
-
     for m in mapped_data['Method'].unique():
-        mapped_data[mapped_data['Method']==m].to_csv(outputpath+m.replace('/','_')+".csv", index=False)
-        json_pack = outputpath+m.replace('/','_')+"_json.zip"
-        if os.path.exists(json_pack):
-            os.remove(json_pack)
-        data_for_json = mapped_data[mapped_data['Method']==m]
-        lciafmt.to_jsonld(data_for_json, json_pack)
-
+        save_json(method, mapped_data, m)
 
 if __name__ == "__main__":
     main()

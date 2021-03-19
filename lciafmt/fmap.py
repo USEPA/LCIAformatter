@@ -1,15 +1,14 @@
-import logging as log
 from typing import List
 
-import pandas
+import pandas as pd
 import fedelemflowlist as flowlist
 
 import lciafmt.df as dfutil
-from .util import make_uuid
+from .util import make_uuid, log
 
 
 def supported_mapping_systems() -> list:
-    fmap = flowlist.get_flowmapping()  # type: pandas.DataFrame
+    fmap = flowlist.get_flowmapping()  # type: pd.DataFrame
     systems = set()
     for i in range(0, len(fmap.index)):
         systems.add(fmap.iat[i, 0])
@@ -98,22 +97,22 @@ class _FlowInfo(object):
 
 class Mapper(object):
 
-    def __init__(self, df: pandas.DataFrame, system=None,
+    def __init__(self, df: pd.DataFrame, system=None,
                  mapping=None, preserve_unmapped=False, case_insensitive=False):
         self.__df = df
         self.__system = system
         self.__case_insensitive = case_insensitive
         if mapping is None:
-            log.info("load flow mapping v=%s from fed.elem.flows")
+            log.info("loading flow mapping v=%s from fedelemflowlist", system)
             mapping = flowlist.get_flowmapping(source=system)
             if self.__case_insensitive:
                 mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
-        self.__mapping = mapping  # type: pandas.DataFrame
+        self.__mapping = mapping  # type: pd.DataFrame
         self.__preserve_unmapped = preserve_unmapped
 
-    def run(self) -> pandas.DataFrame:
-        log.info("apply flow mapping")
+    def run(self) -> pd.DataFrame:
         map_idx = self._build_map_index()
+        log.info("applying flow mapping...")
         mapped = 0
         preserved = 0
         df = self.__df
@@ -149,7 +148,7 @@ class Mapper(object):
         return dfutil.data_frame(records)
 
     def _build_map_index(self) -> dict:
-        log.info("index flows")
+        log.debug("index flows")
         map_idx = {}
         for _, row in self.__mapping.iterrows():
             sys = row["SourceListName"]

@@ -12,11 +12,12 @@ class TestInputFiles(unittest.TestCase):
         total_duplicates = 0
         for m in method_list:
             method = read_method(lciafmt.Method.get_class(m['id']))
-            flowables = method[['Method','Indicator','Flow UUID']].drop_duplicates()
-            duplicates = len(method)-len(flowables)
-            if duplicates > 0:
-                log.debug('duplicate factors in method '+ m['name'])
-            total_duplicates += duplicates
+            if method is not None:
+                dup_flowables = method[method[['Method','Indicator','Flow UUID']].duplicated(keep=False)]
+                duplicates = len(dup_flowables)
+                if duplicates > 0:
+                    log.warning('duplicate factors in method '+ m['name'])
+                total_duplicates += duplicates
         self.assertTrue(total_duplicates==0,'Duplicate factors in one or more methods')
 
 

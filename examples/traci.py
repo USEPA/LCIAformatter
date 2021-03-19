@@ -1,23 +1,18 @@
-import logging as log
-import os
-
 import lciafmt
-from lciafmt.util import outputpath, store_method
+from lciafmt.util import store_method, save_json, get_modification, log
+
 
 mod = None
 
 method = lciafmt.Method.TRACI
 
 def main():
-    os.makedirs(outputpath, exist_ok=True)
-    log.basicConfig(level=log.INFO)
-    file = method.get_filename()
 
     data = lciafmt.get_method(method)
     
     if mod is not None:
         log.info("getting modified CFs")
-        modified_cfs=lciafmt.get_modification(mod,"TRACI2.1")
+        modified_cfs=get_modification(mod,"TRACI2.1")
         data = data.merge(modified_cfs,how='left',on=['Flowable','Context','Indicator'])
         data.loc[data['Updated CF'].notnull(),'Characterization Factor']=data['Updated CF']
         data = data.drop(columns=['Updated CF','Note'])
@@ -31,13 +26,7 @@ def main():
 
     # write the result to parquet and JSON-LD
     store_method(mapped_data, method)
-    if mod is not None:
-        file=mod+"_"+file
-    json_pack = outputpath+file+"_json.zip"
-    if os.path.exists(json_pack):
-        os.remove(json_pack)
-    lciafmt.to_jsonld(mapped_data, json_pack)
-
+    save_json(method, mapped_data)
 
 if __name__ == "__main__":
     main()
