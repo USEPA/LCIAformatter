@@ -38,10 +38,10 @@ bibliography: paper.bib
 LCA is an established and standardized methodology to comprehensively assess environmental and public health metrics across industries and products [@international_organization_for_standardization_enivronmental_2006]. The United States Environmental Protection Agency (USEPA) is developing an open source life cycle assessment (LCA) tool ecosystem [@ingwersen_lca_2019].  The ecosystem includes tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support classification and characterization of the cumulative LCI to potential impacts. This paper describes a USEPA LCA ecosystem tool 'LCIA formatter' that extracts LCIA information from original source methods and converts the data for interoperability with the rest of the USEPA LCA ecosystem tools.   
 
 # Statement of need
-A simplified algorithm for LCA is given in [@eq:lca], where $I$ are impacts, $E$ are emissions generated (e.g. pollutants) or raw resources consumed (e.g. land, water) per functional unit of product across the entire supporting product system and $CF$ are corresponding characterization factors that quantitatively relate a unit of a flow to a unit of a given impact indicator (ie. global warming, acidification, total land use). 
+A simplified algorithm for LCA is given in \autoref{eq:lca}, where $I$ are impacts, $E$ are emissions generated (e.g. pollutants) or raw resources consumed (e.g. land, water) per functional unit of product across the entire supporting product system and $CF$ are corresponding characterization factors that quantitatively relate a unit of a flow to a unit of a given impact indicator (ie. global warming, acidification, total land use). 
 $$
 I = \sum(E*CF)
-$$ {#eq:lca}
+$$ \label{eq:lca}
 
  Both $E$ and $CF$ use objects called elementary flows, which are data objects that generally represent a substance (e.g. Ammonia), source or receiving environmental compartment (e.g. Freshwater lake), and unit (e.g. kilogram). $E$ will have a total quantity of a given elementary flow from the product system, and the characterization factors in $CF$ are in the form of the indicator unit per elementary flow unit (e.g. kg N-eq per kg Ammonia). E comes from the LCI calculated for the given product under user-defined conditions, and CF is a static dataset that comes from an LCIA method provider. 
 
@@ -57,7 +57,7 @@ To support the specific functions necessary to access and parse individual metho
 Adjustments are made as needed to improve consistency between indicators and across methods. This includes handling duplicate entries for the same elementary flow and data cleaning (such as cleaning string names, adjusting capitalization, formatting of CAS Registry Numbers).
 Additionally, the LCIA formatter supports the inclusion of non specified secondary contexts (emission locations) where none are provided.
 Where methods provide both midpoint and endpoint categories within a single source, the LCIA formatter parses these methods for separate use.
-Finally, source flow data are mapped to elementary flows in the FEDEFL [@edelen_federal_2019], through mapping files provided within that [package](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)[@ingwersen_fedelemflowlist_2020]. These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the USEPA.
+Finally, source flow data are mapped to elementary flows in the FEDEFL [@edelen_federal_2019], through mapping files provided within that [package](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List) [@ingwersen_fedelemflowlist_2020]. These mapping files correspond flow names and contexts to a common set of elementary flows generated for life cycle assessment modeling by the USEPA.
 Mapped methods are stored locally as parquet files for future access by LCIA formatter or other tools.
 Additionally, mapped methods can be exported as JSON-LD format for use in LCA software tools such as [openLCA](https://www.openlca.org/).
 
