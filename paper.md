@@ -72,7 +72,7 @@ TRACI2.1 | 9 midpoint | 33,429 | 200,686
 ReCiPe2016 | 18 midpoint and 22 endpoint across three perspectives | 347,010 | 2,429,470
 ImpactWorld+ | 18 midpoint and 26 endpoint | 87,804 | 457,983
 
-: Impact methods procesed by lciafmt {#tbl:methods}
+![Impact methods procesed by lciafmt.\label{tbl:methods}]
 
 ## TRACI2.1
 USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI) is widely used for LCA across the U.S. Federal Government and by U.S.-based LCA practitioners [@bare_traci_2011]. The LCIA formatter accesses the TRACI Excel-based source file and characterizes impacts across 9 midpiont indicators for use in U.S.-focused analyses. When available, flow characterization factors are mapped to the release context with the greatest level of detail. For example, an air emission may be linked to the specific release height and population density of release. If such secondary context data is unknown, the LCIA formatter generates an average factor across the possible contexts to ensure the flow will still be captured in model calculations.
