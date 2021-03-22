@@ -1,7 +1,7 @@
 ---
 description: |
-  IMPACT World+ version 1.3 is built from LCIA Formatter v0.4 and mappings from the Federal
-  Elementary Flow List (FEDEFL) v1.0.4
+  IMPACT World+ version 1.3 is built from LCIA Formatter v1.0 and mappings from the Federal
+  Elementary Flow List (FEDEFL) v1.0.7
 
   IMPACT World+ flowable and context input files are maintained in the FEDEFL GitHub Repository:
   https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List
@@ -21,7 +21,7 @@ description: |
   primary contexts (e.g. air) are assigned to all possible sub-contexts which apply.
 
   The LCIA Formatter generates a separate midpoint and enpoint impact assement method based on the IMPACT World+
-  source file.'
+  source file.
 
 source file: https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1
 

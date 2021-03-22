@@ -2,7 +2,6 @@ import json
 import pkg_resources
 
 import pandas as pd
-import os
 
 import lciafmt.cache as cache
 import lciafmt.fmap as fmap
@@ -61,7 +60,7 @@ def supported_methods() -> list:
         return json.load(f)
 
 
-def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False, summary=False,
+def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=True, summary=False,
                file=None, subset=None, url=None) -> pd.DataFrame:
     """Returns the data frame of the method with the given ID. You can get the
        IDs of the supported methods from the `supported_methods` function or
@@ -72,7 +71,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=False,
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
     if method_id == Method.ImpactWorld:
-        return impactworld.get(endpoint, file=file, url=url)
+        return impactworld.get(file=file, url=url)
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
 
@@ -105,7 +104,7 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     method_id = _check_as_class(method_id)
     mapped_method = util.read_method(method_id)
     if mapped_method is None:
-        log.info('method not found, generating method')
+        util.log.info('generating ' + method_id.name)
         method = get_method(method_id)
         if 'mapping' in method_id.get_metadata():
             mapping_system = method_id.get_metadata()['mapping']
@@ -113,6 +112,8 @@ def get_mapped_method(method_id, indicators=None, methods=None):
             if case_insensitive:
                 method['Flowable'] = method['Flowable'].str.lower()
             mapped_method = map_flows(method, system=mapping_system, case_insensitive=case_insensitive)
+            mapped_method = util.collapse_indicators(mapped_method)
+            util.store_method(mapped_method, method_id)
         else:
             mapped_method = method
     if indicators is not None:

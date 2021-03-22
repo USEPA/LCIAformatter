@@ -7,6 +7,7 @@ This module contains common functions for processing LCIA methods
 import uuid
 import os
 from os.path import join
+import sys
 import lciafmt
 import logging as log
 import pandas as pd
@@ -18,10 +19,13 @@ from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,
     write_df_to_file
 
 
+# set version number of package, needs to be updated with setup.py
+pkg_version_number = '1.0.0'
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 datapath = modulepath + '/data/'
 
-log.basicConfig(level=log.INFO)
+log.basicConfig(level=log.INFO, format='%(asctime)s %(levelname)-8s %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S', stream=sys.stdout)
 
 #Common declaration of write format for package data products
 write_format = "parquet"
@@ -39,10 +43,14 @@ except:
 
 def set_lcia_method_meta(method_id):
     lcia_method_meta = FileMeta
-    lcia_method_meta.name_data = method_id.get_filename()
+    if method_id is not None:
+        lcia_method_meta.name_data = method_id.get_filename()
+        lcia_method_meta.category = method_id.get_path()
+    else:
+        lcia_method_meta.name_data = ""
+        lcia_method_meta.category = ""
     lcia_method_meta.tool = pkg.project_name
-    lcia_method_meta.tool_version = pkg.version
-    lcia_method_meta.category = method_id.get_path()
+    lcia_method_meta.tool_version = pkg_version_number
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
@@ -171,8 +179,6 @@ def get_method_metadata(name: str) -> str:
     if "TRACI 2.1" in name:
         method = 'TRACI'
     elif "ReCiPe 2016" in name:
-        if "Endpoint" in name:
-            method = 'ReCiPe2016_endpoint'
         method = 'ReCiPe2016'
     elif "Impact World" in name:
         method = 'ImpactWorld'
@@ -186,14 +192,18 @@ def get_method_metadata(name: str) -> str:
         detail = metadata[name]
         method_description = method_description+detail
     except:
-        log.info("No further detail in description")
+        log.debug("No further detail in description")
     return method_description
 
 
 def store_method(df, method_id):
     """Prints the method as a dataframe to parquet file"""
     meta = set_lcia_method_meta(method_id)
+    method_path = outputpath + '/' + meta.category
+    if meta.name_data == "":
+        meta.name_data = df['Method'][0]
     try:
+        log.info('saving ' + meta.name_data + ' to ' + method_path)
         write_df_to_file(df,paths,meta)
     except:
         log.error('Failed to save method')
@@ -202,13 +212,14 @@ def store_method(df, method_id):
 def read_method(method_id):
     """Returns the method stored in output."""
     meta = set_lcia_method_meta(method_id)
-    try:
-        log.info('reading stored method file')
-        method = load_preprocessed_output(meta, paths)
-        return method
-    except (FileNotFoundError, OSError):
-        log.error('No parquet file identified for ' + method_id.value)
-        return None
+    method = load_preprocessed_output(meta, paths)
+    method_path = outputpath + '/' + meta.category
+    if method is None:
+        log.info(meta.name_data + ' not found in ' + method_path)
+    else:
+        log.info('loaded ' + meta.name_data + ' from ' + method_path)
+    return method
+
 
 def save_json(method_id, mapped_data, method=None):
     """Saves a method as json file in the outputpath

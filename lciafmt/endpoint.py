@@ -1,7 +1,15 @@
+# endpoint.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+Functions to generate user specified endpoint functions from one or more
+LCIA methods
+"""
+
 import pandas as pd
-import logging as log
 
 import lciafmt
+from .util import log
 
 def apply_endpoints(endpoints, matching_fields = ['Indicator']):
     """
@@ -11,6 +19,7 @@ def apply_endpoints(endpoints, matching_fields = ['Indicator']):
     param matching_fields: list of fields on which to apply unique endpoint
         conversions
     """
+    log.info('developing endpoint methods...')
     indicators = endpoints[['Method'] + matching_fields]
     
     method = pd.DataFrame()

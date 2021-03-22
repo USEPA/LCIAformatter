@@ -3,7 +3,7 @@ from typing import Optional
 import olca
 import olca.units as units
 import olca.pack as pack
-import pandas
+import pandas as pd
 
 from .util import make_uuid, is_non_empty_str, get_method_metadata, log
 
@@ -11,7 +11,7 @@ from .util import make_uuid, is_non_empty_str, get_method_metadata, log
 class Writer(object):
 
     def __init__(self, zip_file: str):
-        log.info("create JSON-LD writer on %s", zip_file)
+        log.debug("create JSON-LD writer on %s", zip_file)
         self.__writer = pack.Writer(zip_file)
         self.__methods = {}
         self.__indicators = {}
@@ -24,7 +24,7 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pandas.DataFrame, write_flows=False):
+    def write(self, df: pd.DataFrame, write_flows=False):
         for _, row in df.iterrows():
             indicator = self.__indicator(row)
             factor = olca.ImpactFactor()
@@ -36,7 +36,7 @@ class Writer(object):
             factor.value = row[12]
             indicator.impact_factors.append(factor)
 
-        log.info("write entities")
+        log.debug("write entities")
         dicts = [
             self.__indicators,
             self.__methods
@@ -56,7 +56,7 @@ class Writer(object):
         ind = self.__indicators.get(uid)
         if ind is not None:
             return ind
-        log.info("init indicator %s", row[2])
+        log.info("writing %s indicator ...", row[2])
         ind = olca.ImpactCategory()
         ind.id = uid
         ind.name = row[2]
@@ -80,7 +80,7 @@ class Writer(object):
         m = self.__methods.get(uid)
         if m is not None:
             return m
-        log.info("init method %s", row[0])
+        log.info("writing %s method ...", row[0])
         m = olca.ImpactMethod()
         m.id = uid
         m.name = row[0]
@@ -139,7 +139,7 @@ class Writer(object):
             c = self.__categories.get(cpath)
             if c is not None:
                 continue
-            log.info("init category %s", cpath)
+            log.debug("init category %s", cpath)
             c = olca.Category()
             c.id = make_uuid("category/flow/" + cpath)
             c.name = parts[i]

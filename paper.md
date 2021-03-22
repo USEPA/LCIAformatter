@@ -30,23 +30,29 @@ affiliations:
    index: 2
  - name: U.S. Environmental Protection Agency
    index: 3
-date: 15 March 2021
+date: 19 March 2021
 bibliography: paper.bib
 ---
 
 # Summary
-
-The United States Environmental Protection Agency (USEPA) is developing an automated life cycle assessment (LCA) tool ecosystem to comprehensively assess environmental and public health metrics across industries and products. The ecosystem includes tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support classification and characterization of the cumulative LCI to potential impacts [@international_organization_for_standardization_enivronmental_2006]. This paper describes a USEPA LCA ecosystem tool 'LCIA formatter' that extracts LCIA information from original source methods and converts the data for interoperability with the rest of the USEPA LCA ecosystem tools.   
+LCA is an established and standardized methodology to comprehensively assess environmental and public health metrics across industries and products [@international_organization_for_standardization_enivronmental_2006]. The United States Environmental Protection Agency (USEPA) is developing an open source life cycle assessment (LCA) tool ecosystem [@ingwersen_lca_2019].  The ecosystem includes tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and life cycle impact assessment (LCIA) tools to support classification and characterization of the cumulative LCI to potential impacts. This paper describes a USEPA LCA ecosystem tool 'LCIA formatter' that extracts LCIA information from original source methods and converts the data for interoperability with the rest of the USEPA LCA ecosystem tools.   
 
 # Statement of need
+A simplified algorithm for LCA is given in [@eq:lca], where $I$ are impacts, $E$ are emissions generated (e.g. pollutants) or raw resources consumed (e.g. land, water) per functional unit of product across the entire supporting product system and $CF$ are corresponding characterization factors that quantitatively relate a unit of a flow to a unit of a given impact indicator (ie. global warming, acidification, total land use). 
+$$
+I = \sum(E*CF)
+$$ {#eq:lca}
 
-LCIA methods can be implemented in LCA software to provide impact assessment results for LCI data loaded into the software, but the flows (to and from nature) used in these LCIA methods must match exactly the flows (to and from nature) in the LCI data to ensure all relevant flows are captured in the LCA model results. As LCI flows are updated, the impact methods should also be made available, and vice versa, as LCIA method developers update characterization factors, they should be available as soon as possible to work with existing LCI data. The LCIA formatter module this paper describes is a specific solution to take LCIA methods from original providers, map them to an authoritative flow list, and export them in common data formats for use with LCI datasets mapped to the same authoritative flow list. The LCIA formatter is intended for integration with the Federal LCA Commons Elementary Flow List (FEDEFL), an authoritative nomenclature system of flows to and from nature for federal agencies in the U.S. to use when sharing data through the Federal LCA Commons [(FLCAC)](https://www.lcacommons.gov/) [@edelen_federal_2019].
+ Both $E$ and $CF$ use objects called elementary flows, which are data objects that generally represent a substance (e.g. Ammonia), source or receiving environmental compartment (e.g. Freshwater lake), and unit (e.g. kilogram). $E$ will have a total quantity of a given elementary flow from the product system, and the characterization factors in $CF$ are in the form of the indicator unit per elementary flow unit (e.g. kg N-eq per kg Ammonia). E comes from the LCI calculated for the given product under user-defined conditions, and CF is a static dataset that comes from an LCIA method provider. 
+
+LCA software generally include LCIA methods to provide impact assessment results for user-created and software-provided LCI, but the elementary flows used in these LCIA methods must be the same data objects as the flows in the LCI data to able proper impact result calculations. A major challenge to being able to reproduce LCA results and share LCA models across platforms is that there is no internationally common list of elementary flows used by either LCI, LCIA, or software providers. A critical review of elementary flow in LCA data showed that flows in LCIA methods are the least clearly described and therefore least portable and machine-readable among those from LCI, LCIA and software providers [@edelen_critical_2018]. Furthermore, LCA software providers of both proprietary and open source software have not provided an open process or external peer review of their incorporation of data from LCIA providers. This is one potential cause of discrepancies in results across LCA software.
+
+The LCIA formatter is a specific solution to this problem. The LCIA formatter transparently acquires LCIA methods from original provider data portals, maps them to an authoritative flow list, and exports them in common data formats. The LCIA formatter v1.0 uses the Federal LCA Commons Elementary Flow List (FEDEFL) as the authoritative system of elementary flows [@edelen_federal_2019]. This system has been adopted by federal agencies in the U.S. for use in sharing data through the Federal LCA Commons [(FLCAC)](https://www.lcacommons.gov/). The automation of this process provided by the LCIAformatter is critical, because as elementary flows used in LCI are updated, the LCIA datasets should also be automatically updated, and vice versa, to facilitate their use in LCA. 
 
 # Structure
+The LCIA formatter code is written in Python 3 and created as a standard python package called `lciafmt` that can be installed using pip. The LCIA formatter primarily uses pandas for data wrangling, and the Apache parquet format for local storage of processed datasets, and olca-py for writing data in a standard LCA data format. The code is stored on a USEPA GitHub [repository](https://github.com/USEPA/LCIAformatter) and is available for public access.
 
-The LCIA formatter code is written in the Python 3.x language and primarily uses the latest pandas package for data storage and manipulation. The code is stored on a USEPA GitHub [repository](https://github.com/USEPA/LCIAformatter) and is available for public access.
-
-The LCIA formatter accesses source methods directly from the data provider. These methods take the format of Excel files or Access databases. Source data are downloaded and saved in a temporary cache.
+The LCIA formatter accesses LCIA datasets directly from the data provider. These datasets are typically provided as Microsoft Excel or Access files. These are downloaded and saved in a temporary local cache.
 To support the specific functions necessary to access and parse individual methods, each method is processed within its own module. Flow names, indicators, characterization factors, and other metadata are compiled in a [standard format](https://github.com/USEPA/LCIAformatter/tree/documentation/format%20specs).
 Adjustments are made as needed to improve consistency between indicators and across methods. This includes handling duplicate entries for the same elementary flow, data cleaning (such as cleaning string names, adjusting capitalization, formatting of CAS Registry Numbers).
 Additionally, the LCIA formatter supports the inclusion of non specified secondary contexts (emission locations) where none are provided.
@@ -66,26 +72,25 @@ USEPA's Tool for Reduction and Assessment of Chemicals and Other Impacts (TRACI)
 ReCiPe 2016 characterizes impacts across 18 midpiont indicators and three perspectives: Individualist, Hierarchist, and Egalitarian [@huijbregts_recipe_2017]. The LCIA formatter generates endpoint impacts through a series of midpoint conversion factors provided for each indicator.
 As is done for TRACI2.1, where characterization factors are not supplied for unspecified secondary contexts, an average factor across the possible contexts is generated. This ensures that users that do not specify a secondary context (e.g. emission to air with no indication of population density) can still obtain a characterization factor for a flow. 
 
-
 ## ImpactWorld+
-ImpactWorld+ v1.3 is downloaded as an Access database and global flows are read into a pandas dataframe at midpoint and endpoint levels [@bulle_impact_2019]. Flows at native resolution or aggregated by landmass (continent, country, etc.) are currently excluded as they are not compatible with the FEDEFL at this time. Context information is added for water scarcity and availability categories, flowable name is applied as context for land occupation and transformation categories. Context descriptions are provided in the original source for all other categories.
-
+ImpactWorld+ v1.3 is downloaded as an Access database and read into a pandas dataframe using the pyodbc. ImpactWorld+ v1.3 provides characterization factors for indicators at midpoint and endpoint levels [@bulle_impact_2019]. Flows at native resolution or aggregated by landmass (continent, country, etc.) are currently excluded as they are not compatible with the FEDEFL at this time. Context information is added for water scarcity and availability categories, flowable name is applied as context for land occupation and transformation categories. Context descriptions are provided in the original source for all other categories.
 
 ## FEDEFL Inventory Methods
 The LCIA formatter generates life cycle inventory methods based on groups of elementary flows identified in the FEDEFL. For example, an inventory method for energy resource use represents the summation of all instances of these flows within a dataset. Where necessary unit conversions are applied to achieve a consistent indicator unit. 
 
-# Applications
-
+## Monetization
 The LCIA formatter also includes a method-agnostic approach to convert indicators (midpoint or endpoint) to monetary values.  The primary valuation is based on budget constraint modeling [@weidema_valuation_2009], updated to USD2014; conversions between the different ecosystem impact indicators (e.g., PDF.m2.yr and species.yr) are based on the species density calculations from ReCiPe 2008 [@goedkoop_recipe_2009].
 
+# Applications
 The LCIA methods generated by the LCIA formatter for use with the FEDEFL are hosted publicly on the FLCAC for use by LCA practitioners and researchers. These methods support life cycle assessments performed by many parties, including member agencies for the Federal LCA Commons such as U.S. EPA, U.S. DOE, USDA, DOD, and others. These methods also enable impact assessment for researchers utilizing the US Life Cycle Inventory (USLCI) Database.
-As a Python-based package, the LCIA formatter can also be accessed by the expanding ecosystem of publicly available tools for LCA automation, including [useeior](https://github.com/USEPA/useeior) and the Electricity Life Cycle Inventory ([electricitylci](https://github.com/USEPA/ElectricityLCI)).
+LCIA methods from the LCIA formatter are also being used in the [standard format](https://github.com/USEPA/LCIAformatter/tree/documentation/format%20specs) as inputs into other tools in the open source LCA ecosystem, including [useeior](https://github.com/USEPA/useeior) and the Electricity Life Cycle Inventory ([electricitylci](https://github.com/USEPA/ElectricityLCI)).
 The system was built to be flexible enough to support creating outputs for LCIA spatially-explicit characterization factors.
 
-
-
 # Acknowledgements
+The creation of this software was funded by the [SERDP-ESTCP research program](https://www.serdp-estcp.org/) under
+project WP-2757, and conducted via EPA contract EP-C-16-015, Task Order 68HERC19F0292 with ERG. The authors wish to acknowledge additional support from Ashley Edelen, Danny Hage, Troy Hottle, and Catherine Birney.
 
-The authors wish to acknolwedge additional support of the LCIA formatter from Ashley Edelen, Danny Hage, Troy Hottle, and Catherine Birney.
+# Disclaimer
+The U.S. Environmental Protection Agency, through its Office of Research and Development, conducted the research described herein under an approved Quality Assurance Project Plan (K-LRTD-0031522-QP-2). It has been subjected to the Agency’s peer and administrative review and has been approved for publication as an EPA document. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
 
 # References

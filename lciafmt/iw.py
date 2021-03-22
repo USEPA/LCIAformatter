@@ -1,11 +1,18 @@
+# iw.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+This module contains functions needed to compile LCIA methods from ImpactWorld+
+"""
 import pyodbc
-import logging as log
-import pandas
-import lciafmt.cache as cache
-import lciafmt.df as df
-import lciafmt.util as util
+import pandas as pd
 
-def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
+import lciafmt.cache as cache
+import lciafmt.df as dfutil
+
+from .util import log, format_cas
+
+def get(file=None, url=None) -> pd.DataFrame:
     """Download Access file and call read function to transfer into dataframe"""
     log.info("get method Impact World")
 
@@ -29,19 +36,15 @@ def get(endpoint=False, file=None, url=None) -> pandas.DataFrame:
     # Identify midpoint and endpoint records and differentiate in data frame.
     end_point_units = ['DALY', 'PDF.m2.yr']
 
-    if endpoint:
-        df = df[df["Indicator unit"].isin(end_point_units)]
-        df["Method"] = "Impact World - Endpoint"
-    else:
-        df = df[~df["Indicator unit"].isin(end_point_units)]
-        df["Method"] = "Impact World - Midpoint"
+    df.loc[df["Indicator unit"].isin(end_point_units), ["Method"]] = "Impact World - Endpoint"
+    df.loc[~df["Indicator unit"].isin(end_point_units), ["Method"]] = "Impact World - Midpoint"
 
     # call function to replace contexts for unspecified water and air flows.
     df = update_context(df)
     
     return df
 
-def _read(access_file: str) -> pandas.DataFrame:
+def _read(access_file: str) -> pd.DataFrame:
     """Read the data from the Access database with the given path into a
     Pandas data frame."""
 
@@ -61,16 +64,15 @@ def _read(access_file: str) -> pandas.DataFrame:
     crsr.execute("SELECT * FROM [CF - not regionalized - All other impact categories]")
     rows = crsr.fetchall()
     for row in rows:
-        df.record(
-            records,
-            method="Impact World",
-            indicator = row[1],
-            indicator_unit=row[2],
-            flow=row[5],
-            flow_category=row[3] + "/" + row[4],
-            flow_unit=row[8],
-            cas_number=util.format_cas(row[6]).lstrip("0"),
-            factor=row[7])
+        dfutil.record(records,
+                      method="Impact World",
+                      indicator = row[1],
+                      indicator_unit=row[2],
+                      flow=row[5],
+                      flow_category=row[3] + "/" + row[4],
+                      flow_unit=row[8],
+                      cas_number=format_cas(row[6]).lstrip("0"),
+                      factor=row[7])
 
     """List relevant sheets in Impact World Access file. Second item in tuple
     tells the source of compartment information. Compartment for water
@@ -98,16 +100,15 @@ def _read(access_file: str) -> pandas.DataFrame:
             rows = crsr.fetchall()
 
             for row in rows:
-                df.record(
-                    records,
-                    method="Impact World",
-                    indicator=row.ImpCat,
-                    indicator_unit=row.Unit.strip('[]').split('/')[0],
-                    flow=row.__getattribute__('Elem flow'),
-                    flow_category="Air/" + row.__getattribute__("Archetype 1"),
-                    flow_unit=row.Unit.strip('[]').split('/')[1],
-                    cas_number="",
-                    factor=row.CFvalue)
+                dfutil.record(records,
+                              method="Impact World",
+                              indicator=row.ImpCat,
+                              indicator_unit=row.Unit.strip('[]').split('/')[0],
+                              flow=row.__getattribute__('Elem flow'),
+                              flow_category="Air/" + row.__getattribute__("Archetype 1"),
+                              flow_unit=row.Unit.strip('[]').split('/')[1],
+                              cas_number="",
+                              factor=row.CFvalue)
 
         else:
             sql = "SELECT * FROM [" + x[0] + "] WHERE (([" + x[0] + "].Resolution In('Global', 'Not regionalized')))"
@@ -136,21 +137,20 @@ def _read(access_file: str) -> pandas.DataFrame:
                 else:
                     category_stmt = x[1]
 
-                df.record(
-                    records,
-                    method="Impact World",
-                    indicator = row.ImpCat,
-                    indicator_unit=row.Unit.strip('[]').split('/')[0],
-                    flow=flow_stmt,
-                    flow_category=category_stmt,
-                    flow_unit=row.Unit.strip('[]').split('/')[1],
-                    cas_number="",
-                    factor=row.__getattribute__('Weighted Average'))
+                dfutil.record(records,
+                              method="Impact World",
+                              indicator = row.ImpCat,
+                              indicator_unit=row.Unit.strip('[]').split('/')[0],
+                              flow=flow_stmt,
+                              flow_category=category_stmt,
+                              flow_unit=row.Unit.strip('[]').split('/')[1],
+                              cas_number="",
+                              factor=row.__getattribute__('Weighted Average'))
 
-    return df.data_frame(records)
+    return dfutil.data_frame(records)
 
 
-def update_context(df_context) -> pandas.DataFrame:
+def update_context(df_context) -> pd.DataFrame:
     """replaces unspecified air and water flows for impact categories that 
     don't rely on sub-compartments for  characterization factor selection."""
     single_context = ['Freshwater acidification',

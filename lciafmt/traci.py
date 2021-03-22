@@ -10,7 +10,7 @@ import pandas as pd
 import xlrd
 
 import lciafmt.cache as cache
-import lciafmt.df as dataframe
+import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
 from .util import log, aggregate_factors_for_primary_contexts, format_cas, datapath
@@ -21,7 +21,7 @@ flowables_split = pd.read_csv(datapath+'TRACI_2.1_split.csv')
 
 def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFrame:
     """  Downloads and processes the TRACI impact method. """
-    log.info("get method Traci 2.1")
+    log.info("getting method Traci 2.1")
     f = file
     if f is None:
         fname = "traci_2.1.xlsx"
@@ -31,10 +31,10 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFr
         f = cache.get_or_download(fname, url)
     df = _read(f)
     if add_factors_for_missing_contexts:
-        log.info("Adding average factors for primary contexts")
+        log.info("adding average factors for primary contexts")
         df = aggregate_factors_for_primary_contexts(df)
 
-    log.info("Handling manual replacements")
+    log.info("handling manual replacements")
     """ due to substances listed more than once with different names
     this replaces all instances of the Original Flowable with a New Flowable
     based on a csv input file, otherwise zero values for CFs will override
@@ -90,18 +90,17 @@ def _read(xls_file: str) -> pd.DataFrame:
             factor = xls.cell_f64(sheet, row, col)
             if factor == 0.0:
                 continue
-            dataframe.record(
-                records,
-                method="TRACI 2.1",
-                indicator=cat_info[0],
-                indicator_unit=cat_info[1],
-                flow=flow,
-                flow_category=cat_info[2],
-                flow_unit=cat_info[3],
-                cas_number=cas,
-                factor=factor)
+            dfutil.record(records,
+                          method="TRACI 2.1",
+                          indicator=cat_info[0],
+                          indicator_unit=cat_info[1],
+                          flow=flow,
+                          flow_category=cat_info[2],
+                          flow_unit=cat_info[3],
+                          cas_number=cas,
+                          factor=factor)
 
-    return dataframe.data_frame(records)
+    return dfutil.data_frame(records)
 
 
 def _category_info(c: str):
