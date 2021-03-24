@@ -50,7 +50,7 @@ LCA software generally include LCIA methods to provide impact assessment results
 The LCIA formatter is a specific solution to this problem. The LCIA formatter transparently acquires LCIA methods from original provider data portals, maps them to an authoritative flow list, and exports them in common data formats. The LCIA formatter v1.0 uses the Federal LCA Commons Elementary Flow List (FEDEFL) as the authoritative system of elementary flows [@edelen_federal_2019]. This system has been adopted by federal agencies in the U.S. for use in sharing data through the Federal LCA Commons [(FLCAC)](https://www.lcacommons.gov/). The automation of this process provided by the LCIA formatter is critical, because as elementary flows used in LCI are updated, the LCIA datasets should also be automatically updated, and vice versa, to facilitate their use in LCA. 
 
 # Structure
-The LCIA formatter code is written in Python 3 and created as a standard python package called `lciafmt` that can be installed using pip. The LCIA formatter primarily uses pandas for data wrangling [@mckinney-proc-scipy-2010], the Apache parquet format[@apache_pyarrow_2021] for local storage of processed datasets, and olca-ipc[@srocka_olca-ipc_2020] for writing data in a standard LCA data format. The code is stored on a USEPA GitHub [repository](https://github.com/USEPA/LCIAformatter) and is available for public access.
+The LCIA formatter code is written in Python 3 and created as a standard python package called `lciafmt` that can be installed using pip. The LCIA formatter primarily uses pandas for data wrangling [@mckinney-proc-scipy-2010], the Apache parquet format [@apache_pyarrow_2021] for local storage of processed datasets, and olca-ipc [@srocka_olca-ipc_2020] for writing data in a standard LCA data format. The code is stored on a USEPA GitHub [repository](https://github.com/USEPA/LCIAformatter) and is available for public access.
 
 The LCIA formatter accesses LCIA datasets directly from the data provider. These datasets are typically provided as Microsoft Excel or Access files. These are downloaded and saved in a temporary local cache.
 To support the specific functions necessary to access and parse individual methods, each method is processed within its own module. Flow names, indicators, characterization factors, and other metadata are compiled in a [standard format](https://github.com/USEPA/LCIAformatter/tree/documentation/format%20specs).
@@ -63,7 +63,7 @@ Additionally, mapped methods can be exported as JSON-LD format for use in LCA so
 
 
 # Available Methods
-The LCIA formatter is structured to easily convert original source data from existing LCIA methods. Version 1.0 of the LCIA formatter converts three commonly used LCIA methods: TRACI 2.1, ReCiPe2016, and ImpactWorld+ \autoref{tbl:methods}. Available LCIA methods cover a variety of impact categories. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIA formatter.
+The LCIA formatter is structured to easily convert original source data from existing LCIA methods. Version 1.0 of the LCIA formatter converts three commonly used LCIA methods: TRACI 2.1, ReCiPe2016, and ImpactWorld+ (\autoref{tbl:methods}). Available LCIA methods cover a variety of impact categories. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIA formatter.
 
 
 Method | Indicators | Characterization Factors (Source) | Characterization Factors (Mapped to FEDEFL)
