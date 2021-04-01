@@ -9,10 +9,10 @@ The flow name fields match those in the fedelemflowlist [FlowList](https://githu
  1 | Method UUID | string | Y | ID for the method  |
  2 | Indicator | string | Y | Name of indicator, e.g. 'Acidification Potential' |
  3 | Indicator UUID| string | Y | ID for the indicator |
- 4 | Indicator unit | string | Y | The unit for the indicator, e.g. `kg CO2 eq` |
- 5 | Flowable | string | Y | The flow name, e.g. `Sulfur dioxide` |
+ 4 | Indicator unit | string | Y | The unit for the indicator, e.g. 'kg CO2 eq' |
+ 5 | Flowable | string | Y | The flow name, e.g. 'Sulfur dioxide' |
  6 | Flow UUID | string | Y | ID of the flow |
- 7 | Context | string | Y | A path-like set of context compartments in the form of directionality/environmental media/environmental compartment... e.g. emission/air/tropophere |
+ 7 | Context | string | Y | A path-like set of context compartments in the form of directionality/environmental media/environmental compartment, e.g. 'emission/air/tropophere' |
  8 | Unit | string | Y | Unit of the flow. Uses olca-ipc.py units
  9 | CAS No | string | N | CAS number
  10 | Location | string | N | Name of the location

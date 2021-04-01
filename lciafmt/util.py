@@ -4,6 +4,7 @@
 """
 This module contains common functions for processing LCIA methods
 """
+
 import uuid
 import os
 from os.path import join

@@ -1,3 +1,10 @@
+# cache.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+Functions to support storing and retrieving files from local cache
+"""
+
 import os
 import shutil
 import tempfile
@@ -51,6 +58,7 @@ def download(url: str, file: str) -> str:
 
 
 def get_or_download(file: str, url: str) -> str:
+    """Checks for local version of path or file or downloads if not present."""
     path = get_path(file)
     if os.path.isfile(path):
         log.info("take %s from cache", file)

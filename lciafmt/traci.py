@@ -6,6 +6,7 @@ This module contains functions needed to compile LCIA methods from EPA's
 Tool for Reduction and Assessment of Chemicals and Other Environmental
 Impacts (TRACI)
 """
+
 import pandas as pd
 import xlrd
 
@@ -14,6 +15,7 @@ import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
 from .util import log, aggregate_factors_for_primary_contexts, format_cas, datapath
+
 
 flowables_replace = pd.read_csv(datapath+'TRACI_2.1_replacement.csv')
 flowables_split = pd.read_csv(datapath+'TRACI_2.1_split.csv')

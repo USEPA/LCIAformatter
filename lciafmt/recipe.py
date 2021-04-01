@@ -5,6 +5,7 @@
 This module contains functions needed to compile LCIA methods from the
 ReCiPe model
 """
+
 import pandas as pd
 import xlrd
 
@@ -13,6 +14,7 @@ import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
 from .util import datapath, aggregate_factors_for_primary_contexts, log, format_cas
+
 
 contexts = {
         'urban air' : 'air/urban',
