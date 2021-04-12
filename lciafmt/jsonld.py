@@ -1,3 +1,10 @@
+# jsonld.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+Functions to support generating JSONLD files for lciafmt
+"""
+
 from typing import Optional
 
 import olca

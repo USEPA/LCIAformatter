@@ -6,6 +6,7 @@ This module contains functions needed to develop life cycle inventory methods
 from the EPA Federal Elementary Flow List (fedelemflowlist)
 (https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List)
 """
+
 import pandas as pd
 
 import fedelemflowlist as flowlist

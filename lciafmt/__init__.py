@@ -1,3 +1,10 @@
+# __init__.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+Public API for lciafmt
+"""
+
 import json
 import pkg_resources
 
@@ -79,6 +86,7 @@ def clear_cache():
     cache.clear()
 
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
+    """Generates a JSONLD file of the methods passed as dataframe."""
     util.log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows)

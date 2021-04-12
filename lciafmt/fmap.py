@@ -1,3 +1,10 @@
+# fmap.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+Functions to support flow mapping for lcia methods
+"""
+
 from typing import List
 
 import pandas as pd

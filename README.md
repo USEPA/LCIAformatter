@@ -13,8 +13,6 @@ source, cleans the data, shapes them into a standard format using the [LCIAmetho
 |ImpactWorld+ Endpoint|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
 |FEDEFL Inventory Methods|US Environmental Protection Agency|[FEDEFL Inventory Methods](https://github.com/USEPA/LCIAformatter/wiki/Inventory-Methods)|
 
-This tool is currently in a [Beta state](https://en.wikipedia.org/wiki/Software_release_life_cycle#Beta)
-
 See the [Wiki](https://github.com/USEPA/LCIAformatter/wiki/) for installation and use instructions.
 
 ## Disclaimer

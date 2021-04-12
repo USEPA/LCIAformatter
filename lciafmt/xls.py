@@ -1,3 +1,10 @@
+# xls.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+Functions to support reading Microsoft Excel files for lciafmt
+"""
+
 import xlrd
 
 

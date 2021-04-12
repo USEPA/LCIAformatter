@@ -1,3 +1,10 @@
+# df.py (lciafmt)
+# !/usr/bin/env python3
+# coding=utf-8
+"""
+Functions to support generating a dataframe from list of elements
+"""
+
 import pandas
 
 
