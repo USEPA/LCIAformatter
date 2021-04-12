@@ -38,11 +38,11 @@ bibliography: paper.bib
 Life Cycle Assessment (LCA) is an established and standardized methodology to comprehensively assess environmental and public health metrics across industries and products [@international_organization_for_standardization_enivronmental_2006]. The United States Environmental Protection Agency (USEPA) is developing an open source LCA tool ecosystem [@ingwersen_lca_2019].  The ecosystem includes tools to automate the creation of life cycle inventory (LCI) datasets, which account for flows to and from nature for steps across the life cycle of products or services, and tools for life cycle impact assessment (LCIA) to support classification and characterization of the cumulative LCI to potential impacts. Impacts are expressed via indicators, either midpoint or endpoint, corresponding to different points on the environmental cause-effect chain model [@unep_glam_2016]. This paper describes a USEPA LCA ecosystem tool 'LCIA formatter' that extracts LCIA information from original source methods and converts the data for interoperability with the rest of the USEPA LCA ecosystem tools.   
 
 # Statement of need
-A simplified algorithm for LCA is given below, where $I$ are impacts, $E$ are emissions generated (e.g. pollutants) or raw resources consumed (e.g. land, water) per functional unit of product across the entire supporting product system and $CF$ are corresponding characterization factors that quantitatively relate a unit of a flow to a given impact indicator (e.g., global warming, acidification, total land use, etc.). 
+A simplified algorithm for LCA is given in [@eq:lca], where $I$ are impacts, $E$ are emissions generated (e.g. pollutants) or raw resources consumed (e.g. land, water) per functional unit of product across the entire supporting product system and $CF$ are corresponding characterization factors that quantitatively relate a unit of a flow to a given impact indicator (e.g., global warming, acidification, total land use, etc.). 
 
 $$
 I = \sum(E*CF)
-$$ \label{eq:lca}
+$$ {#eq:lca}
 
 Both $E$ and $CF$ use objects called elementary flows, which are data objects that generally represent a substance (e.g. Ammonia), source or receiving environmental context (e.g. Freshwater lake), and unit (e.g. kilogram). $E$ will have a total quantity of a given elementary flow from the product system, and the characterization factors in $CF$ are in the form of the indicator unit per elementary flow unit (e.g. kg N-eq per kg Ammonia). $E$ comes from the LCI calculated for the given product under user-defined conditions, and $CF$ is a static dataset that comes from an LCIA method provider. 
 
