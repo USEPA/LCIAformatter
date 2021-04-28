@@ -30,7 +30,7 @@ affiliations:
    index: 2
  - name: U.S. Environmental Protection Agency
    index: 3
-date: 12 April 2021
+date: 28 April 2021
 bibliography: paper.bib
 ---
 
@@ -64,7 +64,7 @@ Additionally, mapped methods can be exported as JSON-LD format for use in LCA so
 
 
 # Available Methods
-The LCIA formatter is structured to easily convert original source data from existing LCIA methods. Version 1.0 of the LCIA formatter converts three commonly used LCIA methods: TRACI 2.1, ReCiPe2016, and ImpactWorld+ (\autoref{tbl:methods}), which cover a variety of impact categories. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIA formatter.
+The LCIA formatter is structured to easily convert original source data from existing LCIA methods. Version 1.0 of the LCIA formatter converts three commonly used LCIA methods: TRACI 2.1 [@bare_traci_2011], ReCiPe2016 [@huijbregts_recipe_2017], and ImpactWorld+ [@bulle_impact_2019] (\autoref{tbl:methods}), which cover a variety of impact categories. Cumulative LCI indicators based on the FEDEFL are also available as an output of the LCIA formatter.
 
 
 Method | Indicators | Characterization Factors (Source) | Characterization Factors (Mapped to FEDEFL)
