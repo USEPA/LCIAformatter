@@ -31,7 +31,7 @@ log.basicConfig(level=log.INFO, format='%(asctime)s %(levelname)-8s %(message)s'
 #Common declaration of write format for package data products
 write_format = "parquet"
 
-paths = Paths
+paths = Paths()
 paths.local_path = os.path.realpath(paths.local_path + "/lciafmt")
 outputpath = paths.local_path
 
@@ -43,7 +43,7 @@ except:
     git_hash = None
 
 def set_lcia_method_meta(method_id):
-    lcia_method_meta = FileMeta
+    lcia_method_meta = FileMeta()
     if method_id is not None:
         lcia_method_meta.name_data = method_id.get_filename()
         lcia_method_meta.category = method_id.get_path()
