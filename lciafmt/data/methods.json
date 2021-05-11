@@ -2,43 +2,45 @@
   {
     "id": "TRACI",
     "name": "TRACI 2.1",
-    "version": "2.1",
-    "description": "...",
+    "detail_note": "Additional flowable mappings were included for general metals (e.g. Copper, Zinc, and Selenium) in the FEDEFL to the most common ions where available in TRACI 2.1 (e.g. COPPER(II), ZINC(II), and SELENIUM(IV)). This ensures the application of TRACI 2.1 characterization factors when the general name of the metal is reported, as is the case in EPA datasets such as NEI and TRI. Duplicate names for flowables exist in TRACI 2.1 which have different characterization factors and different CAS. These occur due to duplicate entries in the source files for USEtox. In these cases, the entries with the currently recognized CAS are accepted and the other flowables are ignored. FEDEFL contexts are mapped to TRACI 2.1 to enable impact assessment across most of the possible contexts available within FEDEFL. Mappings that occur in the primary contexts (e.g. air) are assigned to all possible sub-contexts which apply. Where a context is non-specific in FEDEFL relative to the available TRACI 2.1 contexts (e.g. rural/urban), the LCIA Formatter applies the average of the relevant characterization factors from TRACI 2.1. Normalization and weighting factors are not provided in the TRACI 2.1 source file and are not added here.",
     "path": "traci_2_1",
     "mapping": "TRACI2.1",
     "case_insensitivity": "False",
-    "url": "https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx"
+    "url": "https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx",
+    "citation": "Bare 2012"
   },
   {
     "id": "RECIPE_2016",
     "name": "ReCiPe 2016",
     "version": "1.1",
-    "description": "...",
+    "detail_note": "FEDEFL contexts are mapped to ReCiPe 2016 to enable impact assessment across most of the possible contexts available within FEDEFL. Mappings that occur in the primary contexts (e.g. air) are assigned to all possible sub-contexts which apply. Where a context is non-specific in FEDEFL relative to the available ReCiPe 2016 contexts (e.g. rural/urban), the LCIA Formatter applies the average of the relevant characterization factors from ReCiPe 2016. The LCIA Formatter generates a separate impact assement method for each of the three approaches employed in ReCiPe 2016, which includes Individualist, Hierarchist, and Egalitarian. More details on the methods can be found on the website https://www.rivm.nl/en/life-cycle-assessment-lca/downloads...",
     "mapping": "ReCiPe2016",
     "methods": ["ReCiPe 2016 - Endpoint/I", "ReCiPe 2016 - Endpoint/H", "ReCiPe 2016 - Endpoint/E",
                 "ReCiPe 2016 - Midpoint/I", "ReCiPe 2016 - Midpoint/H", "ReCiPe 2016 - Midpoint/E"],
     "path": "recipe_2016",
     "case_insensitivity": "True",
-    "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx"
+    "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx",
+    "citation": "Huijbregts 2017"
   },
   {
     "id": "FEDEFL_INV",
     "name": "FEDEFL Inventory",
     "version": "0.5",
-    "description": "...",
     "path": "fedefl",
-    "url": "http://www.github.com/usepa//Federal-LCA-Commons-Elementary-Flow-List"
+    "url": "http://www.github.com/usepa//Federal-LCA-Commons-Elementary-Flow-List",
+    "citation": ""
   },
   {
     "id": "ImpactWorld",
-    "name": "ImpactWorld",
+    "name": "ImpactWorld+",
     "version": "1.3",
-    "description": "Global impact factors for all available impact categories. Developed in a partnership with CIRAIG, University of Michigan, Quantis International, Technical University of Denmark and école Polytechnique de Lausanne (EPFL).",
+    "detail_note": "FEDEFL contexts are mapped to IMPACT World+ to enable impact assessment across most of the possible contexts available within FEDEFL. Mappings that occur in the primary contexts (e.g. air) are assigned to all possible sub-contexts which apply. The LCIA Formatter generates a separate midpoint and enpoint impact assement method based on the IMPACT World+ source file.",
     "mapping": "ImpactWorld+",
-    "methods": ["Impact World - Midpoint", "Impact World - Endpoint"],
+    "methods": ["ImpactWorld+ - Midpoint", "ImpactWorld+ - Endpoint"],
     "path": "impact_world",
     "case_insensitivity": "False",
-    "url": "http://www.impactworldplus.org/en/writeToFile.php"
+    "url": "http://www.impactworldplus.org/en/writeToFile.php",
+    "citation": "Bulle, Cecile, Manuele Margni, Laure Patouillard, Anne-Marie Boulay, Guillaume Bourgault, Vincent De Bruille, Viet Cao, et al. IMPACT World+: A Globally Regionalized Life Cycle Impact Assessment Method. The International Journal of Life Cycle Assessment 24, no. 9 (September 2019), 1653–74. https://doi.org/10.1007/s11367-019-01583-0."
   }
 
 ]
