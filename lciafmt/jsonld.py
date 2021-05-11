@@ -12,7 +12,8 @@ import olca.units as units
 import olca.pack as pack
 import pandas as pd
 
-from .util import make_uuid, is_non_empty_str, get_method_metadata, log
+from .util import make_uuid, is_non_empty_str, get_method_metadata, log,\
+    pkg_version_number
 
 
 class Writer(object):
@@ -91,6 +92,7 @@ class Writer(object):
         m = olca.ImpactMethod()
         m.id = uid
         m.name = row[0]
+        m.version = pkg_version_number
         m.impact_categories = []
         m.description= description
         self.__methods[uid] = m
