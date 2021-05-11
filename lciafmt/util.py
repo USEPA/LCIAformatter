@@ -17,7 +17,7 @@ import yaml
 import pkg_resources
 import subprocess
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
-    write_df_to_file
+    write_df_to_file, write_metadata_to_file
 from fedelemflowlist.globals import flow_list_specs
 
 
@@ -57,6 +57,13 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
 
+method_metadata = {
+    'Name':'',
+    'Version':'',
+    'Source':'',
+    'SourceType':'',
+    'Citation':'',
+    }
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -181,7 +188,7 @@ def check_as_class(method_id):
         method_id = lciafmt.Method.get_class(method_id)
     return method_id
 
-def get_method_metadata(name: str) -> str:
+def generate_method_description(name: str) -> str:
     with open(join(datapath, "description.yaml")) as f:
         generic=yaml.safe_load(f)
     method_description = generic['description']
@@ -205,15 +212,33 @@ def get_method_metadata(name: str) -> str:
     return method_description
 
 
+def compile_metadata(method_id):
+    """Compiles metadata for a method before saving"""
+    metadata = dict(method_metadata)
+    method_meta = method_id.get_metadata()
+    match_dict = {'Name':'name',
+                  'Version':'version',
+                  'Source':'url',
+                  'SourceType':'source_type',
+                  'Citation':'citation',
+                  }
+    for k, v in match_dict.items():
+        if v in method_meta:
+            metadata[k] = method_meta[v]
+    return metadata
+
+
 def store_method(df, method_id):
     """Prints the method as a dataframe to parquet file"""
     meta = set_lcia_method_meta(method_id)
     method_path = outputpath + '/' + meta.category
     if meta.name_data == "":
         meta.name_data = df['Method'][0]
+    meta.tool_meta = compile_metadata(method_id)
     try:
         log.info('saving ' + meta.name_data + ' to ' + method_path)
-        write_df_to_file(df,paths,meta)
+        write_df_to_file(df, paths, meta)
+        write_metadata_to_file(paths, meta)
     except:
         log.error('Failed to save method')
 

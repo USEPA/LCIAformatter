@@ -7,7 +7,8 @@
     "mapping": "TRACI2.1",
     "case_insensitivity": "False",
     "url": "https://www.epa.gov/sites/production/files/2015-12/traci_2_1_2014_dec_10_0.xlsx",
-    "citation": "Bare 2012"
+    "citation": "Bare 2012",
+    "source_type": "Excel file"
   },
   {
     "id": "RECIPE_2016",
@@ -20,7 +21,8 @@
     "path": "recipe_2016",
     "case_insensitivity": "True",
     "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx",
-    "citation": "Huijbregts 2017"
+    "citation": "Huijbregts 2017",
+    "source_type": "Excel file"
   },
   {
     "id": "FEDEFL_INV",
@@ -28,7 +30,8 @@
     "version": "0.5",
     "path": "fedefl",
     "url": "http://www.github.com/usepa//Federal-LCA-Commons-Elementary-Flow-List",
-    "citation": ""
+    "citation": "",
+    "source_type": "FEDEFL Python function"
   },
   {
     "id": "ImpactWorld",
@@ -40,7 +43,8 @@
     "path": "impact_world",
     "case_insensitivity": "False",
     "url": "http://www.impactworldplus.org/en/writeToFile.php",
-    "citation": "Bulle, Cecile, Manuele Margni, Laure Patouillard, Anne-Marie Boulay, Guillaume Bourgault, Vincent De Bruille, Viet Cao, et al. IMPACT World+: A Globally Regionalized Life Cycle Impact Assessment Method. The International Journal of Life Cycle Assessment 24, no. 9 (September 2019), 1653–74. https://doi.org/10.1007/s11367-019-01583-0."
+    "citation": "Bulle, Cecile, Manuele Margni, Laure Patouillard, Anne-Marie Boulay, Guillaume Bourgault, Vincent De Bruille, Viet Cao, et al. IMPACT World+: A Globally Regionalized Life Cycle Impact Assessment Method. The International Journal of Life Cycle Assessment 24, no. 9 (September 2019), 1653–74. https://doi.org/10.1007/s11367-019-01583-0",
+    "source_type": "Access file"
   }
 
 ]
