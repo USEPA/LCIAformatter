@@ -199,12 +199,12 @@ def generate_method_description(name: str) -> str:
     
     # Replace tagged fields
     if 'version' in method_meta:
-        version = '(v' + method_meta['version'] + ')'
+        version = ' (v' + method_meta['version'] + ')'
     else:
         version = ''
     method_description = method_description.replace('[LCIAfmt_version]', pkg_version_number)
     method_description = method_description.replace('[FEDEFL_version]', flow_list_specs['list_version'])
-    method_description = method_description.replace('[Method]', name)
+    method_description = method_description.replace('[Method]', method_meta['name'])
     method_description = method_description.replace('[version]', version)
     method_description = method_description.replace('[citation]', method_meta['citation'])
     method_description = method_description.replace('[url]', method_meta['url'])
@@ -215,7 +215,9 @@ def generate_method_description(name: str) -> str:
 def compile_metadata(method_id):
     """Compiles metadata for a method before saving"""
     metadata = dict(method_metadata)
-    method_meta = method_id.get_metadata()
+    method_meta = {}
+    if method_id is not None:
+        method_meta = method_id.get_metadata()
     match_dict = {'Name':'name',
                   'Version':'version',
                   'Source':'url',
