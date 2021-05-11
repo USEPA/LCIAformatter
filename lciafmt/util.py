@@ -22,7 +22,7 @@ from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
-pkg_version_number = '1.0.1'
+pkg_version_number = '1.0.0'
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 datapath = modulepath + '/data/'
 
@@ -196,7 +196,12 @@ def generate_method_description(name: str) -> str:
     method_meta = method.get_metadata()
     if 'detail_note' in method_meta:
         method_description += method_meta['detail_note']
-    
+    if 'methods' in method_meta:
+        try:
+            detailed_meta = '\n\n' + method_meta['methods'][name]
+            method_description += detailed_meta
+        except KeyError:
+            log.debug('%s not found in methods.json', name)
     # Replace tagged fields
     if 'version' in method_meta:
         version = ' (v' + method_meta['version'] + ')'
@@ -208,7 +213,7 @@ def generate_method_description(name: str) -> str:
     method_description = method_description.replace('[version]', version)
     method_description = method_description.replace('[citation]', method_meta['citation'])
     method_description = method_description.replace('[url]', method_meta['url'])
-    
+
     return method_description
 
 

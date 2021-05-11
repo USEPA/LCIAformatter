@@ -52,10 +52,10 @@ class Method(Enum):
         for n,c in Method.__members__.items():
             m = c.get_metadata()
             mapping = None
-            methods = []
+            methods = {}
             if 'mapping' in m: mapping = m['mapping']
             if 'methods' in m: methods = m['methods']
-            if n == name or c.value == name or mapping == name or name in methods:
+            if n == name or c.value == name or mapping == name or name in methods.keys():
                 return c
         util.log.error('Method not found')
 
