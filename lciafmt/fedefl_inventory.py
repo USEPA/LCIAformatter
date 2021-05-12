@@ -52,5 +52,5 @@ def get(subset=None) -> pd.DataFrame:
 
         method = pd.concat([method,flows_w_conversion], ignore_index=True)
 
-    method['Method'] = 'Inventory'
+    method['Method'] = 'FEDEFL Inventory'
     return method

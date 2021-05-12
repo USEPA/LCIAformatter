@@ -17,7 +17,8 @@ import yaml
 import pkg_resources
 import subprocess
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
-    write_df_to_file
+    write_df_to_file, write_metadata_to_file
+from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
@@ -56,6 +57,13 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
 
+method_metadata = {
+    'Name':'',
+    'Version':'',
+    'Source':'',
+    'SourceType':'',
+    'Citation':'',
+    }
 
 def make_uuid(*args: str) -> str:
     path = _as_path(*args)
@@ -175,26 +183,56 @@ def collapse_indicators(df) -> pd.DataFrame:
    
     return df2
 
+def check_as_class(method_id):
+    if not isinstance(method_id, lciafmt.Method):
+        method_id = lciafmt.Method.get_class(method_id)
+    return method_id
 
-def get_method_metadata(name: str) -> str:
-    if "TRACI 2.1" in name:
-        method = 'TRACI'
-    elif "ReCiPe 2016" in name:
-        method = 'ReCiPe2016'
-    elif "Impact World" in name:
-        method = 'ImpactWorld'
+def generate_method_description(name: str) -> str:
+    with open(join(datapath, "description.yaml")) as f:
+        generic=yaml.safe_load(f)
+    method_description = generic['description']
+    method = check_as_class(name)
+    method_meta = method.get_metadata()
+    if 'detail_note' in method_meta:
+        method_description += method_meta['detail_note']
+    if 'methods' in method_meta:
+        try:
+            detailed_meta = '\n\n' + method_meta['methods'][name]
+            method_description += detailed_meta
+        except KeyError:
+            log.debug('%s not found in methods.json', name)
+    # Replace tagged fields
+    if 'version' in method_meta:
+        version = ' (v' + method_meta['version'] + ')'
     else:
-        return ""
-    with open(join(datapath, method + "_description.yaml")) as f:
-        metadata=yaml.safe_load(f)
-    method_description = metadata['description']
-    detail = ""
-    try:
-        detail = metadata[name]
-        method_description = method_description+detail
-    except:
-        log.debug("No further detail in description")
+        version = ''
+    method_description = method_description.replace('[LCIAfmt_version]', pkg_version_number)
+    method_description = method_description.replace('[FEDEFL_version]', flow_list_specs['list_version'])
+    method_description = method_description.replace('[Method]', method_meta['name'])
+    method_description = method_description.replace('[version]', version)
+    method_description = method_description.replace('[citation]', method_meta['citation'])
+    method_description = method_description.replace('[url]', method_meta['url'])
+
     return method_description
+
+
+def compile_metadata(method_id):
+    """Compiles metadata for a method before saving"""
+    metadata = dict(method_metadata)
+    method_meta = {}
+    if method_id is not None:
+        method_meta = method_id.get_metadata()
+    match_dict = {'Name':'name',
+                  'Version':'version',
+                  'Source':'url',
+                  'SourceType':'source_type',
+                  'Citation':'citation',
+                  }
+    for k, v in match_dict.items():
+        if v in method_meta:
+            metadata[k] = method_meta[v]
+    return metadata
 
 
 def store_method(df, method_id):
@@ -203,9 +241,11 @@ def store_method(df, method_id):
     method_path = outputpath + '/' + meta.category
     if meta.name_data == "":
         meta.name_data = df['Method'][0]
+    meta.tool_meta = compile_metadata(method_id)
     try:
         log.info('saving ' + meta.name_data + ' to ' + method_path)
-        write_df_to_file(df,paths,meta)
+        write_df_to_file(df, paths, meta)
+        write_metadata_to_file(paths, meta)
     except:
         log.error('Failed to save method')
 
@@ -232,7 +272,7 @@ def save_json(method_id, mapped_data, method=None):
         mapped_data = mapped_data[mapped_data['Method'] == method]
     path = outputpath+'/'+meta.category
     os.makedirs(outputpath, exist_ok=True)
-    json_pack = path +'/'+filename+"_json.zip"
+    json_pack = path +'/'+filename+"_json_v" + meta.tool_version + ".zip"
     if os.path.exists(json_pack):
         os.remove(json_pack)
     lciafmt.to_jsonld(mapped_data, json_pack)

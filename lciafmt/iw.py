@@ -16,7 +16,7 @@ from .util import log, format_cas
 
 def get(file=None, url=None) -> pd.DataFrame:
     """Download Access file and call read function to transfer into dataframe"""
-    log.info("get method Impact World")
+    log.info("get method ImpactWorld+")
 
     # Check for drivers and display help message if absent
     driver_check = ([x for x in pyodbc.drivers()])
@@ -38,8 +38,8 @@ def get(file=None, url=None) -> pd.DataFrame:
     # Identify midpoint and endpoint records and differentiate in data frame.
     end_point_units = ['DALY', 'PDF.m2.yr']
 
-    df.loc[df["Indicator unit"].isin(end_point_units), ["Method"]] = "Impact World - Endpoint"
-    df.loc[~df["Indicator unit"].isin(end_point_units), ["Method"]] = "Impact World - Midpoint"
+    df.loc[df["Indicator unit"].isin(end_point_units), ["Method"]] = "ImpactWorld+ - Endpoint"
+    df.loc[~df["Indicator unit"].isin(end_point_units), ["Method"]] = "ImpactWorld+ - Midpoint"
 
     # call function to replace contexts for unspecified water and air flows.
     df = update_context(df)
@@ -50,7 +50,7 @@ def _read(access_file: str) -> pd.DataFrame:
     """Read the data from the Access database with the given path into a
     Pandas data frame."""
 
-    log.info("read Impact World from file %s", access_file)
+    log.info("read ImpactWorld+ from file %s", access_file)
 
     path = cache.get_path(access_file)
 
@@ -67,7 +67,7 @@ def _read(access_file: str) -> pd.DataFrame:
     rows = crsr.fetchall()
     for row in rows:
         dfutil.record(records,
-                      method="Impact World",
+                      method="ImpactWorld+",
                       indicator = row[1],
                       indicator_unit=row[2],
                       flow=row[5],
@@ -103,7 +103,7 @@ def _read(access_file: str) -> pd.DataFrame:
 
             for row in rows:
                 dfutil.record(records,
-                              method="Impact World",
+                              method="ImpactWorld+",
                               indicator=row.ImpCat,
                               indicator_unit=row.Unit.strip('[]').split('/')[0],
                               flow=row.__getattribute__('Elem flow'),
@@ -140,7 +140,7 @@ def _read(access_file: str) -> pd.DataFrame:
                     category_stmt = x[1]
 
                 dfutil.record(records,
-                              method="Impact World",
+                              method="ImpactWorld+",
                               indicator = row.ImpCat,
                               indicator_unit=row.Unit.strip('[]').split('/')[0],
                               flow=flow_stmt,
