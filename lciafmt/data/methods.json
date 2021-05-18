@@ -41,7 +41,7 @@
     "id": "ImpactWorld",
     "name": "ImpactWorld+",
     "version": "1.3",
-    "detail_note": "FEDEFL contexts are mapped to IMPACT World+ to enable impact assessment across most of the possible contexts available within FEDEFL. Mappings that occur in the primary contexts (e.g. air) are assigned to all possible sub-contexts which apply. The LCIA Formatter generates a separate midpoint and enpoint impact assement method based on the IMPACT World+ source file.",
+    "detail_note": "FEDEFL contexts are mapped to IMPACT World+ to enable impact assessment across most of the possible contexts available within FEDEFL. Mappings that occur in the primary contexts (e.g. air) are assigned to all possible sub-contexts which apply. The LCIA Formatter generates a separate midpoint and endpoint impact assessment method based on the IMPACT World+ source file.",
     "mapping": "ImpactWorld+",
     "methods": {"ImpactWorld+ - Midpoint":"This method includes all global midpoint flows and their attributes.",
                 "ImpactWorld+ - Endpoint":"This method includes all global endpoint flows and their attributes."},
