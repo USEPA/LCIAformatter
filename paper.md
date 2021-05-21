@@ -9,7 +9,6 @@ authors:
     orcid: 0000-0001-6276-8670
     affiliation: 1
   - name: Michael Srocka
-    orcid:
     affiliation: 2
   - name: Wesley Ingwersen^[Corresponding author]
     orcid: 0000-0002-9614-701X
