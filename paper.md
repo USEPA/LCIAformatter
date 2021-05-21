@@ -10,7 +10,7 @@ authors:
     affiliation: 1
   - name: Michael Srocka
     affiliation: 2
-  - name: Wesley Ingwersen^[Corresponding author]
+  - name: Wesley Ingwersen
     orcid: 0000-0002-9614-701X
     affiliation: 3
   - name: Ben Morelli
