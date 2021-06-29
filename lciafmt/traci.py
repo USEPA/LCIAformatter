@@ -8,7 +8,7 @@ Impacts (TRACI)
 """
 
 import pandas as pd
-import xlrd
+import openpyxl
 
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
@@ -67,12 +67,12 @@ def _read(xls_file: str) -> pd.DataFrame:
        data frame."""
 
     log.info("read Traci 2.1 from file %s", xls_file)
-    wb = xlrd.open_workbook(xls_file)
-    sheet = wb.sheet_by_name("Substances")
-
+    wb = openpyxl.load_workbook(xls_file, read_only = True)
+    sheet = wb["Substances"]
+    df = pd.read_excel(xls_file, sheet_name='Substances')
     categories = {}
-    for col in range(3, sheet.ncols):
-        name = xls.cell_str(sheet, 0, col)
+    for col in range(4, sheet.max_column):
+        name = xls.cell_str(sheet, 1, col)
         if name == "":
             break
         cat_info = _category_info(name)
@@ -80,12 +80,13 @@ def _read(xls_file: str) -> pd.DataFrame:
             categories[col] = cat_info
 
     records = []
-    for row in range(1, sheet.nrows):
-        flow = xls.cell_str(sheet, row, 2)
+    for row in range(2, sheet.max_row):
+        print(row)
+        flow = xls.cell_str(sheet, row, 3)
         if flow == "":
             break
-        cas = format_cas(xls.cell_val(sheet, row, 1))
-        for col in range(3, sheet.ncols):
+        cas = format_cas(xls.cell_val(sheet, row, 2))
+        for col in range(4, sheet.max_column):
             cat_info = categories.get(col)
             if cat_info is None:
                 continue

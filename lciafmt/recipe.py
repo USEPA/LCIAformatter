@@ -8,6 +8,7 @@ ReCiPe model
 
 import pandas as pd
 import xlrd
+import openpyxl
 
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
@@ -117,29 +118,29 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
 
 def _read(file: str) -> pd.DataFrame:
     log.info("read ReCiPe 2016 from file %s", file)
-    wb = xlrd.open_workbook(file)
+    wb = openpyxl.load_workbook(file, read_only = True)
     records = []
-    for name in wb.sheet_names():
+    for name in wb:
         if _eqstr(name, "Version") or _eqstr(
                 name, "Midpoint to endpoint factors"):
             continue
-        _read_mid_points(wb.sheet_by_name(name), records)
+        _read_mid_points(wb[name], records)
 
     return dfutil.data_frame(records)
 
 
 def _read_endpoints(file: str) -> pd.DataFrame:
     log.info("reading endpoint factors from file %s", file)
-    wb = xlrd.open_workbook(file)
+    wb = openpyxl.load_workbook(file, read_only = True)
     endpoint_cols = ['Method','EndpointMethod', 'EndpointIndicator', 'EndpointUnit','EndpointConversion']
     endpoint = pd.DataFrame(columns = endpoint_cols)
     endpoints = []
     perspectives = ["I", "H", "E"]
     indicator = ""
     indicator_unit = ""
-    for name in wb.sheet_names():
+    for name in wb:
         if _eqstr(name, "Midpoint to endpoint factors"):
-            sheet = wb.sheet_by_name(name)
+            sheet = wb[name]
             start_row, data_col, with_perspectives = _find_data_start(sheet)
             #impact categories in column 1
             flow_col = 0
@@ -182,7 +183,8 @@ def _read_endpoints(file: str) -> pd.DataFrame:
     return endpoint, endpoint_by_flow
 
 
-def _read_mid_points(sheet: xlrd.book.sheet, records: list):
+def _read_mid_points(sheet: openpyxl.worksheet.worksheet.Worksheet,
+                     records: list):
     log.debug("try to read midpoint factors from sheet %s", sheet.name)
 
     start_row, data_col, with_perspectives = _find_data_start(sheet)

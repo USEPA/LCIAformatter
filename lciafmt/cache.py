@@ -50,7 +50,7 @@ def download(url: str, file: str) -> str:
        and returns the full file path to the downloaded resource. """
     get_folder(create=True)
     path = get_path(file)
-    log.info("download from %s to %s", url, path)
+    log.info("downloading from %s to %s", url, path)
     resp = requests.get(url, allow_redirects=True)
     with open(path, "wb") as f:
         f.write(resp.content)
