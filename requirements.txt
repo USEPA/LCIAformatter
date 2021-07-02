@@ -3,7 +3,7 @@ git+git://github.com/USEPA/esupy.git@v0.1.1#egg=esupy
 olca-ipc>=0.0.8
 pandas>=0.23
 requests>=2.21.0
-xlrd>=1.2.0
+xlrd==1.2.0     # Not compatible with version 2.0.0
 pyodbc>=4.0.30
 pyyaml>=5.3
 
