@@ -13,7 +13,19 @@ source, cleans the data, shapes them into a standard format using the [LCIAmetho
 |ImpactWorld+ Endpoint|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
 |FEDEFL Inventory Methods|US Environmental Protection Agency|[FEDEFL Inventory Methods](https://github.com/USEPA/LCIAformatter/wiki/Inventory-Methods)|
 
-See the [Wiki](https://github.com/USEPA/LCIAformatter/wiki/) for installation and use instructions.
+## Installation Instructions
+
+Install a release directly from github using pip. From a command line interface, run:
+> pip install git+https://github.com/USEPA/LCIAformatter.git@v1.0.0#egg=lciafmt
+
+where you can replace 'v1.0.0' with the version you wish to use under [Releases](https://github.com/USEPA/LCIAformatter/releases).
+
+Alternatively, to install from the most current point on the repository:
+> git clone https://github.com/USEPA/LCIAformatter.git
+> cd LCIAformatter
+> pip install . # or pip install -e . for devs
+
+See the [Wiki](https://github.com/USEPA/LCIAformatter/wiki/) for further installation and use instructions.
 
 ## Disclaimer
 The United States Environmental Protection Agency (EPA) GitHub project code is provided on an "as is" basis
