@@ -21,9 +21,11 @@ Install a release directly from github using pip. From a command line interface,
 where you can replace 'v1.0.0' with the version you wish to use under [Releases](https://github.com/USEPA/LCIAformatter/releases).
 
 Alternatively, to install from the most current point on the repository:
-> git clone https://github.com/USEPA/LCIAformatter.git
-> cd LCIAformatter
-> pip install . # or pip install -e . for devs
+```
+git clone https://github.com/USEPA/LCIAformatter.git
+cd LCIAformatter
+pip install . # or pip install -e . for devs
+```
 
 See the [Wiki](https://github.com/USEPA/LCIAformatter/wiki/) for further installation and use instructions.
 
