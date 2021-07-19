@@ -9,9 +9,10 @@ source, cleans the data, shapes them into a standard format using the [LCIAmetho
 |TRACI 2.1|US Environmental Protection Agency|[Tool for Reduction and Assessment of Chemicals and Other Environmental Impacts](https://www.epa.gov/chemical-research/tool-reduction-and-assessment-chemicals-and-other-environmental-impacts-traci)|
 |ReCiPe 2016 Midpoint|National Institute for Public Health and the Environment (The Netherlands)|[LCIA: the ReCiPe Model](https://www.rivm.nl/en/life-cycle-assessment-lca/recipe)|
 |ReCiPe 2016 Endpoint|National Institute for Public Health and the Environment (The Netherlands)|[LCIA: the ReCiPe Model](https://www.rivm.nl/en/life-cycle-assessment-lca/recipe)|
-|ImpactWorld+ Midpoint|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
-|ImpactWorld+ Endpoint|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
+|ImpactWorld+ Midpoint*|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
+|ImpactWorld+ Endpoint*|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
 |FEDEFL Inventory Methods|US Environmental Protection Agency|[FEDEFL Inventory Methods](https://github.com/USEPA/LCIAformatter/wiki/Inventory-Methods)|
+* only works on Windows installations
 
 ## Installation Instructions
 
@@ -25,6 +26,20 @@ Alternatively, to install from the most current point on the repository:
 git clone https://github.com/USEPA/LCIAformatter.git
 cd LCIAformatter
 pip install . # or pip install -e . for devs
+```
+The current version contains an optional dependency on the `pyodbc` library to generate the Impact World+ LCIA method.
+Due to limitations in reading Access databases from non-Windows platforms, this will only be install on Windows machines.
+ 
+This needs to be specified in the pip install command. It can be done in one of two ways:
+
+```
+pip install .["ImpactWorld"]
+```
+
+or
+
+```
+pip install . -r requirements.txt -r impactworld_requirements.txt 
 ```
 
 See the [Wiki](https://github.com/USEPA/LCIAformatter/wiki/) for further installation and use instructions.
