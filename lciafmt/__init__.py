@@ -15,7 +15,6 @@ import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 import lciafmt.recipe as recipe
-import lciafmt.iw as impactworld
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
 import lciafmt.endpoint as ep
@@ -78,6 +77,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True, endpoint=True, 
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
     if method_id == Method.ImpactWorld:
+        import lciafmt.iw as impactworld
         return impactworld.get(file=file, url=url)
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
