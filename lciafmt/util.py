@@ -15,9 +15,9 @@ import pandas as pd
 import numpy as np
 import yaml
 import pkg_resources
-import subprocess
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
     write_df_to_file, write_metadata_to_file
+from esupy.util import get_git_hash
 from fedelemflowlist.globals import flow_list_specs
 
 
@@ -37,11 +37,7 @@ paths.local_path = os.path.realpath(paths.local_path + "/lciafmt")
 outputpath = paths.local_path
 
 pkg = pkg_resources.get_distribution('lciafmt')
-try:
-    git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode(
-        'ascii')[0:7]
-except:
-    git_hash = None
+git_hash = get_git_hash()
 
 def set_lcia_method_meta(method_id):
     lcia_method_meta = FileMeta()
