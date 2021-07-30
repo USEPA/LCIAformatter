@@ -71,20 +71,20 @@ def _read(xls_file: str) -> pd.DataFrame:
     sheet = wb["Substances"]
     categories = {}
     max_col = sheet.max_column
-    for col in sheet.iter_cols(min_col=4):
-        name = col[0]
+    for count, cell in enumerate(list(sheet.rows)[0]):
+        name = xls.cell_str(cell)
         if name == "":
             break
         cat_info = _category_info(name)
         if cat_info is not None:
-            categories[col] = cat_info
+            categories[count+1] = cat_info
     
     records = []
     for row in sheet.iter_rows(min_row=2):
-        flow = row[2].value
+        flow = xls.cell_str(row[2])
         if flow == "":
             break        
-        cas = format_cas(row[1].value)
+        cas = format_cas(xls.cell_str(row[1]))
         for col in range(4, max_col):
             cat_info = categories.get(col)
             if cat_info is None:
