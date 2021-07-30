@@ -69,28 +69,27 @@ def _read(xls_file: str) -> pd.DataFrame:
     log.info("read Traci 2.1 from file %s", xls_file)
     wb = openpyxl.load_workbook(xls_file, read_only = True)
     sheet = wb["Substances"]
-    df = pd.read_excel(xls_file, sheet_name='Substances')
     categories = {}
-    for col in range(4, sheet.max_column):
-        name = xls.cell_str(sheet, 1, col)
+    max_col = sheet.max_column
+    for col in sheet.iter_cols(min_col=4):
+        name = col[0]
         if name == "":
             break
         cat_info = _category_info(name)
         if cat_info is not None:
             categories[col] = cat_info
-
+    
     records = []
-    for row in range(2, sheet.max_row):
-        print(row)
-        flow = xls.cell_str(sheet, row, 3)
+    for row in sheet.iter_rows(min_row=2):
+        flow = row[2].value
         if flow == "":
-            break
-        cas = format_cas(xls.cell_val(sheet, row, 2))
-        for col in range(4, sheet.max_column):
+            break        
+        cas = format_cas(row[1].value)
+        for col in range(4, max_col):
             cat_info = categories.get(col)
             if cat_info is None:
                 continue
-            factor = xls.cell_f64(sheet, row, col)
+            factor = xls.cell_f64(row[col-1])
             if factor == 0.0:
                 continue
             dfutil.record(records,
@@ -101,8 +100,8 @@ def _read(xls_file: str) -> pd.DataFrame:
                           flow_category=cat_info[2],
                           flow_unit=cat_info[3],
                           cas_number=cas,
-                          factor=factor)
-
+                          factor=factor)        
+    wb.close()
     return dfutil.data_frame(records)
 
 

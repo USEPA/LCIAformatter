@@ -16,9 +16,8 @@ def cell_str(sheet: openpyxl.worksheet.worksheet.Worksheet,
     return str(v).strip()
 
 
-def cell_f64(sheet: openpyxl.worksheet.worksheet.Worksheet,
-             row: int, col: int) -> float:
-    v = cell_val(sheet, row, col)
+def cell_f64(cell: openpyxl.worksheet.worksheet.Worksheet.cell) -> float:
+    v = cell.value
     if v is None:
         return 0.0
     try:
@@ -29,10 +28,10 @@ def cell_f64(sheet: openpyxl.worksheet.worksheet.Worksheet,
 
 def cell_val(sheet: openpyxl.worksheet.worksheet.Worksheet,
              row: int, col: int):
-    if row < 0 or row >= sheet.max_row:
-        return None
-    if col < 0 or col >= sheet.max_column:
-        return None
+    # if row < 0 or row >= sheet.max_row:
+    #     return None
+    # if col < 0 or col >= sheet.max_column:
+    #     return None
     cell = sheet.cell(row, col).value
     if cell is None:
         return None
