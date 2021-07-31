@@ -11,7 +11,7 @@ setup(
                       "esupy @ git+git://github.com/USEPA/esupy@v0.1.1#egg=esupy",
                       "olca-ipc>=0.0.8",
                       "pandas>=0.22",
-                      "xlrd>=1.2.0",
+                      "openpyxl>=3.0.7",
                       "pyyaml>=5.3",
                       "pyodbc>=4.0.30",
                       ],
