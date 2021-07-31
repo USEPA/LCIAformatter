@@ -24,8 +24,3 @@ def cell_f64(cell: openpyxl.worksheet.worksheet.Worksheet.cell) -> float:
     except ValueError:
         return 0.0
 
-
-def iter_cells(sheet: openpyxl.worksheet.worksheet.Worksheet):
-    for row in range(0, sheet.max_row):
-        for col in range(0, sheet.max_column):
-            yield row, col
