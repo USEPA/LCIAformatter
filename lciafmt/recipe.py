@@ -138,33 +138,30 @@ def _read_endpoints(file: str) -> pd.DataFrame:
     perspectives = ["I", "H", "E"]
     indicator = ""
     indicator_unit = ""
-    for name in wb:
-        if _eqstr(name, "Midpoint to endpoint factors"):
-            sheet = wb[name]
-            start_row, data_col, with_perspectives = _find_data_start(sheet)
-            #impact categories in column 1
-            flow_col = 0
+    sheet = wb['Midpoint to endpoint factors']
+    start_row, data_col, with_perspectives = _find_data_start(sheet)
+    #impact categories in column 1
+    flow_col = 0
 
-            endpoint_factor_count = 0
-            for row in range(start_row, sheet.max_row):
-                indicator = xls.cell_str(sheet, row, flow_col)
-                indicator_unit = xls.cell_str(sheet, row, flow_col+1)
-                for i in range(0, 3):
-                    val = xls.cell_f64(sheet, row, data_col + i)
-                    if val == 0.0:
-                        continue
-                    endpoints.append("ReCiPe 2016 - Midpoint/" + perspectives[i])
-                    endpoints.append("ReCiPe 2016 - Endpoint/" + perspectives[i])
-                    endpoints.append(indicator)
-                    endpoints.append(indicator_unit)
-                    endpoints.append(val)
-                    to_add=pd.Series(endpoints, index=endpoint_cols)
-                    endpoint=endpoint.append(to_add, ignore_index=True)
-                    endpoints=[]
-                    endpoint_factor_count += 1
-            log.debug("extracted %i endpoint factors", endpoint_factor_count)
-        else:
-            continue
+    endpoint_factor_count = 0
+    for row in sheet.iter_rows(min_row = start_row):
+        indicator = xls.cell_str(row[flow_col])
+        indicator_unit = xls.cell_str(row[flow_col+1])
+        for i in range(0, 3):
+            val = xls.cell_f64(row[data_col + i])
+            if val == 0.0:
+                continue
+            endpoints.append("ReCiPe 2016 - Midpoint/" + perspectives[i])
+            endpoints.append("ReCiPe 2016 - Endpoint/" + perspectives[i])
+            endpoints.append(indicator)
+            endpoints.append(indicator_unit)
+            endpoints.append(val)
+            to_add=pd.Series(endpoints, index=endpoint_cols)
+            endpoint=endpoint.append(to_add, ignore_index=True)
+            endpoints=[]
+            endpoint_factor_count += 1
+    log.debug("extracted %i endpoint factors", endpoint_factor_count)
+
     log.info("processing endpoint factors")
     endpoint.loc[endpoint['EndpointUnit'].str.contains('daly', case=False), 'EndpointUnit'] = 'DALY'
     endpoint.loc[endpoint['EndpointUnit'].str.contains('species', case=False), 'EndpointUnit'] = 'species-year'
