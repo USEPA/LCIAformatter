@@ -11,7 +11,7 @@ setup(
                       "esupy @ git+git://github.com/USEPA/esupy@v0.1.4#egg=esupy",
                       "olca-ipc>=0.0.8",
                       "pandas>=0.22",
-                      "xlrd>=1.2.0,<2.0.0",
+                      "openpyxl>=3.0.7",
                       "pyyaml>=5.3"
                       ],
     extras_require={"ImpactWorld": ["pyodbc >= 4.0.30;platform_system=='Windows'"]},
