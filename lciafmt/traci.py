@@ -67,7 +67,7 @@ def _read(xls_file: str) -> pd.DataFrame:
        data frame."""
 
     log.info("read Traci 2.1 from file %s", xls_file)
-    wb = openpyxl.load_workbook(xls_file, read_only = True)
+    wb = openpyxl.load_workbook(xls_file, read_only = True, data_only = True)
     sheet = wb["Substances"]
     categories = {}
     max_col = sheet.max_column
@@ -84,7 +84,7 @@ def _read(xls_file: str) -> pd.DataFrame:
         flow = xls.cell_str(row[2])
         if flow == "":
             break        
-        cas = format_cas(xls.cell_str(row[1]))
+        cas = format_cas((row[1]).value)
         for col in range(4, max_col):
             cat_info = categories.get(col)
             if cat_info is None:
