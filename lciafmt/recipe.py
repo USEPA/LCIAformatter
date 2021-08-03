@@ -130,7 +130,7 @@ def _read(file: str) -> pd.DataFrame:
 
 def _read_endpoints(file: str) -> pd.DataFrame:
     log.info("reading endpoint factors from file %s", file)
-    wb = openpyxl.load_workbook(file, read_only = True)
+    wb = openpyxl.load_workbook(file, read_only = True, data_only = True)
     endpoint_cols = ['Method','EndpointMethod', 'EndpointIndicator',
                      'EndpointUnit','EndpointConversion']
     endpoint = pd.DataFrame(columns = endpoint_cols)
