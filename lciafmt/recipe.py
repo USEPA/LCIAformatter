@@ -117,7 +117,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
 
 def _read(file: str) -> pd.DataFrame:
     log.info("read ReCiPe 2016 from file %s", file)
-    wb = openpyxl.load_workbook(file, read_only = True)
+    wb = openpyxl.load_workbook(file, read_only = True, data_only = True)
     records = []
     for name in wb.sheetnames:
         if _eqstr(name, "Version") or _eqstr(
