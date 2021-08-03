@@ -5,14 +5,16 @@
 This module contains functions needed to compile LCIA methods from ImpactWorld+
 """
 
-import pyodbc
 import pandas as pd
-
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
+from lciafmt.util import log, format_cas
 
-from .util import log, format_cas
-
+try:
+    import pyodbc
+except ImportError:
+    log.error("Must install pyodbc for ImpactWorld. See install instructions for optional package"
+                   " installation or install it indepedently and retry.")
 
 def get(file=None, url=None) -> pd.DataFrame:
     """Download Access file and call read function to transfer into dataframe"""
