@@ -110,14 +110,20 @@ class Mapper(object):
         self.__system = system
         self.__case_insensitive = case_insensitive
         if mapping is None:
-            log.info("loading flow mapping v=%s from fedelemflowlist", system)
-            mapping = flowlist.get_flowmapping(source=system)
-            if self.__case_insensitive:
-                mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
+            if system is None:
+                log.warning("pass dataframe as mapping or identify system")
+            else:
+                log.info("loading flow mapping v=%s from fedelemflowlist", system)
+                mapping = flowlist.get_flowmapping(source=system)
+                if self.__case_insensitive:
+                    mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
         self.__mapping = mapping  # type: pd.DataFrame
         self.__preserve_unmapped = preserve_unmapped
 
     def run(self) -> pd.DataFrame:
+        if self.__mapping is None:
+            log.warning("No mapping applied")
+            return self.__df
         map_idx = self._build_map_index()
         log.info("applying flow mapping...")
         mapped = 0
