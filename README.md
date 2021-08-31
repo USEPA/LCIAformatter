@@ -42,7 +42,7 @@ or
 pip install . -r requirements.txt -r impactworld_requirements.txt 
 ```
 
-See the [Wiki](https://github.com/USEPA/LCIAformatter/wiki/) for further installation and use instructions.
+See the [Wiki](https://github.com/USEPA/LCIAformatter/wiki/) for further installation and [use instructions](https://github.com/USEPA/LCIAformatter/wiki/Using-lciafmt) or for information on how to seek [support](https://github.com/USEPA/LCIAformatter/wiki/Support).
 
 ## Disclaimer
 The United States Environmental Protection Agency (EPA) GitHub project code is provided on an "as is" basis
