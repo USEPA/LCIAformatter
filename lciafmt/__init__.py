@@ -24,7 +24,10 @@ import lciafmt.endpoint as ep
 
 from enum import Enum
 
+
 class Method(Enum):
+    """LCIAFormatter Method object with available metadata."""
+
     TRACI = "TRACI 2.1"
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
@@ -42,18 +45,18 @@ class Method(Enum):
             if m['id'] == cls.name:
                 return m
 
-    def get_filename(cls):
+    def get_filename(cls) -> str:
         """Generate standard filename from method name."""
         filename = cls.get_metadata()['name'].replace(" ", "_")
         return filename
 
-    def get_path(cls):
+    def get_path(cls) -> str:
         """Return category folder name for local storage."""
         path = cls.get_metadata()['path']
         return path
 
-    def get_class(name):
-        """Parse method_id from passed string."""
+    def get_class(name: str):
+        """Parse method_id from passed string and returns method object."""
         for n, c in Method.__members__.items():
             m = c.get_metadata()
             mapping = None
@@ -92,16 +95,18 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         endpoint methods into summary indicators
     :param subset: pass-through for FEDEFL_INV, a list of dictionary keys from
         available inventory methods in fedelemflowlist, if none provided all
-        availabile methods will be generated
+        available methods will be generated
     :param file: str, alternate filepath for method, defaults to file stored
         in cache
     :param url: str, alternate url for method, defaults to url in method config
+    :return: DataFrame of method in standard format
     """
     method_id = util.check_as_class(method_id)
     if method_id == Method.TRACI:
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016:
-        return recipe.get(add_factors_for_missing_contexts, endpoint, summary, file=file, url=url)
+        return recipe.get(add_factors_for_missing_contexts, endpoint, summary,
+                          file=file, url=url)
     if method_id == Method.ImpactWorld:
         import lciafmt.iw as impactworld
         return impactworld.get(file=file, url=url)
@@ -115,7 +120,7 @@ def clear_cache():
 
 
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
-    """Generate a JSONLD file of the methods passed as dataframe."""
+    """Generate a JSONLD file of the methods passed as DataFrame."""
     util.log.info("write JSON-LD package to %s", zip_file)
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows)
@@ -130,7 +135,7 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
         specifications
     :param preserve_unmapped: bool, if True unmapped flows remain in the method
     :param case_insensitive, bool, if True case is ignored for source flows
-    :returns: data frame of method with mapped flows.
+    :return: DataFrame of method with mapped flows.
     """
     mapper = fmap.Mapper(df, system=system, mapping=mapping,
                          preserve_unmapped=preserve_unmapped,
@@ -143,7 +148,7 @@ def supported_mapping_systems() -> list:
     return fmap.supported_mapping_systems()
 
 
-def get_mapped_method(method_id, indicators=None, methods=None):
+def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
     """Return a mapped method stored as parquet.
 
     If a mapped method does not exist locally, it is generated.
@@ -152,6 +157,7 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     :param indicators: list, if not None, return only those indicators passed
     :param methods: list, if not None, return only the version of the methods
         passed. Applies only to methods with multiple versions.
+    :return: DataFrame of mapped method
     """
     method_id = util.check_as_class(method_id)
     mapped_method = util.read_method(method_id)
@@ -180,7 +186,7 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     return mapped_method
 
 
-def generate_endpoints(file, name=None, matching_fields=None):
+def generate_endpoints(file: str, name=None, matching_fields=None) -> pd.DataFrame:
     """Generate an endpoint method for a supplied file based on specs.
 
     :param file: name of file in data folder, without extension, containing
@@ -188,6 +194,7 @@ def generate_endpoints(file, name=None, matching_fields=None):
     :param name: str, optional str for naming the generated method
     :param matching_fields: list of fields on which to apply unique endpoint
         conversions, if None
+    :return: DataFrame of endpoint method
     """
     endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
     if matching_fields is None:
@@ -200,7 +207,7 @@ def generate_endpoints(file, name=None, matching_fields=None):
     return method
 
 
-def supported_indicators(method_id):
+def supported_indicators(method_id) -> list:
     """Return a list of indicators for the identified method_id."""
     method = util.read_method(method_id)
     if method is not None:
