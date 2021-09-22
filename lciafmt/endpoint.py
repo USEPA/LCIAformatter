@@ -11,7 +11,7 @@ import pandas as pd
 import lciafmt
 from .util import log
 
-def apply_endpoints(endpoints, matching_fields = ['Indicator']):
+def apply_endpoints(endpoints, matching_fields):
     """
     Returns a dataframe in LCIAmethod format that contains endpoint factors
         based on conversion factors supplied in passed param 'endpoints'
@@ -20,6 +20,7 @@ def apply_endpoints(endpoints, matching_fields = ['Indicator']):
         conversions
     """
     log.info('developing endpoint methods...')
+
     indicators = endpoints[['Method'] + matching_fields]
     
     method = pd.DataFrame()
