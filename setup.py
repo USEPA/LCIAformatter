@@ -9,7 +9,7 @@ setup(
     include_package_data=True,
     install_requires=["fedelemflowlist @ git+git://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.0.7#egg=fedelemflowlist",
                       "esupy @ git+git://github.com/USEPA/esupy@v0.1.5#egg=esupy",
-                      "olca-ipc>=0.0.8",
+                      "olca-ipc>=0.0.8, <=0.0.10",
                       "pandas>=0.22",
                       "openpyxl>=3.0.7",
                       "pyyaml>=5.3"
