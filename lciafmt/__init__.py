@@ -2,7 +2,9 @@
 # !/usr/bin/env python3
 # coding=utf-8
 """
-Public API for lciafmt
+Public API for lciafmt. Standardizes the format and flows of life cycle
+impact assessment (LCIA) data and optionally applies flow mappings as defined
+in the Federal LCA Commons Elementary Flow List.
 """
 
 import json
@@ -29,6 +31,7 @@ class Method(Enum):
     ImpactWorld = "ImpactWorld"
 
     def get_metadata(cls):
+        """Return the stored metadata."""
         metadata = supported_methods()
         for m in metadata:
             if 'case_insensitivity' in m:
@@ -40,14 +43,17 @@ class Method(Enum):
                 return m
 
     def get_filename(cls):
+        """Generate standard filename from method name."""
         filename = cls.get_metadata()['name'].replace(" ", "_")
         return filename
 
     def get_path(cls):
+        """Return category folder name for local storage."""
         path = cls.get_metadata()['path']
         return path
 
     def get_class(name):
+        """Parse method_id from passed string."""
         for n, c in Method.__members__.items():
             m = c.get_metadata()
             mapping = None
@@ -62,7 +68,7 @@ class Method(Enum):
 
 
 def supported_methods() -> list:
-    """Return a dictionary of supported method meta_data."""
+    """Return a list of dictionaries of supported method meta data."""
     json_file = pkg_resources.resource_filename("lciafmt", 'data/methods.json')
     with open(json_file, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -71,10 +77,25 @@ def supported_methods() -> list:
 def get_method(method_id, add_factors_for_missing_contexts=True,
                endpoint=True, summary=False, file=None, subset=None,
                url=None) -> pd.DataFrame:
-    """Generate the data frame of the method with the given ID.
+    """Generate the method from source in standard format.
 
     The IDs of supported methods can be obtained using `supported_methods` or
     directly use the constants defined in the Method enumeration type.
+    :param method_id: class Method or str, based on id field of
+        supported_methods
+    :param add_factors_for_missing_contexts: bool, if True applies
+        lciafmt.util.aggregate_factors_for_primary_contexts to generate average
+        factors for unspecified contexts
+    :param endpoint: bool, pass-through for RECIPE_2016, if True generates
+        endpoint indicators from midpoints
+    :param summary: bool, pass-through for RECIPE_2016, if True aggregates
+        endpoint methods into summary indicators
+    :param subset: pass-through for FEDEFL_INV, a list of dictionary keys from
+        available inventory methods in fedelemflowlist, if none provided all
+        availabile methods will be generated
+    :param file: str, alternate filepath for method, defaults to file stored
+        in cache
+    :param url: str, alternate url for method, defaults to url in method config
     """
     method_id = util.check_as_class(method_id)
     if method_id == Method.TRACI:
@@ -89,6 +110,7 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
 
 
 def clear_cache():
+    """Delete all stored methods in local temporary cache."""
     cache.clear()
 
 
@@ -103,10 +125,12 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
               preserve_unmapped=False, case_insensitive=False) -> pd.DataFrame:
     """Map the flows in a method using a mapping from fedelemflowlist.
 
-    'system' is the named mapping file from fedelemflowlist. Alternatively a
-    mapping file can be passed using 'mapping' in the form of a dataframe
-    meeting the mapping specifications. It returns a new data frame with the
-    mapped flows.
+    :param system: str, the named mapping file from fedelemflowlist
+    :param mapping: df, alternate mapping that meets FEDEFL mapping file
+        specifications
+    :param preserve_unmapped: bool, if True unmapped flows remain in the method
+    :param case_insensitive, bool, if True case is ignored for source flows
+    :returns: data frame of method with mapped flows.
     """
     mapper = fmap.Mapper(df, system=system, mapping=mapping,
                          preserve_unmapped=preserve_unmapped,
@@ -123,6 +147,11 @@ def get_mapped_method(method_id, indicators=None, methods=None):
     """Return a mapped method stored as parquet.
 
     If a mapped method does not exist locally, it is generated.
+    :param method_id: class Method or str, based on id field of
+        supported_methods
+    :param indicators: list, if not None, return only those indicators passed
+    :param methods: list, if not None, return only the version of the methods
+        passed. Applies only to methods with multiple versions.
     """
     method_id = util.check_as_class(method_id)
     mapped_method = util.read_method(method_id)
@@ -152,7 +181,14 @@ def get_mapped_method(method_id, indicators=None, methods=None):
 
 
 def generate_endpoints(file, name=None, matching_fields=None):
-    """Generate an endpoint method for a supplied file based on specs."""
+    """Generate an endpoint method for a supplied file based on specs.
+
+    :param file: name of file in data folder, without extension, containing
+        endpoint data based on the format specs for endpoint files
+    :param name: str, optional str for naming the generated method
+    :param matching_fields: list of fields on which to apply unique endpoint
+        conversions, if None
+    """
     endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
     if matching_fields is None:
         matching_fields = ['Indicator']
@@ -165,7 +201,7 @@ def generate_endpoints(file, name=None, matching_fields=None):
 
 
 def supported_indicators(method_id):
-    """Return a list of indicators for the identified method."""
+    """Return a list of indicators for the identified method_id."""
     method = util.read_method(method_id)
     if method is not None:
         indicators = set(list(method['Indicator']))
