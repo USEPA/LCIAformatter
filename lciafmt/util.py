@@ -262,7 +262,7 @@ def read_method(method_id):
     return method
 
 
-def save_json(method_id, mapped_data, method=None, name = ''):
+def save_json(method_id, mapped_data, method=None, name=''):
     """Save a method as json file in the outputpath.
 
     :param method_id: class Method
