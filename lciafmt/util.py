@@ -187,7 +187,13 @@ def generate_method_description(name: str) -> str:
         generic = yaml.safe_load(f)
     method_description = generic['description']
     method = check_as_class(name)
-    method_meta = method.get_metadata()
+    if method is None:
+        method_meta = {}
+        method_meta['name'] = name
+        method_meta['url'] = ''
+        method_meta['citation'] = ''
+    else:
+        method_meta = method.get_metadata()
     if 'detail_note' in method_meta:
         method_description += method_meta['detail_note']
     if 'methods' in method_meta:
@@ -256,15 +262,19 @@ def read_method(method_id):
     return method
 
 
-def save_json(method_id, mapped_data, method=None):
+def save_json(method_id, mapped_data, method=None, name = ''):
     """Save a method as json file in the outputpath.
 
     :param method_id: class Method
     :param mapped_data: df of mapped method to save
-    :param method: str name of method to subset the passed mapped_data
+    :param method: str, name of method to subset the passed mapped_data
+    :param name: str, optional method name when method_id does not exist
     """
     meta = set_lcia_method_meta(method_id)
-    filename = meta.name_data
+    if name == '':
+        filename = meta.name_data
+    else:
+        filename = name
     if method is not None:
         filename = method.replace('/', '_')
         mapped_data = mapped_data[mapped_data['Method'] == method]

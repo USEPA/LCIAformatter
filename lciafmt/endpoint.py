@@ -32,7 +32,10 @@ def apply_endpoints(endpoints, matching_fields):
 
     for m in indicators['Method'].unique():
         method_indicators = indicators[indicators['Method']==m]
-        mapped_method = lciafmt.get_mapped_method(m, methods=[m])
+        mapped_method = lciafmt.get_mapped_method(m, methods=[m]).fillna('')
+        if 'Indicator' in matching_fields:
+            mapped_method = mapped_method[mapped_method['Indicator'].isin(
+                list(method_indicators['Indicator']))]
         endpoint_method = mapped_method.merge(endpoints[matching_fields +
                                                   ['Method',
                                                   'Endpoint Indicator',
