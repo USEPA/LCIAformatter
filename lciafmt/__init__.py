@@ -121,7 +121,7 @@ def clear_cache():
 
 def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
     """Generate a JSONLD file of the methods passed as DataFrame."""
-    util.log.info("write JSON-LD package to %s", zip_file)
+    util.log.info(f"write JSON-LD package to {zip_file}")
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows)
 

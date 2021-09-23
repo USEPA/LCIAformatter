@@ -14,15 +14,25 @@ import lciafmt.cache as cache
 import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
-from .util import log, aggregate_factors_for_primary_contexts, format_cas, datapath
+from .util import log, aggregate_factors_for_primary_contexts, format_cas,\
+    datapath
 
 
 flowables_replace = pd.read_csv(datapath+'TRACI_2.1_replacement.csv')
 flowables_split = pd.read_csv(datapath+'TRACI_2.1_split.csv')
 
 
-def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFrame:
-    """  Downloads and processes the TRACI impact method. """
+def get(add_factors_for_missing_contexts=True, file=None,
+        url=None) -> pd.DataFrame:
+    """Generate a method for TRACI in standard format.
+
+    :param add_factors_for_missing_contexts: bool, if True generates average
+        factors for unspecified contexts
+    :param file: str, alternate filepath for method, defaults to file stored
+        in cache
+    :param url: str, alternate url for method, defaults to url in method config
+    :return: DataFrame of method in standard format
+    """
     log.info("getting method Traci 2.1")
     f = file
     if f is None:
@@ -44,30 +54,28 @@ def get(add_factors_for_missing_contexts=True, file=None, url=None) -> pd.DataFr
     for index, row in flowables_replace.iterrows():
         orig = row['Original Flowable']
         new = row['New Flowable']
-        df['Flowable']=df['Flowable'].replace(orig, new)
+        df['Flowable'] = df['Flowable'].replace(orig, new)
 
-    """ due to substances listed more than once with the same name but different CAS
-    this replaces all instances of the Original Flowable with a New Flowable
+    """due to substances listed more than once with the same name but different
+    CAS this replaces all instances of the Original Flowable with a New Flowable
     based on a csv input file according to the CAS"""
     for index, row in flowables_split.iterrows():
         cas = row['CAS']
         new = row['New Flowable']
         df.loc[df['CAS No'] == cas, 'Flowable'] = new
 
-    length=len(df)
-    df.drop_duplicates(keep='first',inplace=True)
-    length=length-len(df)
-    log.info("%s duplicate entries removed", length)
+    length = len(df)
+    df.drop_duplicates(keep='first', inplace=True)
+    length = length-len(df)
+    log.info(f"{length} duplicate entries removed")
 
     return df
 
 
 def _read(xls_file: str) -> pd.DataFrame:
-    """Read the data from the Excel file with the given path into a Pandas
-       data frame."""
-
-    log.info("read Traci 2.1 from file %s", xls_file)
-    wb = openpyxl.load_workbook(xls_file, read_only = True, data_only = True)
+    """Read the data from Excel with given path into a DataFrame."""
+    log.info(f"read Traci 2.1 from file {xls_file}")
+    wb = openpyxl.load_workbook(xls_file, read_only=True, data_only=True)
     sheet = wb["Substances"]
     categories = {}
     max_col = sheet.max_column
@@ -78,12 +86,12 @@ def _read(xls_file: str) -> pd.DataFrame:
         cat_info = _category_info(name)
         if cat_info is not None:
             categories[count+1] = cat_info
-    
+
     records = []
     for row in sheet.iter_rows(min_row=2):
         flow = xls.cell_str(row[2])
         if flow == "":
-            break        
+            break
         cas = format_cas((row[1]).value)
         for col in range(4, max_col):
             cat_info = categories.get(col)
@@ -100,17 +108,18 @@ def _read(xls_file: str) -> pd.DataFrame:
                           flow_category=cat_info[2],
                           flow_unit=cat_info[3],
                           cas_number=cas,
-                          factor=factor)        
+                          factor=factor)
     wb.close()
     return dfutil.data_frame(records)
 
 
 def _category_info(c: str):
-    """"Get the meta data which are encoded in the category name. It returns
-        a tuple (indicator, indicator unit, flow category, flow unit) for the
-        given category name. If it is an unknown category, `None` is returned.
-    """
+    """Parse category field into metdata.
 
+    Get the meta data which are encoded in the category name. It returns
+    a tuple (indicator, indicator unit, flow category, flow unit) for the
+    given category name. If it is an unknown category, `None` is returned.
+    """
     if c == "Global Warming Air (kg CO2 eq / kg substance)":
         return "Global warming", "kg CO2 eq", "air", "kg"
 

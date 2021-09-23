@@ -16,14 +16,15 @@ import lciafmt.df as dfutil
 
 
 def get(subset=None) -> pd.DataFrame:
-    """
-    Returns a dataframe of inventory based methods.
+    """Generate an inventory method from the FEDEFL.
+
     :param subset: a list of dictionary keys from available inventories, if
     none selected all availabile inventories will be generated
     :return: df in standard LCIAmethod format
     """
     method = dfutil.data_frame(list())
-    method['Characterization Factor'] = pd.to_numeric(method['Characterization Factor'])
+    method['Characterization Factor'] = pd.to_numeric(
+        method['Characterization Factor'])
 
     if subset is None:
         list_of_inventories = subsets.get_subsets()
@@ -33,24 +34,25 @@ def get(subset=None) -> pd.DataFrame:
     alt_units = flowlist.get_alt_conversion()
     for inventory in list_of_inventories:
         flows = flowlist.get_flows(subset=inventory)
-        flows.drop(['Formula','Synonyms','Class','External Reference',
-                    'Preferred', 'AltUnit','AltUnitConversionFactor'], axis=1, inplace=True)
+        flows.drop(['Formula', 'Synonyms', 'Class', 'External Reference',
+                    'Preferred', 'AltUnit', 'AltUnitConversionFactor'],
+                   axis=1, inplace=True)
         flows['Indicator'] = inventory
         flows['Indicator unit'] = subsets.get_inventory_unit(inventory)
         flows['Characterization Factor'] = 1
 
         # Apply unit conversions where flow unit differs from indicator unit
         flows_w_conversion = pd.merge(flows, alt_units, how='left',
-                                      left_on=['Flowable','Indicator unit', 'Unit'],
-                                      right_on=['Flowable','AltUnit', 'Unit'])
+                                      left_on=['Flowable', 'Indicator unit', 'Unit'],
+                                      right_on=['Flowable', 'AltUnit', 'Unit'])
         flows_w_conversion.loc[
-            (flows_w_conversion['AltUnit']==flows_w_conversion['Indicator unit']),
+            (flows_w_conversion['AltUnit'] == flows_w_conversion['Indicator unit']),
             'Characterization Factor'] = flows_w_conversion['AltUnitConversionFactor']
         flows_w_conversion.drop(
-            ['AltUnit','AltUnitConversionFactor','InverseConversionFactor'],
+            ['AltUnit', 'AltUnitConversionFactor', 'InverseConversionFactor'],
             axis=1, inplace=True)
 
-        method = pd.concat([method,flows_w_conversion], ignore_index=True)
+        method = pd.concat([method, flows_w_conversion], ignore_index=True)
 
     method['Method'] = 'FEDEFL Inventory'
     return method

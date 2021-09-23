@@ -2,7 +2,7 @@
 # !/usr/bin/env python3
 # coding=utf-8
 """
-Functions to support reading Microsoft Excel files for lciafmt
+Functions to support reading Microsoft Excel files for lciafmt using openpyxl.
 """
 
 import openpyxl
@@ -23,4 +23,3 @@ def cell_f64(cell: openpyxl.worksheet.worksheet.Worksheet.cell) -> float:
         return float(v)
     except ValueError:
         return 0.0
-
