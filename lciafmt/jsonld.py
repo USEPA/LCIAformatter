@@ -12,14 +12,14 @@ import olca.units as units
 import olca.pack as pack
 import pandas as pd
 
-from .util import make_uuid, is_non_empty_str, generate_method_description, log,\
-    pkg_version_number
+from .util import make_uuid, is_non_empty_str, generate_method_description,\
+    log, pkg_version_number
 
 
 class Writer(object):
 
     def __init__(self, zip_file: str):
-        log.debug("create JSON-LD writer on %s", zip_file)
+        log.debug(f"create JSON-LD writer on {zip_file}")
         self.__writer = pack.Writer(zip_file)
         self.__methods = {}
         self.__indicators = {}
@@ -94,7 +94,7 @@ class Writer(object):
         m.name = row[0]
         m.version = pkg_version_number
         m.impact_categories = []
-        m.description= description
+        m.description=description
         self.__methods[uid] = m
         return m
 

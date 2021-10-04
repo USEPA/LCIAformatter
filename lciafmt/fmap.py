@@ -91,7 +91,8 @@ def _is_strv(val) -> bool:
 
 class _FlowInfo(object):
 
-    def __init__(self, uuid="", name="", category="", unit="", conversionfactor="1.0"):
+    def __init__(self, uuid="", name="", category="", unit="",
+                 conversionfactor="1.0"):
         self.name = name
         self.category = category
         self.unit = "kg" if not _is_strv(unit) else unit
@@ -104,20 +105,26 @@ class _FlowInfo(object):
 
 class Mapper(object):
 
-    def __init__(self, df: pd.DataFrame, system=None,
-                 mapping=None, preserve_unmapped=False, case_insensitive=False):
+    def __init__(self, df: pd.DataFrame, system=None, mapping=None,
+                 preserve_unmapped=False, case_insensitive=False):
         self.__df = df
         self.__system = system
         self.__case_insensitive = case_insensitive
         if mapping is None:
-            log.info("loading flow mapping v=%s from fedelemflowlist", system)
-            mapping = flowlist.get_flowmapping(source=system)
-            if self.__case_insensitive:
-                mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
+            if system is None:
+                log.warning("pass dataframe as mapping or identify system")
+            else:
+                log.info(f"loading flow mapping {system} from fedelemflowlist")
+                mapping = flowlist.get_flowmapping(source=system)
+                if self.__case_insensitive:
+                    mapping['SourceFlowName'] = mapping['SourceFlowName'].str.lower()
         self.__mapping = mapping  # type: pd.DataFrame
         self.__preserve_unmapped = preserve_unmapped
 
     def run(self) -> pd.DataFrame:
+        if self.__mapping is None:
+            log.warning("No mapping applied")
+            return self.__df
         map_idx = self._build_map_index()
         log.info("applying flow mapping...")
         mapped = 0

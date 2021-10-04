@@ -5,17 +5,27 @@
 This module contains functions needed to compile LCIA methods from ImpactWorld+
 """
 
-import pyodbc
 import pandas as pd
-
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
+from lciafmt.util import log, format_cas
 
-from .util import log, format_cas
+try:
+    import pyodbc
+except ImportError:
+    log.error("Must install pyodbc for ImpactWorld. See install instructions "
+              "for optional package installation or install it indepedently "
+              "and retry.")
 
 
 def get(file=None, url=None) -> pd.DataFrame:
-    """Download Access file and call read function to transfer into dataframe"""
+    """Generate a method for ImpactWorld+ in standard format.
+
+    :param file: str, alternate filepath for method, defaults to file stored
+        in cache
+    :param url: str, alternate url for method, defaults to url in method config
+    :return: DataFrame of method in standard format
+    """
     log.info("get method ImpactWorld+")
 
     # Check for drivers and display help message if absent
@@ -24,8 +34,9 @@ def get(file=None, url=None) -> pd.DataFrame:
         log.debug("Drivers Available")
     else:
         log.warning(
-            "Please install drivers to remotely connect to Access Database. Drivers only available on windows platform."
-            "For instructions visit: https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access")
+            "Please install drivers to remotely connect to Access Database. "
+            "Drivers only available on windows platform. For instructions visit: "
+            "https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access")
 
     f = file
     if f is None:
@@ -43,14 +54,13 @@ def get(file=None, url=None) -> pd.DataFrame:
 
     # call function to replace contexts for unspecified water and air flows.
     df = update_context(df)
-    
+
     return df
 
-def _read(access_file: str) -> pd.DataFrame:
-    """Read the data from the Access database with the given path into a
-    Pandas data frame."""
 
-    log.info("read ImpactWorld+ from file %s", access_file)
+def _read(access_file: str) -> pd.DataFrame:
+    """Read the Access database at passed access_file into DataFrame."""
+    log.info(f"read ImpactWorld+ from file {access_file}")
 
     path = cache.get_path(access_file)
 
@@ -68,7 +78,7 @@ def _read(access_file: str) -> pd.DataFrame:
     for row in rows:
         dfutil.record(records,
                       method="ImpactWorld+",
-                      indicator = row[1],
+                      indicator=row[1],
                       indicator_unit=row[2],
                       flow=row[5],
                       flow_category=row[3] + "/" + row[4],
@@ -121,7 +131,7 @@ def _read(access_file: str) -> pd.DataFrame:
             cols = [column[0] for column in crsr.description]
 
             for row in rows:
-                #Add water to detailed context information available in Access file
+                # Add water to detailed context information available in Access file
                 if x[0] in ['CF - regionalized - WaterScarc - aggregated',
                             'CF - regionalized - WaterAvailab_HH - aggregated']:
                     flow_stmt = 'Water, ' + row.__getattribute__('Elem flow')
@@ -141,7 +151,7 @@ def _read(access_file: str) -> pd.DataFrame:
 
                 dfutil.record(records,
                               method="ImpactWorld+",
-                              indicator = row.ImpCat,
+                              indicator=row.ImpCat,
                               indicator_unit=row.Unit.strip('[]').split('/')[0],
                               flow=flow_stmt,
                               flow_category=category_stmt,
@@ -153,8 +163,11 @@ def _read(access_file: str) -> pd.DataFrame:
 
 
 def update_context(df_context) -> pd.DataFrame:
-    """replaces unspecified air and water flows for impact categories that 
-    don't rely on sub-compartments for  characterization factor selection."""
+    """Replace unspecified contexts for indicators.
+
+    For indicators that don't rely on sub-compartments for characterization
+    factor selection, update the context for improved context mapping.
+    """
     single_context = ['Freshwater acidification',
                       'Terrestrial acidification',
                       'Climate change, long term',
@@ -171,9 +184,9 @@ def update_context(df_context) -> pd.DataFrame:
                       'Ionizing radiations',
                       ]
 
-    context = { 'Air/(unspecified)' : 'Air',
-               # 'Water/(unspecified)' : 'Water',
-                }
+    context = {'Air/(unspecified)': 'Air',
+               # 'Water/(unspecified)': 'Water',
+               }
 
     df_context.loc[df_context['Indicator'].isin(single_context),
                    'Context'] = df_context['Context'].map(context).fillna(df_context['Context'])
