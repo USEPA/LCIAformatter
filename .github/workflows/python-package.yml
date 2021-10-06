@@ -1,0 +1,68 @@
+# This workflow will install Python dependencies, run tests and lint 
+# across operating systems, select versions of Python, and user + dev environments
+# For more info see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python install test
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+  workflow_dispatch:  # also allow manual trigger, for testing purposes
+
+jobs:
+  test_install:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:  # max 256 jobs per workflow
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        py-version: [3.8, 3.9]
+        build-type: [user, dev]
+
+    steps:
+    - uses: actions/checkout@v2
+    # general Python setup
+    - name: Set up Python ${{ matrix.py-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.py-version }}
+    - name: Update pip & install testing pkgs
+      run: |
+        python -VV
+        python -m pip install --upgrade pip setuptools wheel
+        pip install pytest pytest-cov flake8
+    # developer environment
+    - name: Install dev dependencies (non-Windows)
+      if: matrix.build-type == 'dev' && matrix.os != 'windows-latest'
+      run: |
+        pip install -r requirements.txt
+        pip install .
+    - name: Install dev dependencies (Windows)
+      if: matrix.build-type == 'dev' && matrix.os == 'windows-latest'
+      run: |
+        pip install -r requirements.txt -r impactworld_requirements.txt
+        pip install .
+    # user environment
+    - name: Install user dependencies (non-Windows)
+      if: matrix.build-type == 'user' && matrix.os != 'windows-latest'
+      run: pip install .
+    - name: Install user dependencies (Windows)
+      if: matrix.build-type == 'user' && matrix.os == 'windows-latest'
+      run: pip install .[ImpactWorld]
+    # MS Access install (for Windows)  
+    - name: Choco install msaccess2010
+      if: matrix.os == 'windows-latest'
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install msaccess2010-redist
+    # linting & pytest
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: pytest
