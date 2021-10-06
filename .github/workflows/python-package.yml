@@ -46,10 +46,10 @@ jobs:
         pip install .
     # user environment
     - name: Install user dependencies (non-Windows)
-      if: matrix.build-type == 'user' && matrix.os != 'windows.latest'
+      if: matrix.build-type == 'user' && matrix.os != 'windows-latest'
       run: pip install .
     - name: Install user dependencies (Windows)
-      if: matrix.build-type == 'user' && matrix.os == 'windows.latest'
+      if: matrix.build-type == 'user' && matrix.os == 'windows-latest'
       run: pip install .[ImpactWorld]
     # MS Access install (for Windows)  
     - name: Choco install msaccess2010
