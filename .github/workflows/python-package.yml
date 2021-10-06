@@ -9,12 +9,13 @@ on:
     branches: [master, develop]
 
 jobs:
-  test_linux:
+  test_linux_and_macos:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest]
         python-version: [3.7, 3.8, 3.9]
 
     steps:
@@ -36,7 +37,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pip install .
         pytest
 
   test_win:
