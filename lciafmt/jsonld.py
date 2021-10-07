@@ -94,7 +94,7 @@ class Writer(object):
         m.name = row[0]
         m.version = pkg_version_number
         m.impact_categories = []
-        m.description=description
+        m.description = description
         self.__methods[uid] = m
         return m
 

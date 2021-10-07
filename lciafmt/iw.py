@@ -97,7 +97,7 @@ def _read(access_file: str) -> pd.DataFrame:
                        ("CF - regionalized - LandTrans - aggregated", "Elementary Flow"),
                        ("CF - regionalized - LandOcc - aggregated", "Elementary Flow"),
                        ("CF - regionalized - EutroMar - aggregated", "Compartment"),
-                       ("CF - regionalized - PartMatterForm - aggregated","Compartment"),
+                       ("CF - regionalized - PartMatterForm - aggregated", "Compartment"),
                        ("CF - regionalized - AcidFW - aggregated", "Compartment"),
                        ("CF - regionalized - AcidTerr - aggregated", "Compartment"),
                        ("CF - regionalized - EutroFW - aggregated", "Compartment"),

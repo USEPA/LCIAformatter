@@ -66,7 +66,7 @@ def get(add_factors_for_missing_contexts=True, file=None,
 
     length = len(df)
     df.drop_duplicates(keep='first', inplace=True)
-    length = length-len(df)
+    length = length - len(df)
     log.info(f"{length} duplicate entries removed")
 
     return df
