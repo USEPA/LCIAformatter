@@ -33,7 +33,7 @@ jobs:
         python -VV
         python -m pip install --upgrade pip setuptools wheel
         pip install pytest pytest-cov flake8
-    # developer environment
+    # developer environment, install specific packages from requirements.txt
     - name: Install dev dependencies (non-Windows)
       if: matrix.build-type == 'dev' && matrix.os != 'windows-latest'
       run: |
@@ -44,25 +44,26 @@ jobs:
       run: |
         pip install -r requirements.txt -r impactworld_requirements.txt
         pip install .
-    # user environment
+    # user environment install latest from setup.py
     - name: Install user dependencies (non-Windows)
       if: matrix.build-type == 'user' && matrix.os != 'windows-latest'
       run: pip install .
     - name: Install user dependencies (Windows)
       if: matrix.build-type == 'user' && matrix.os == 'windows-latest'
       run: pip install .[ImpactWorld]
-    # MS Access install (for Windows)  
+    # MS Access install (for Windows) needed for IW+ 
     - name: Choco install msaccess2010
       if: matrix.os == 'windows-latest'
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install msaccess2010-redist
-    # linting & pytest
+    # linting with flake8
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    # initiate tests with pytest
     - name: Test with pytest
       run: pytest
