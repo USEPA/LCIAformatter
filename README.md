@@ -1,4 +1,6 @@
 # LCIA formatter
+[![build](https://github.com/USEPA/LCIAformatter/actions/workflows/python-package.yml/badge.svg)](https://github.com/USEPA/LCIAformatter/actions/workflows/python-package.yml)
+
 The LCIA formatter, or `lciafmt`, is a Python tool for standardizing the format and flows of life cycle impact assessment (LCIA) data. The tool acquires LCIA data transparently from its original 
 source, cleans the data, shapes them into a standard format using the [LCIAmethod format](./format%20specs/LCIAmethod.md), and optionally applies flow mappings as defined in the [Federal LCA Commons Elementary Flow List](https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List). The result can be exported to all formats supported by the
 `pandas` package (e.g. Excel, CSV) or the [openLCA JSON-LD format](https://github.com/GreenDelta/olca-schema).

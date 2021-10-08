@@ -28,8 +28,9 @@ def data_frame(records: list) -> pandas.DataFrame:
 
 def as_list(df: pandas.DataFrame, row=-1) -> list:
     """Converts the given data frame into a list of lists. When the `row`
-       paremeter is given with a value >= 0, only that row is extracted as
-       list from the data frame."""
+    paremeter is given with a value >= 0, only that row is extracted as
+    list from the data frame.
+    """
     if df is None:
         return []
     if row >= 0:
@@ -72,4 +73,3 @@ def record(records: list,
         location_uuid,
         factor])
     return records
-

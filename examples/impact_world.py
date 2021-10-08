@@ -3,6 +3,7 @@ from lciafmt.util import store_method, collapse_indicators, save_json
 
 method = lciafmt.Method.ImpactWorld
 
+
 def main():
 
     data = lciafmt.get_method(method)

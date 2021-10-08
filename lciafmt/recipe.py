@@ -34,7 +34,7 @@ contexts = {
         'sea water': 'water/sea water',
         'Sea water': 'water/sea water',
         'marine water': 'water/sea water'}
-flowables_split = pd.read_csv(datapath+'ReCiPe2016_split.csv')
+flowables_split = pd.read_csv(datapath + 'ReCiPe2016_split.csv')
 
 
 def get(add_factors_for_missing_contexts=True, endpoint=True,
@@ -77,7 +77,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
         df2 = df.merge(endpoint_df, how="inner", on=["Method", "Indicator"])
         df2 = df2.append(flowdf, ignore_index=True, sort=False)
         # reformat dataframe and apply conversion
-        df2['Characterization Factor'] = df2['Characterization Factor']*df2['EndpointConversion']
+        df2['Characterization Factor'] = df2['Characterization Factor'] * df2['EndpointConversion']
         df2['Method'] = df2['EndpointMethod']
         df2['Indicator'] = df2['EndpointIndicator']
         df2['Indicator unit'] = df2['EndpointUnit']
@@ -97,7 +97,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
 
     length = len(df)
     df.drop_duplicates(keep='first', inplace=True)
-    length = length-len(df)
+    length = length - len(df)
     log.info(f"{length} duplicate entries removed")
 
     if summary:
@@ -179,11 +179,11 @@ def _read_endpoints(file: str) -> pd.DataFrame:
     log.debug("extracted %i endpoint factors", endpoint_factor_count)
 
     log.info("processing endpoint factors")
-    endpoint.loc[endpoint['EndpointUnit'].str.contains('daly', case=False),'EndpointUnit'] = 'DALY'
+    endpoint.loc[endpoint['EndpointUnit'].str.contains('daly', case=False), 'EndpointUnit'] = 'DALY'
     endpoint.loc[endpoint['EndpointUnit'].str.contains('species', case=False), 'EndpointUnit'] = 'species-year'
     endpoint.loc[endpoint['EndpointUnit'].str.contains('USD', case=False), 'EndpointUnit'] = 'USD2013'
 
-    endpoint_map = pd.read_csv(datapath+'ReCiPe2016_endpoint_to_midpoint.csv')
+    endpoint_map = pd.read_csv(datapath + 'ReCiPe2016_endpoint_to_midpoint.csv')
     endpoint = endpoint.merge(endpoint_map, how="left", on='EndpointIndicator')
 
     # split into two dataframes
