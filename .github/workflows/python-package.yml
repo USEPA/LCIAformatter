@@ -2,13 +2,23 @@
 # across operating systems, select versions of Python, and user + dev environments
 # For more info see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python install test
+name: complete-install-lint-test
 
 on:
   push:
     branches: [master, develop]
+    paths-ignore:
+      - '**.md'
+      - '**.bib'
+      - 'LICENSE'
+      - '.gitignore'
   pull_request:
     branches: [master, develop]
+    paths-ignore:
+      - '**.md'
+      - '**.bib'
+      - 'LICENSE'
+      - '.gitignore'
   workflow_dispatch:  # also allow manual trigger, for testing purposes
 
 jobs:
