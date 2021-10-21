@@ -183,6 +183,7 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
         mapped_method = mapped_method[mapped_method['Method'].isin(methods)]
         if len(mapped_method) == 0:
             util.log.error('specified method not found')
+    mapped_method.reset_index(drop=True, inplace=True)
     return mapped_method
 
 
