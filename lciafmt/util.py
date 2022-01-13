@@ -22,7 +22,7 @@ from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
-pkg_version_number = '1.0.1'
+pkg_version_number = '1.0.3'
 modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
 datapath = modulepath + '/data/'
 
@@ -235,11 +235,13 @@ def compile_metadata(method_id):
     return metadata
 
 
-def store_method(df, method_id):
+def store_method(df, method_id, name=''):
     """Save the method as a dataframe to parquet file."""
     meta = set_lcia_method_meta(method_id)
     method_path = outputpath + '/' + meta.category
-    if meta.name_data == "":
+    if name != '':
+        meta.name_data = name
+    elif meta.name_data == "":
         meta.name_data = df['Method'][0]
     meta.tool_meta = compile_metadata(method_id)
     try:

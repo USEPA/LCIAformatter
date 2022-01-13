@@ -2,80 +2,78 @@
 # across operating systems, select versions of Python, and user + dev environments
 # For more info see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: complete-install-lint-test
+name: Python CI/CD tests
 
 on:
   push:
     branches: [master, develop]
-    paths-ignore:
-      - '**.md'  # prevent md files (e.g., README.md) in any repo dir from trigering workflow
+    paths-ignore:               # prevents workflow execution when only these types of files are modified
+      - '**.md'                 # wildcards prevent file in any repo dir from trigering workflow
       - '**.bib'
-      - '**.ya?ml'  # captures both .yml and .yaml
+      - '**.ya?ml'              # captures both .yml and .yaml
       - 'LICENSE'
       - '.gitignore'
   pull_request:
     branches: [master, develop]
+    types: [opened, reopened]   # excludes syncronize to avoid redundant trigger from commits on PRs 
     paths-ignore:
-      - '**.md'
+      - '**.md'  
       - '**.bib'
       - '**.ya?ml'
       - 'LICENSE'
       - '.gitignore'
-  workflow_dispatch:  # also allow manual trigger, for testing purposes
+  workflow_dispatch:            # also allow manual trigger, for testing purposes
 
 jobs:
-  test_install:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      matrix:  # max 256 jobs per workflow
+      matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        py-version: [3.8, 3.9]
-        build-type: [user, dev]
-
+        py-version: ['3.7', '3.8', '3.9', '3.10']
+        
     steps:
     - uses: actions/checkout@v2
+    
     # general Python setup
     - name: Set up Python ${{ matrix.py-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.py-version }}
+        
     - name: Update pip & install testing pkgs
       run: |
         python -VV
         python -m pip install --upgrade pip setuptools wheel
         pip install pytest pytest-cov flake8
-    # developer environment, install specific packages from requirements.txt
-    - name: Install dev dependencies (non-Windows)
-      if: matrix.build-type == 'dev' && matrix.os != 'windows-latest'
+
+    # install testing
+    - name: Install package and dependencies (non-Windows)
+      if: matrix.os != 'windows-latest'
       run: |
-        pip install -r requirements.txt
         pip install .
-    - name: Install dev dependencies (Windows)
-      if: matrix.build-type == 'dev' && matrix.os == 'windows-latest'
+        
+    - name: Install package and dependencies (Windows)
+      if: matrix.os == 'windows-latest'
       run: |
-        pip install -r requirements.txt -r impactworld_requirements.txt
-        pip install .
-    # user environment install latest from setup.py
-    - name: Install user dependencies (non-Windows)
-      if: matrix.build-type == 'user' && matrix.os != 'windows-latest'
-      run: pip install .
-    - name: Install user dependencies (Windows)
-      if: matrix.build-type == 'user' && matrix.os == 'windows-latest'
-      run: pip install .[ImpactWorld]
+        pip install .[ImpactWorld]
+        
     # MS Access install (for Windows) needed for IW+ 
     - name: Choco install msaccess2010
       if: matrix.os == 'windows-latest'
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install msaccess2010-redist
-    # linting with flake8
+        
+    # linting & pytest
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    # initiate tests with pytest
+        
     - name: Test with pytest
-      run: pytest
+      run: |
+        pytest
