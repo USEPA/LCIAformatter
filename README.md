@@ -19,6 +19,7 @@ source, cleans the data, shapes them into a standard format using the [LCIAmetho
 \* only works on Windows installations
 
 ## Installation Instructions
+`lciafmt` requires Python 3.7 or greater.
 
 Install a release directly from github using pip. From a command line interface, run:
 > pip install git+https://github.com/USEPA/LCIAformatter.git@v1.0.1#egg=lciafmt
