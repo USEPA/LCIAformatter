@@ -216,3 +216,28 @@ def supported_indicators(method_id) -> list:
         return list(indicators)
     else:
         return None
+
+
+def apply_lcia_method(df, method_id) -> pd.DataFrame:
+    """Applies characterization factors to a dataframe.
+
+    :param df: dataframe containing 'FlowAmount' and 'FlowUUID' columns
+    :param method_id: class Method or str, based on id field of
+        supported_methods
+    :return: DataFrame with impact method applied as 'Impact' column
+    """
+    if 'FlowUUID' not in df.columns or 'FlowAmount' not in df.columns:
+        util.log.error('DataFrame must containt "FlowUUID" and '
+                       '"FlowAmount" columns')
+    impact_method = (
+        get_mapped_method(method_id)
+        .drop(columns=['Flowable', 'Context', 'Location', 'Location UUID',
+                       'CAS No', 'Method UUID','Indicator UUID','Unit'])
+        .rename(columns={'Flow UUID':'FlowUUID'}))
+
+    impacts = df.merge(impact_method, how = 'inner',
+                       on = ['FlowUUID'])
+    impacts['Impact'] = (impacts['FlowAmount'] *
+                         impacts['Characterization Factor'])
+
+    return impacts
