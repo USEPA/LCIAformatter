@@ -227,8 +227,8 @@ def apply_lcia_method(df, method_id) -> pd.DataFrame:
     :return: DataFrame with impact method applied as 'Impact' column
     """
     if 'FlowUUID' not in df.columns or 'FlowAmount' not in df.columns:
-        util.log.error('DataFrame must containt "FlowUUID" and '
-                       '"FlowAmount" columns')
+        raise TypeError ('DataFrame must containt "FlowUUID" and '
+                         '"FlowAmount" columns')
     impact_method = (
         get_mapped_method(method_id)
         .drop(columns=['Flowable', 'Context', 'Location', 'Location UUID',
