@@ -29,8 +29,8 @@ def get() -> pd.DataFrame:
     df = df.rename(columns={'Name': 'Flowable',
                             'CAS': 'CAS No',
                             'Value': 'Characterization Factor'})
-
     df = df.reindex(columns=lciafmt_cols)
+    df = df.fillna('')
 
     return df
 
