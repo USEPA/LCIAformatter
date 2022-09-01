@@ -21,7 +21,7 @@ import lciafmt.ipcc as ipcc
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
 import lciafmt.endpoint as ep
-
+import lciafmt.custom as custom
 
 
 from enum import Enum
@@ -104,7 +104,10 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
     :param url: str, alternate url for method, defaults to url in method config
     :return: DataFrame of method in standard format
     """
-    method_id = util.check_as_class(method_id)
+    if not method_id:
+        return custom.get_custom_method(file=file)
+    else:
+        method_id = util.check_as_class(method_id)
     if method_id == Method.TRACI:
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016:
