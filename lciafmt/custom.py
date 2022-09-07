@@ -10,6 +10,9 @@ import pandas as pd
 from lciafmt.df import lciafmt_cols
 
 def get_custom_method(file: str=None, input_df=None):
+    """Converts a dataframe or a csv filepath to a dataframe suitable for
+    lciafmt. If `file` is passed, input_df is ignored.
+    """
     if file:
         input_df = pd.read_csv(file)
     if (pd.Series(['Characterization Factor', 'Flowable', 'Context'])
