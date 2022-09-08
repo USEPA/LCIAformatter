@@ -49,22 +49,21 @@ jobs:
         pip install pytest pytest-cov flake8
 
     # install testing
-    - name: Install package and dependencies (non-Windows)
-      if: matrix.os != 'windows-latest'
+    - name: Install package and dependencies
       run: |
         pip install .
         
-    - name: Install package and dependencies (Windows)
-      if: matrix.os == 'windows-latest'
-      run: |
-        pip install .[ImpactWorld]
+    # - name: Install package and dependencies (Windows)
+    #   if: matrix.os == 'windows-latest'
+    #   run: |
+    #     pip install .[ImpactWorld]
         
-    # MS Access install (for Windows) needed for IW+ 
-    - name: Choco install msaccess2010
-      if: matrix.os == 'windows-latest'
-      uses: crazy-max/ghaction-chocolatey@v1
-      with:
-        args: install msaccess2010-redist
+    # # MS Access install (for Windows) needed for IW+
+    # - name: Choco install msaccess2010
+    #   if: matrix.os == 'windows-latest'
+    #   uses: crazy-max/ghaction-chocolatey@v1
+    #   with:
+    #     args: install msaccess2010-redist
         
     # linting & pytest
     - name: Lint with flake8
