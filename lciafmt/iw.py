@@ -14,7 +14,7 @@ try:
     import pyodbc
 except ImportError:
     log.error("Must install pyodbc for ImpactWorld. See install instructions "
-              "for optional package installation or install it indepedently "
+              "for optional package installation or install it independently "
               "and retry.")
 
 
