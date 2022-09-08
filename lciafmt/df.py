@@ -7,23 +7,25 @@ Functions to support generating a dataframe from list of elements
 
 import pandas
 
+lciafmt_cols = [
+    "Method",
+    "Method UUID",
+    "Indicator",
+    "Indicator UUID",
+    "Indicator unit",
+    "Flowable",
+    "Flow UUID",
+    "Context",
+    "Unit",
+    "CAS No",
+    "Location",
+    "Location UUID",
+    "Characterization Factor"
+    ]
 
 def data_frame(records: list) -> pandas.DataFrame:
     """Convert the given list of lists into a data frame."""
-    cols = ["Method",
-            "Method UUID",
-            "Indicator",
-            "Indicator UUID",
-            "Indicator unit",
-            "Flowable",
-            "Flow UUID",
-            "Context",
-            "Unit",
-            "CAS No",
-            "Location",
-            "Location UUID",
-            "Characterization Factor"]
-    return pandas.DataFrame(records, columns=cols)
+    return pandas.DataFrame(records, columns=lciafmt_cols)
 
 
 def as_list(df: pandas.DataFrame, row=-1) -> list:

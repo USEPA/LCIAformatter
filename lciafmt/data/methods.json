@@ -50,6 +50,19 @@
     "url": "http://www.impactworldplus.org/en/writeToFile.php",
     "citation": "Bulle, Cecile, Manuele Margni, Laure Patouillard, Anne-Marie Boulay, Guillaume Bourgault, Vincent De Bruille, Viet Cao, et al. IMPACT World+: A Globally Regionalized Life Cycle Impact Assessment Method. The International Journal of Life Cycle Assessment 24, no. 9 (September 2019), 1653–74. https://doi.org/10.1007/s11367-019-01583-0",
     "source_type": "Access file"
+  },
+  {
+    "id": "IPCC",
+    "name": "IPCC",
+    "version": "",
+    "detail_note": "",
+    "mapping": "IPCC",
+    "methods": {},
+    "path": "ipcc",
+    "case_insensitivity": "False",
+    "url": "",
+    "citation": "",
+    "source_type": ""
   }
 
 ]

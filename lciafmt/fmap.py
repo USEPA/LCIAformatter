@@ -133,6 +133,7 @@ class Mapper(object):
         records = []
         for row in range(0, self.__df.shape[0]):
             key = Mapper._flow_key(
+                uuid=df.iat[row, 6],
                 name=df.iat[row, 5],
                 category=df.iat[row, 7],
                 unit=df.iat[row, 8],
