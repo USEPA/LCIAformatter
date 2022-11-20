@@ -9,9 +9,10 @@ from typing import List
 
 import pandas as pd
 import fedelemflowlist as flowlist
+from esupy.util import make_uuid
 
 import lciafmt.df as dfutil
-from .util import make_uuid, log
+from .util import log
 
 
 def supported_mapping_systems() -> list:

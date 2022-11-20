@@ -5,7 +5,6 @@
 This module contains common functions for processing LCIA methods
 """
 
-import uuid
 import os
 from os.path import join
 import sys
@@ -61,20 +60,6 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
-
-
-def make_uuid(*args: str) -> str:
-    path = _as_path(*args)
-    return str(uuid.uuid3(uuid.NAMESPACE_OID, path))
-
-
-def _as_path(*args: str) -> str:
-    strings = []
-    for arg in args:
-        if arg is None:
-            continue
-        strings.append(str(arg).strip().lower())
-    return "/".join(strings)
 
 
 def is_non_empty_str(s: str) -> bool:

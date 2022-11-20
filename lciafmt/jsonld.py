@@ -11,8 +11,9 @@ import olca
 import olca.units as units
 import olca.pack as pack
 import pandas as pd
+from esupy.util import make_uuid
 
-from .util import make_uuid, is_non_empty_str, generate_method_description,\
+from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number
 
 
