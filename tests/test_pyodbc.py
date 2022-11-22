@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 # @pytest.mark.skipif(sys.platform != "win32", reason="PYDOBC only on windows")
-@pytest.mark(reason="Driver temporarily not available on action see issue #85")
+@pytest.mark.skip(reason="Driver temporarily not available on action see issue #85")
 def test_find_pyodbc_driver():
     """In wind32 platform, pyodbc must be installed, with MS Access drivers."""
     try:
