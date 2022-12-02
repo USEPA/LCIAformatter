@@ -180,9 +180,9 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
             mapped_method = map_flows(method, system=mapping_system,
                                       case_insensitive=case_insensitive)
             mapped_method = util.collapse_indicators(mapped_method)
-            util.store_method(mapped_method, method_id)
         else:
             mapped_method = method
+        util.store_method(mapped_method, method_id)
     if indicators is not None:
         mapped_method = mapped_method[mapped_method['Indicator'].isin(indicators)]
         if len(mapped_method) == 0:
