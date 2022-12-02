@@ -75,7 +75,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
                       inplace=True)
         # next apply endpoint factors by indicator
         df2 = df.merge(endpoint_df, how="inner", on=["Method", "Indicator"])
-        df2 = df2.append(flowdf, ignore_index=True, sort=False)
+        df2 = pd.concat([df2, flowdf], ignore_index=True, sort=False)
         # reformat dataframe and apply conversion
         df2['Characterization Factor'] = df2['Characterization Factor'] * df2['EndpointConversion']
         df2['Method'] = df2['EndpointMethod']
@@ -84,7 +84,7 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
         df2.drop(columns=['EndpointMethod', 'EndpointIndicator',
                           'EndpointUnit', 'EndpointConversion'],
                  inplace=True)
-        df = df.append(df2, ignore_index=True, sort=False)
+        df = pd.concat([df, df2], ignore_index=True, sort=False)
 
     log.info("handling manual replacements")
     """due to substances listed more than once with the same name but
@@ -147,10 +147,8 @@ def _read(file: str) -> pd.DataFrame:
 def _read_endpoints(file: str) -> pd.DataFrame:
     log.info(f"reading endpoint factors from file {file}")
     wb = openpyxl.load_workbook(file, read_only=True, data_only=True)
-    endpoint_cols = ['Method', 'EndpointMethod', 'EndpointIndicator',
-                     'EndpointUnit', 'EndpointConversion']
-    endpoint = pd.DataFrame(columns=endpoint_cols)
-    endpoints = []
+    endpoint = pd.DataFrame()
+    endpoints = {}
     perspectives = ["I", "H", "E"]
     indicator = ""
     indicator_unit = ""
@@ -167,14 +165,14 @@ def _read_endpoints(file: str) -> pd.DataFrame:
             val = xls.cell_f64(row[data_col + i])
             if val == 0.0:
                 continue
-            endpoints.append("ReCiPe 2016 - Midpoint/" + perspectives[i])
-            endpoints.append("ReCiPe 2016 - Endpoint/" + perspectives[i])
-            endpoints.append(indicator)
-            endpoints.append(indicator_unit)
-            endpoints.append(val)
-            to_add = pd.Series(endpoints, index=endpoint_cols)
-            endpoint = endpoint.append(to_add, ignore_index=True)
-            endpoints = []
+            endpoints['Method'] = "ReCiPe 2016 - Midpoint/" + perspectives[i]
+            endpoints['EndpointMethod'] = "ReCiPe 2016 - Endpoint/" + perspectives[i]
+            endpoints['EndpointIndicator'] = indicator
+            endpoints['EndpointUnit'] = indicator_unit
+            endpoints['EndpointConversion'] = val
+            endpoint = pd.concat(
+                [endpoint, pd.DataFrame.from_dict([endpoints])],
+                ignore_index=True)
             endpoint_factor_count += 1
     log.debug("extracted %i endpoint factors", endpoint_factor_count)
 

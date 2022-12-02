@@ -9,9 +9,10 @@ from typing import List
 
 import pandas as pd
 import fedelemflowlist as flowlist
+from esupy.util import make_uuid
 
 import lciafmt.df as dfutil
-from .util import make_uuid, log
+from .util import log
 
 
 def supported_mapping_systems() -> list:
@@ -133,6 +134,7 @@ class Mapper(object):
         records = []
         for row in range(0, self.__df.shape[0]):
             key = Mapper._flow_key(
+                uuid=df.iat[row, 6],
                 name=df.iat[row, 5],
                 category=df.iat[row, 7],
                 unit=df.iat[row, 8],

@@ -17,9 +17,11 @@ import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
 import lciafmt.recipe as recipe
+import lciafmt.ipcc as ipcc
 import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
 import lciafmt.endpoint as ep
+import lciafmt.custom as custom
 
 
 from enum import Enum
@@ -32,6 +34,7 @@ class Method(Enum):
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
     ImpactWorld = "ImpactWorld"
+    IPCC = "IPCC"
 
     def get_metadata(cls):
         """Return the stored metadata."""
@@ -101,7 +104,10 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
     :param url: str, alternate url for method, defaults to url in method config
     :return: DataFrame of method in standard format
     """
-    method_id = util.check_as_class(method_id)
+    if not method_id:
+        return custom.get_custom_method(file=file)
+    else:
+        method_id = util.check_as_class(method_id)
     if method_id == Method.TRACI:
         return traci.get(add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016:
@@ -110,6 +116,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
     if method_id == Method.ImpactWorld:
         import lciafmt.iw as impactworld
         return impactworld.get(file=file, url=url)
+    if method_id == Method.IPCC:
+        return ipcc.get()
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
 
@@ -172,9 +180,9 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
             mapped_method = map_flows(method, system=mapping_system,
                                       case_insensitive=case_insensitive)
             mapped_method = util.collapse_indicators(mapped_method)
-            util.store_method(mapped_method, method_id)
         else:
             mapped_method = method
+        util.store_method(mapped_method, method_id)
     if indicators is not None:
         mapped_method = mapped_method[mapped_method['Indicator'].isin(indicators)]
         if len(mapped_method) == 0:
@@ -216,3 +224,28 @@ def supported_indicators(method_id) -> list:
         return list(indicators)
     else:
         return None
+
+
+def apply_lcia_method(df, method_id) -> pd.DataFrame:
+    """Applies characterization factors to a dataframe.
+
+    :param df: dataframe containing 'FlowAmount' and 'FlowUUID' columns
+    :param method_id: class Method or str, based on id field of
+        supported_methods
+    :return: DataFrame with impact method applied as 'Impact' column
+    """
+    if 'FlowUUID' not in df.columns or 'FlowAmount' not in df.columns:
+        raise TypeError ('DataFrame must containt "FlowUUID" and '
+                         '"FlowAmount" columns')
+    impact_method = (
+        get_mapped_method(method_id)
+        .drop(columns=['Flowable', 'Context', 'Location', 'Location UUID',
+                       'CAS No', 'Method UUID','Indicator UUID','Unit'])
+        .rename(columns={'Flow UUID':'FlowUUID'}))
+
+    impacts = df.merge(impact_method, how = 'inner',
+                       on = ['FlowUUID'])
+    impacts['Impact'] = (impacts['FlowAmount'] *
+                         impacts['Characterization Factor'])
+
+    return impacts

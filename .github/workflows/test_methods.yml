@@ -1,0 +1,48 @@
+# This workflow tests the generation of impact methods
+
+name: Generate and store impact methods
+
+on:
+  pull_request:
+    branches: [master, develop]
+    types: [opened, reopened, ready_for_review]   # excludes syncronize to avoid redundant trigger from commits on PRs
+  workflow_dispatch:            # also allow manual trigger, for testing purposes
+
+jobs:
+  generate_methods:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+
+    - name: Update pip & install testing pkgs
+      run: |
+        python -VV
+        python -m pip install --upgrade pip setuptools wheel
+        pip install pytest pytest-cov flake8
+
+    # install package & dependencies
+    - name: Install package and dependencies
+      run: |
+        pip install .
+
+    - name: Generate and store methods
+      run: |
+        pytest -m generate_methods
+
+    - name: Upload files
+      if: always()
+      uses: actions/upload-artifact@v3.1.1
+      with:
+        # Artifact name
+        name: lciafmt_methods
+        # A file, directory or wildcard patter that describes what to upload
+        path: |
+            # ~/Library/Application Support/lciafmt/*
+            ~/Library/Application Support/lciafmt/diff/*
+        if-no-files-found: warn # 'warn' or 'ignore' are also available, defaults to `warn`
+        # retention-days: 5 # cannot exceed the retention limit set by the repository, organization, or enterprise.

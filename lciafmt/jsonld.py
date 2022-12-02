@@ -11,8 +11,9 @@ import olca
 import olca.units as units
 import olca.pack as pack
 import pandas as pd
+from esupy.util import make_uuid
 
-from .util import make_uuid, is_non_empty_str, generate_method_description,\
+from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number
 
 
@@ -73,7 +74,7 @@ class Writer(object):
         self.__indicators[uid] = ind
 
         method = self.__method(row)
-        ref = olca.ImpactCategoryRef()
+        ref = olca.ImpactCategory()
         ref.id = uid
         ref.name = ind.name
         ref.ref_unit = ind.reference_unit_name

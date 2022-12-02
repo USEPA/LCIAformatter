@@ -5,7 +5,6 @@
 This module contains common functions for processing LCIA methods
 """
 
-import uuid
 import os
 from os.path import join
 import sys
@@ -16,7 +15,7 @@ import numpy as np
 import yaml
 import pkg_resources
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
-    write_df_to_file, write_metadata_to_file
+    write_df_to_file, write_metadata_to_file, download_from_remote
 from esupy.util import get_git_hash
 from fedelemflowlist.globals import flow_list_specs
 
@@ -61,20 +60,6 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = git_hash
     return lcia_method_meta
-
-
-def make_uuid(*args: str) -> str:
-    path = _as_path(*args)
-    return str(uuid.uuid3(uuid.NAMESPACE_OID, path))
-
-
-def _as_path(*args: str) -> str:
-    strings = []
-    for arg in args:
-        if arg is None:
-            continue
-        strings.append(str(arg).strip().lower())
-    return "/".join(strings)
 
 
 def is_non_empty_str(s: str) -> bool:
@@ -286,3 +271,31 @@ def save_json(method_id, mapped_data, method=None, name=''):
     if os.path.exists(json_pack):
         os.remove(json_pack)
     lciafmt.to_jsonld(mapped_data, json_pack)
+
+
+def compare_to_remote(local_df, method_id):
+    """Compares a impact method dataframe to that same method on remote.
+
+    Differences in characterization factors are stored to local/lciafmt/diff."""
+    meta = set_lcia_method_meta(method_id)
+    status = download_from_remote(meta, paths)
+    if not status:
+        log.warning('Error accessing remote')
+        return
+    remote_df = load_preprocessed_output(meta, paths)
+    merge_cols = ['Method', 'Indicator', 'Flowable', 'Flow UUID',
+                  'Context']
+    cols = merge_cols + ['Characterization Factor']
+    df = pd.merge(local_df[cols], remote_df[cols],
+                  how='outer', on=merge_cols, suffixes=('','_remote'))
+    df_diff = df.query('`Characterization Factor` '
+                       '!= `Characterization Factor_remote`')
+    if len(df_diff) > 0:
+        path = os.path.join(paths.local_path, 'diff')
+        os.makedirs(path, exist_ok=True)
+        log.info(f'Saving differences found in {method_id.name} '
+                 f'versus remote to {path}')
+        df_diff.to_csv(f'{path}/{method_id.name}_diff.csv', index=False)
+    else:
+        log.info(f'No differences found comparing {method_id.name} '
+                 'to remote')
