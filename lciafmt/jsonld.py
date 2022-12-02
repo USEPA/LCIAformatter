@@ -74,7 +74,7 @@ class Writer(object):
         self.__indicators[uid] = ind
 
         method = self.__method(row)
-        ref = olca.ImpactCategoryRef()
+        ref = olca.ImpactCategory()
         ref.id = uid
         ref.name = ind.name
         ref.ref_unit = ind.reference_unit_name
