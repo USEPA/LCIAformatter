@@ -16,6 +16,7 @@ The LCIA Formatter v1 was peer-reviewed internally at USEPA and externally throu
 |ReCiPe 2016 Endpoint|National Institute for Public Health and the Environment (The Netherlands)|[LCIA: the ReCiPe Model](https://www.rivm.nl/en/life-cycle-assessment-lca/recipe)|
 |ImpactWorld+ Midpoint*|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
 |ImpactWorld+ Endpoint*|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
+|IPCC GWP|Intergovernmental Panel on Climate Change (IPCC)| |
 |FEDEFL Inventory Methods|US Environmental Protection Agency|[FEDEFL Inventory Methods](https://github.com/USEPA/LCIAformatter/wiki/Inventory-Methods)|
 
 \* only works on Windows installations
@@ -24,9 +25,9 @@ The LCIA Formatter v1 was peer-reviewed internally at USEPA and externally throu
 `lciafmt` requires Python 3.7 or greater.
 
 Install a release directly from github using pip. From a command line interface, run:
-> pip install git+https://github.com/USEPA/LCIAformatter.git@v1.0.1#egg=lciafmt
+> pip install git+https://github.com/USEPA/LCIAformatter.git@v1.0.3#egg=lciafmt
 
-where you can replace 'v1.0.1' with the version you wish to use under [Releases](https://github.com/USEPA/LCIAformatter/releases).
+where you can replace 'v1.0.3' with the version you wish to use under [Releases](https://github.com/USEPA/LCIAformatter/releases).
 
 Alternatively, to install from the most current point on the repository:
 ```

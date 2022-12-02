@@ -54,15 +54,12 @@
   {
     "id": "IPCC",
     "name": "IPCC",
-    "version": "",
-    "detail_note": "",
     "mapping": "IPCC",
-    "methods": {},
     "path": "ipcc",
     "case_insensitivity": "False",
-    "url": "",
+    "url": "https://github.com/USEPA/LCIAformatter/blob/master/lciafmt/data/IPCC_GWP_values.csv",
     "citation": "",
-    "source_type": ""
+    "source_type": "csv"
   }
 
 ]
