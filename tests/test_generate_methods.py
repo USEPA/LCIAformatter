@@ -13,6 +13,7 @@ def test_generate_methods():
         if m.name in skip_list: continue
         df = None
         df = lciafmt.get_mapped_method(m)
+        lciafmt.util.compare_to_remote(df, m)
         if df is None:
             error_list.append(m.name)
             continue
