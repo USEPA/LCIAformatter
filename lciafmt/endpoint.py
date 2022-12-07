@@ -12,7 +12,7 @@ import lciafmt
 from .util import log
 
 
-def apply_endpoints(endpoints, matching_fields):
+def apply_endpoints(endpoints, matching_fields, download_from_remote=False):
     """Generate an endpoint method in LCIAmethod format.
 
     Method contains endpoint factors based on conversion factors supplied in
@@ -20,6 +20,8 @@ def apply_endpoints(endpoints, matching_fields):
     :param endpoints: df which conforms to Endpoints specs
     :param matching_fields: list of fields on which to apply unique endpoint
         conversions
+    :param download_from_remote: bool, if True, download from remote before
+        generating method locally.
     """
     log.info('developing endpoint methods...')
 
@@ -32,7 +34,11 @@ def apply_endpoints(endpoints, matching_fields):
 
     for m in indicators['Method'].unique():
         method_indicators = indicators[indicators['Method'] == m]
-        mapped_method = lciafmt.get_mapped_method(m, methods=[m]).fillna('')
+        mapped_method = (
+            lciafmt.get_mapped_method(m,
+                                      methods=[m],
+                                      download_from_remote=download_from_remote)
+            .fillna(''))
         if 'Indicator' in matching_fields:
             mapped_method = mapped_method[mapped_method['Indicator'].isin(
                 list(method_indicators['Indicator']))]

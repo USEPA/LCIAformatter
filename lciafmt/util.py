@@ -252,6 +252,12 @@ def read_method(method_id):
     return method
 
 
+def download_method(method_id):
+    """Downloads the method from data commons."""
+    meta = set_lcia_method_meta(method_id)
+    download_from_remote(meta, paths)
+
+
 def save_json(method_id, mapped_data, method=None, name=''):
     """Save a method as json file in the outputpath.
 

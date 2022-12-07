@@ -158,7 +158,8 @@ def supported_mapping_systems() -> list:
     return fmap.supported_mapping_systems()
 
 
-def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
+def get_mapped_method(method_id, indicators=None, methods=None,
+                      download_from_remote=False) -> pd.DataFrame:
     """Return a mapped method stored as parquet.
 
     If a mapped method does not exist locally, it is generated.
@@ -167,6 +168,8 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
     :param indicators: list, if not None, return only those indicators passed
     :param methods: list, if not None, return only the version of the methods
         passed. Applies only to methods with multiple versions.
+    :param download_from_remote: bool, if True, download from remote before
+        generating method locally.
     :return: DataFrame of mapped method
     """
     method_id = util.check_as_class(method_id)
@@ -174,18 +177,22 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
     if mapped_method is None:
         if isinstance(method_id, str):
             raise FileNotFoundError
-        util.log.info('generating ' + method_id.name)
-        method = get_method(method_id)
-        if 'mapping' in method_id.get_metadata():
-            mapping_system = method_id.get_metadata()['mapping']
-            case_insensitive = method_id.get_metadata()['case_insensitivity']
-            if case_insensitive:
-                method['Flowable'] = method['Flowable'].str.lower()
-            mapped_method = map_flows(method, system=mapping_system,
-                                      case_insensitive=case_insensitive)
-            mapped_method = util.collapse_indicators(mapped_method)
-        else:
-            mapped_method = method
+        elif download_from_remote:
+            util.download_method(method_id)
+            mapped_method = util.read_method(method_id)
+        if mapped_method is None:
+            util.log.info('generating ' + method_id.name)
+            method = get_method(method_id)
+            if 'mapping' in method_id.get_metadata():
+                mapping_system = method_id.get_metadata()['mapping']
+                case_insensitive = method_id.get_metadata()['case_insensitivity']
+                if case_insensitive:
+                    method['Flowable'] = method['Flowable'].str.lower()
+                mapped_method = map_flows(method, system=mapping_system,
+                                          case_insensitive=case_insensitive)
+                mapped_method = util.collapse_indicators(mapped_method)
+            else:
+                mapped_method = method
         util.store_method(mapped_method, method_id)
     if indicators is not None:
         mapped_method = mapped_method[mapped_method['Indicator'].isin(indicators)]
@@ -200,7 +207,9 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
 
 
 def generate_endpoints(file: Union[str, pd.DataFrame],
-                       name=None, matching_fields=None) -> pd.DataFrame:
+                       name=None,
+                       matching_fields=None,
+                       download_from_remote=False) -> pd.DataFrame:
     """Generate an endpoint method for a supplied file based on specs.
 
     :param file: str name of file in data folder, without extension, containing
@@ -209,6 +218,8 @@ def generate_endpoints(file: Union[str, pd.DataFrame],
     :param name: str, optional str for naming the generated method
     :param matching_fields: list of fields on which to apply unique endpoint
         conversions, if None
+    :param download_from_remote: bool, if True, download from remote before
+        generating method locally.
     :return: DataFrame of endpoint method
     """
     if isinstance(file, pd.DataFrame):
@@ -217,7 +228,8 @@ def generate_endpoints(file: Union[str, pd.DataFrame],
         endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
     if matching_fields is None:
         matching_fields = ['Indicator']
-    method = ep.apply_endpoints(endpoints, matching_fields)
+    method = ep.apply_endpoints(endpoints, matching_fields,
+                                download_from_remote)
     if name is None:
         method['Method'] = file
     else:
