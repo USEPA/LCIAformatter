@@ -71,7 +71,8 @@ class Method(Enum):
                 methods = m['methods']
             if n == name or c.value == name or mapping == name or name in methods.keys():
                 return c
-        util.log.error('Method not found')
+        util.log.warning(f'{name} is not a LCIAfmt Method')
+        return name
 
 
 def supported_methods() -> list:
@@ -171,6 +172,8 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
     method_id = util.check_as_class(method_id)
     mapped_method = util.read_method(method_id)
     if mapped_method is None:
+        if isinstance(method_id, str):
+            raise FileNotFoundError
         util.log.info('generating ' + method_id.name)
         method = get_method(method_id)
         if 'mapping' in method_id.get_metadata():
