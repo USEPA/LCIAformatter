@@ -2,6 +2,7 @@
 
 import pytest
 import lciafmt
+from lciafmt.util import store_method
 
 skip_list = ['ImpactWorld'] # requires pyodbc
 
@@ -20,6 +21,14 @@ def test_generate_methods():
         lciafmt.util.save_json(m, df, df['Method'].unique()[0])
         
     assert not error_list
+
+
+def test_endpoint_method():
+    method = lciafmt.generate_endpoints('Weidema_valuation',
+                                        name='Weidema Valuation',
+                                        matching_fields=['Indicator unit'])
+    store_method(method, method_id=None)
+    assert method is not None
 
 if __name__ == "__main__":
     test_generate_methods()
