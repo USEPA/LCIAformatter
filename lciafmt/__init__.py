@@ -9,6 +9,7 @@ in the Federal LCA Commons Elementary Flow List.
 
 import json
 import pkg_resources
+from typing import Union
 
 import pandas as pd
 
@@ -195,17 +196,22 @@ def get_mapped_method(method_id, indicators=None, methods=None) -> pd.DataFrame:
     return mapped_method
 
 
-def generate_endpoints(file: str, name=None, matching_fields=None) -> pd.DataFrame:
+def generate_endpoints(file: Union[str, pd.DataFrame],
+                       name=None, matching_fields=None) -> pd.DataFrame:
     """Generate an endpoint method for a supplied file based on specs.
 
-    :param file: name of file in data folder, without extension, containing
-        endpoint data based on the format specs for endpoint files
+    :param file: str name of file in data folder, without extension, containing
+        endpoint data based on the format specs for endpoint files, or
+        pd.DataFrame
     :param name: str, optional str for naming the generated method
     :param matching_fields: list of fields on which to apply unique endpoint
         conversions, if None
     :return: DataFrame of endpoint method
     """
-    endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
+    if isinstance(file, pd.DataFrame):
+        endpoints = file
+    else:
+        endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
     if matching_fields is None:
         matching_fields = ['Indicator']
     method = ep.apply_endpoints(endpoints, matching_fields)
