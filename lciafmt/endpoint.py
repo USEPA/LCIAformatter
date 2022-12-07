@@ -64,6 +64,6 @@ def apply_endpoints(endpoints, matching_fields):
         endpoint_method_agg.sort_values(by=['Indicator', 'Flowable',
                                             'Context'], inplace=True)
 
-        method = method.append(endpoint_method_agg, ignore_index=True)
+        method = pd.concat([method, endpoint_method_agg], ignore_index=True)
 
     return method
