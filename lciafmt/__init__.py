@@ -239,6 +239,7 @@ def generate_endpoints(file: Union[str, pd.DataFrame],
 
 def supported_indicators(method_id) -> list:
     """Return a list of indicators for the identified method_id."""
+    method_id = util.check_as_class(method_id)
     method = util.read_method(method_id)
     if method is not None:
         indicators = set(list(method['Indicator']))
