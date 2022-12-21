@@ -205,7 +205,7 @@ def generate_endpoints(file: str, name=None, matching_fields=None) -> pd.DataFra
         conversions, if None
     :return: DataFrame of endpoint method
     """
-    endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
+    endpoints = pd.read_csv(util.datapath / f'{file}.csv')
     if matching_fields is None:
         matching_fields = ['Indicator']
     method = ep.apply_endpoints(endpoints, matching_fields)

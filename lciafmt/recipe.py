@@ -34,7 +34,7 @@ contexts = {
         'sea water': 'water/sea water',
         'Sea water': 'water/sea water',
         'marine water': 'water/sea water'}
-flowables_split = pd.read_csv(datapath + 'ReCiPe2016_split.csv')
+flowables_split = pd.read_csv(datapath / 'ReCiPe2016_split.csv')
 
 
 def get(add_factors_for_missing_contexts=True, endpoint=True,

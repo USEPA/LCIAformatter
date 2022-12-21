@@ -5,8 +5,6 @@
 This module contains common functions for processing LCIA methods
 """
 
-import os
-from os.path import join
 import sys
 import lciafmt
 import logging as log
@@ -14,16 +12,18 @@ import pandas as pd
 import numpy as np
 import yaml
 import pkg_resources
+from pathlib import Path
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
-    write_df_to_file, write_metadata_to_file, download_from_remote
+    write_df_to_file, write_metadata_to_file, download_from_remote, \
+    mkdir_if_missing
 from esupy.util import get_git_hash
 from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
 pkg_version_number = '1.0.3'
-modulepath = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
-datapath = modulepath + '/data/'
+MODULEPATH = Path(__file__).resolve().parent
+datapath = MODULEPATH / 'data'
 
 log.basicConfig(level=log.INFO, format='%(asctime)s %(levelname)-8s %(message)s',
                 datefmt='%Y-%m-%d %H:%M:%S', stream=sys.stdout)
@@ -32,11 +32,11 @@ log.basicConfig(level=log.INFO, format='%(asctime)s %(levelname)-8s %(message)s'
 write_format = "parquet"
 
 paths = Paths()
-paths.local_path = os.path.realpath(paths.local_path + "/lciafmt")
-outputpath = paths.local_path
+paths.local_path = paths.local_path / 'lciafmt'
+OUTPUTPATH = paths.local_path
 
 pkg = pkg_resources.get_distribution('lciafmt')
-git_hash = get_git_hash()
+GIT_HASH = get_git_hash()
 
 method_metadata = {
     'Name': '',
@@ -58,7 +58,7 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.tool = pkg.project_name
     lcia_method_meta.tool_version = pkg_version_number
     lcia_method_meta.ext = write_format
-    lcia_method_meta.git_hash = git_hash
+    lcia_method_meta.git_hash = GIT_HASH
     return lcia_method_meta
 
 
@@ -138,7 +138,7 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
 
 def get_modification(source, name) -> pd.DataFrame:
     """Return a dataframe of modified CFs based on csv."""
-    modified_factors = pd.read_csv(datapath+"/"+source+"_"+name+".csv")
+    modified_factors = pd.read_csv(datapath / f'{source}_{name}.csv')
     return modified_factors
 
 
@@ -168,7 +168,7 @@ def check_as_class(method_id):
 
 
 def generate_method_description(name: str) -> str:
-    with open(join(datapath, "description.yaml")) as f:
+    with open(datapath / "description.yaml") as f:
         generic = yaml.safe_load(f)
     method_description = generic['description']
     method = check_as_class(name)
@@ -186,7 +186,7 @@ def generate_method_description(name: str) -> str:
             detailed_meta = '\n\n' + method_meta['methods'][name]
             method_description += detailed_meta
         except KeyError:
-            log.debug('%s not found in methods.json', name)
+            log.debug(f'{name} not found in methods.json')
     # Replace tagged fields
     if 'version' in method_meta:
         version = ' (v' + method_meta['version'] + ')'
@@ -223,14 +223,14 @@ def compile_metadata(method_id):
 def store_method(df, method_id, name=''):
     """Save the method as a dataframe to parquet file."""
     meta = set_lcia_method_meta(method_id)
-    method_path = outputpath + '/' + meta.category
+    method_path = OUTPUTPATH / meta.category
     if name != '':
         meta.name_data = name
-    elif meta.name_data == "":
+    elif meta.name_data == '':
         meta.name_data = df['Method'][0]
     meta.tool_meta = compile_metadata(method_id)
     try:
-        log.info('saving ' + meta.name_data + ' to ' + method_path)
+        log.info(f'saving {meta.name_data} to {method_path}')
         write_df_to_file(df, paths, meta)
         write_metadata_to_file(paths, meta)
     except:
@@ -241,11 +241,11 @@ def read_method(method_id):
     """Return the method stored in output."""
     meta = set_lcia_method_meta(method_id)
     method = load_preprocessed_output(meta, paths)
-    method_path = outputpath + '/' + meta.category
+    method_path = OUTPUTPATH / meta.category
     if method is None:
-        log.info(meta.name_data + ' not found in ' + method_path)
+        log.info(f'{meta.name_data} not found in {method_path}')
     else:
-        log.info('loaded ' + meta.name_data + ' from ' + method_path)
+        log.info(f'loaded {meta.name_data} from {method_path}')
     return method
 
 
@@ -265,11 +265,10 @@ def save_json(method_id, mapped_data, method=None, name=''):
     if method is not None:
         filename = method.replace('/', '_')
         mapped_data = mapped_data[mapped_data['Method'] == method]
-    path = outputpath+'/'+meta.category
-    os.makedirs(outputpath, exist_ok=True)
-    json_pack = path + '/' + filename + "_json_v" + meta.tool_version + ".zip"
-    if os.path.exists(json_pack):
-        os.remove(json_pack)
+    path = OUTPUTPATH / meta.category
+    mkdir_if_missing(OUTPUTPATH)
+    json_pack = path / f'{filename}_json_v{meta.tool_version}.zip'
+    json_pack.unlink(missing_ok=True)
     lciafmt.to_jsonld(mapped_data, json_pack)
 
 
@@ -291,8 +290,8 @@ def compare_to_remote(local_df, method_id):
     df_diff = df.query('`Characterization Factor` '
                        '!= `Characterization Factor_remote`')
     if len(df_diff) > 0:
-        path = os.path.join(paths.local_path, 'diff')
-        os.makedirs(path, exist_ok=True)
+        path = paths.local_path / 'diff'
+        mkdir_if_missing(path)
         log.info(f'Saving differences found in {method_id.name} '
                  f'versus remote to {path}')
         df_diff.to_csv(f'{path}/{method_id.name}_diff.csv', index=False)
