@@ -102,7 +102,7 @@ def aggregate_factors_for_primary_contexts(df) -> pd.DataFrame:
     indices = df['Context'].str.find('/')
     ignored_list = df['Indicator'].isin(ignored_categories)
     i = 0
-    for k in ignored_list.iteritems():
+    for k in ignored_list.items():
         if k[1]:
             indices.update(pd.Series([-1], index=[i]))
         i = i + 1
