@@ -181,7 +181,7 @@ def _read_endpoints(file: str) -> pd.DataFrame:
     endpoint.loc[endpoint['EndpointUnit'].str.contains('species', case=False), 'EndpointUnit'] = 'species-year'
     endpoint.loc[endpoint['EndpointUnit'].str.contains('USD', case=False), 'EndpointUnit'] = 'USD2013'
 
-    endpoint_map = pd.read_csv(datapath + 'ReCiPe2016_endpoint_to_midpoint.csv')
+    endpoint_map = pd.read_csv(datapath / 'ReCiPe2016_endpoint_to_midpoint.csv')
     endpoint = endpoint.merge(endpoint_map, how="left", on='EndpointIndicator')
 
     # split into two dataframes
