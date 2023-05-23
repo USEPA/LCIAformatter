@@ -6,6 +6,7 @@ This module contains common functions for processing LCIA methods
 """
 
 import sys
+
 import lciafmt
 import logging as log
 import pandas as pd
@@ -49,12 +50,14 @@ method_metadata = {
 
 def set_lcia_method_meta(method_id):
     lcia_method_meta = FileMeta()
-    if method_id is not None:
+    if isinstance(method_id, lciafmt.Method):
         lcia_method_meta.name_data = method_id.get_filename()
         lcia_method_meta.category = method_id.get_path()
-    else:
+    elif method_id is None:
         lcia_method_meta.name_data = ""
         lcia_method_meta.category = ""
+    else:
+        lcia_method_meta.name_data = method_id
     lcia_method_meta.tool = pkg.project_name
     lcia_method_meta.tool_version = pkg_version_number
     lcia_method_meta.ext = write_format
@@ -247,6 +250,12 @@ def read_method(method_id):
     else:
         log.info(f'loaded {meta.name_data} from {method_path}')
     return method
+
+
+def download_method(method_id):
+    """Downloads the method from data commons."""
+    meta = set_lcia_method_meta(method_id)
+    download_from_remote(meta, paths)
 
 
 def save_json(method_id, mapped_data, method=None, name=''):
