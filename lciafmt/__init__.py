@@ -225,7 +225,7 @@ def generate_endpoints(file: Union[str, pd.DataFrame],
     if isinstance(file, pd.DataFrame):
         endpoints = file
     else:
-        endpoints = pd.read_csv(util.datapath+"/"+file+".csv")
+        endpoints = pd.read_csv(util.datapath / f'{file}.csv')
     if matching_fields is None:
         matching_fields = ['Indicator']
     method = ep.apply_endpoints(endpoints, matching_fields,

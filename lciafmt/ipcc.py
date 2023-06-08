@@ -17,7 +17,7 @@ def get() -> pd.DataFrame:
     log.info("get method IPCC")
 
     filename = 'IPCC_GWP_values.csv'
-    df = pd.read_csv(datapath + filename)
+    df = pd.read_csv(datapath / filename)
     df['Indicator'] = df['AR'] + '-' + df['Parameter'].str.replace('GWP', '')
     df['Method'] = 'IPCC'
     df['Indicator unit'] = 'kg CO2 eq'

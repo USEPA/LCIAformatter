@@ -7,6 +7,7 @@ setup(
     package_dir={'lciafmt': 'lciafmt'},
     package_data={'lciafmt': ["data/*.*"]},
     include_package_data=True,
+    python_requires=">=3.7",
     install_requires=["fedelemflowlist @ git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git@develop#egg=fedelemflowlist",
                       "esupy @ git+https://github.com/USEPA/esupy.git@develop#egg=esupy",
                       "olca-ipc>=0.0.12",

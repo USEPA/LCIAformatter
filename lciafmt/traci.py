@@ -18,8 +18,8 @@ from .util import log, aggregate_factors_for_primary_contexts, format_cas,\
     datapath
 
 
-flowables_replace = pd.read_csv(datapath+'TRACI_2.1_replacement.csv')
-flowables_split = pd.read_csv(datapath+'TRACI_2.1_split.csv')
+flowables_replace = pd.read_csv(datapath / 'TRACI_2.1_replacement.csv')
+flowables_split = pd.read_csv(datapath / 'TRACI_2.1_split.csv')
 
 
 def get(add_factors_for_missing_contexts=True, file=None,
