@@ -1,6 +1,6 @@
-git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List@v1.1.1#egg=fedelemflowlist
-git+https://github.com/USEPA/esupy@v0.2.2#egg=esupy
-olca-ipc>=0.0.12
+git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git#egg=fedelemflowlist
+git+https://github.com/USEPA/esupy.git#egg=esupy
+olca-ipc==0.0.12
 pandas>=0.23
 requests>=2.21.0
 openpyxl>=3.0.7
