@@ -69,7 +69,7 @@ class Writer(object):
         ind = o.ImpactCategory()
         ind.id = uid
         ind.name = row[2]
-        ind.reference_unit_name = row[4]
+        ind.ref_unit = row[4]
         ind.impact_factors = []
         self.__indicators[uid] = ind
 
@@ -77,7 +77,7 @@ class Writer(object):
         ref = o.ImpactCategory()
         ref.id = uid
         ref.name = ind.name
-        ref.ref_unit = ind.reference_unit_name
+        ref.ref_unit = ind.ref_unit
         method.impact_categories.append(ref)
         return ind
 
