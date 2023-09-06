@@ -74,7 +74,8 @@ class Writer(object):
         direction = ('INPUT' if row['Context'].startswith('resource')
                      else 'OUTPUT')
         ind.direction = o.Direction(direction)
-        # ind.description = ''
+        ind.description = generate_method_description(row['Method'],
+                                                      row['Indicator'])
         ind.impact_factors = []
         ind.version = pkg_version_number
         self.__indicators[uid] = ind
