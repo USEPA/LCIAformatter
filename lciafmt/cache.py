@@ -52,6 +52,7 @@ def download(url: str, file: str) -> str:
     path = get_path(file)
     log.info(f"downloading from {url} to {path}")
     resp = requests.get(url, allow_redirects=True)
+    resp.raise_for_status()
     with open(path, "wb") as f:
         f.write(resp.content)
     return path
