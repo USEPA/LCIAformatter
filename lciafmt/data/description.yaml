@@ -21,3 +21,6 @@ description:
     
     
     '
+
+indicator:
+    '[Indicator] is built from LCIA Formatter v[LCIAfmt_version] for use with [Method]'
