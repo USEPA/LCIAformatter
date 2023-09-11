@@ -9,7 +9,7 @@ import os
 import shutil
 import tempfile
 
-import requests
+import esupy
 
 from .util import log
 
@@ -51,8 +51,7 @@ def download(url: str, file: str) -> str:
     get_folder(create=True)
     path = get_path(file)
     log.info(f"downloading from {url} to {path}")
-    resp = requests.get(url, allow_redirects=True)
-    resp.raise_for_status()
+    resp = esupy.remote.make_url_request(url)
     with open(path, "wb") as f:
         f.write(resp.content)
     return path
