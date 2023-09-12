@@ -22,7 +22,7 @@ from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
-pkg_version_number = '1.0.5'
+pkg_version_number = '1.1.0'
 MODULEPATH = Path(__file__).resolve().parent
 datapath = MODULEPATH / 'data'
 
@@ -170,10 +170,10 @@ def check_as_class(method_id):
     return method_id
 
 
-def generate_method_description(name: str) -> str:
+def generate_method_description(name: str, indicator: str='') -> str:
     with open(datapath / "description.yaml") as f:
         generic = yaml.safe_load(f)
-    method_description = generic['description']
+    desc = generic['description']
     method = check_as_class(name)
     if method is None:
         method_meta = {}
@@ -183,26 +183,32 @@ def generate_method_description(name: str) -> str:
     else:
         method_meta = method.get_metadata()
     if 'detail_note' in method_meta:
-        method_description += method_meta['detail_note']
+        desc += method_meta['detail_note']
     if 'methods' in method_meta:
         try:
             detailed_meta = '\n\n' + method_meta['methods'][name]
-            method_description += detailed_meta
+            desc += detailed_meta
         except KeyError:
             log.debug(f'{name} not found in methods.json')
+    if indicator:
+        desc = generic['indicator']
+
     # Replace tagged fields
     if 'version' in method_meta:
         version = ' (v' + method_meta['version'] + ')'
     else:
         version = ''
-    method_description = method_description.replace('[LCIAfmt_version]', pkg_version_number)
-    method_description = method_description.replace('[FEDEFL_version]', flow_list_specs['list_version'])
-    method_description = method_description.replace('[Method]', method_meta['name'])
-    method_description = method_description.replace('[version]', version)
-    method_description = method_description.replace('[citation]', method_meta['citation'])
-    method_description = method_description.replace('[url]', method_meta['url'])
+    desc = (desc
+            .replace('[LCIAfmt_version]', pkg_version_number)
+            .replace('[FEDEFL_version]', flow_list_specs['list_version'])
+            .replace('[Method]', method_meta['name'])
+            .replace('[version]', version)
+            .replace('[citation]', method_meta['citation'])
+            .replace('[url]', method_meta['url'])
+            .replace('[Indicator]', indicator)
+            )
 
-    return method_description
+    return desc
 
 
 def compile_metadata(method_id):
@@ -258,13 +264,14 @@ def download_method(method_id):
     download_from_remote(meta, paths)
 
 
-def save_json(method_id, mapped_data, method=None, name=''):
+def save_json(method_id, mapped_data, method=None, name='', write_flows=False):
     """Save a method as json file in the outputpath.
 
     :param method_id: class Method
     :param mapped_data: df of mapped method to save
     :param method: str, name of method to subset the passed mapped_data
     :param name: str, optional method name when method_id does not exist
+    :param write_flows: bool
     """
     meta = set_lcia_method_meta(method_id)
     if name == '':
@@ -278,7 +285,7 @@ def save_json(method_id, mapped_data, method=None, name=''):
     mkdir_if_missing(OUTPUTPATH)
     json_pack = path / f'{filename}_json_v{meta.tool_version}.zip'
     json_pack.unlink(missing_ok=True)
-    lciafmt.to_jsonld(mapped_data, json_pack)
+    lciafmt.to_jsonld(mapped_data, json_pack, write_flows=write_flows)
 
 
 def compare_to_remote(local_df, method_id):

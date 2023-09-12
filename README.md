@@ -22,12 +22,12 @@ The LCIA Formatter v1 was peer-reviewed internally at USEPA and externally throu
 \* only works on Windows installations
 
 ## Installation Instructions
-`lciafmt` requires Python 3.7 or greater.
+`lciafmt` requires Python 3.9 or greater.
 
 Install a release directly from github using pip. From a command line interface, run:
-> pip install git+https://github.com/USEPA/LCIAformatter.git@v1.0.3#egg=lciafmt
+> pip install git+https://github.com/USEPA/LCIAformatter.git@v1.1.0#egg=lciafmt
 
-where you can replace 'v1.0.3' with the version you wish to use under [Releases](https://github.com/USEPA/LCIAformatter/releases).
+where you can replace 'v1.1.0' with the version you wish to use under [Releases](https://github.com/USEPA/LCIAformatter/releases).
 
 Alternatively, to install from the most current point on the repository:
 ```

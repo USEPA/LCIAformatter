@@ -78,6 +78,10 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
         df2 = pd.concat([df2, flowdf], ignore_index=True, sort=False)
         # reformat dataframe and apply conversion
         df2['Characterization Factor'] = df2['Characterization Factor'] * df2['EndpointConversion']
+        # in the case of fossil resource scarcity, EndpointConversion factors are the actual Endpoint Characterization factors
+        fossil_exception = endpoint_df_by_flow['Flowable'].values
+        df2.loc[df2['Flowable'].isin(fossil_exception),'Characterization Factor'] = df2.loc[df2['Flowable'].isin(fossil_exception),'EndpointConversion']
+
         df2['Method'] = df2['EndpointMethod']
         df2['Indicator'] = df2['EndpointIndicator']
         df2['Indicator unit'] = df2['EndpointUnit']

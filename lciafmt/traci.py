@@ -10,6 +10,7 @@ Impacts (TRACI)
 import pandas as pd
 import openpyxl
 
+import lciafmt
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
 import lciafmt.xls as xls
@@ -34,12 +35,12 @@ def get(add_factors_for_missing_contexts=True, file=None,
     :return: DataFrame of method in standard format
     """
     log.info("getting method Traci 2.1")
+    method_meta = lciafmt.Method.TRACI.get_metadata()
     f = file
     if f is None:
         fname = "traci_2.1.xlsx"
         if url is None:
-            url = ("https://www.epa.gov/sites/production/files/2015-12/" +
-                   "traci_2_1_2014_dec_10_0.xlsx")
+            url = method_meta['url']
         f = cache.get_or_download(fname, url)
     df = _read(f)
     if add_factors_for_missing_contexts:
