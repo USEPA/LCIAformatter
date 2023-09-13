@@ -8,7 +8,6 @@ in the Federal LCA Commons Elementary Flow List.
 """
 
 import json
-import pkg_resources
 from typing import Union
 
 import pandas as pd
@@ -77,7 +76,7 @@ class Method(Enum):
 
 def supported_methods() -> list:
     """Return a list of dictionaries of supported method meta data."""
-    json_file = pkg_resources.resource_filename("lciafmt", 'data/methods.json')
+    json_file = util.datapath / 'methods.json'
     with open(json_file, "r", encoding="utf-8") as f:
         return json.load(f)
 
