@@ -153,11 +153,13 @@ def collapse_indicators(df) -> pd.DataFrame:
     """
     cols = ['Method', 'Indicator', 'Indicator unit', 'Flow UUID']
     duplicates = df[df.duplicated(subset=cols, keep=False)]
-    cols_to_keep = [c for c in df.columns.values.tolist()]
-    cols_to_keep.remove('Characterization Factor')
-    df2 = df.groupby(cols_to_keep, as_index=False)['Characterization Factor'].mean()
-    log.info(str(len(duplicates))+" duplicate factors consolidated to "
-             + str(len(duplicates)-(len(df)-len(df2))))
+    cols_to_keep = [c for c in df.columns.values.tolist() if 
+                    c not in ('Characterization Factor', 'CAS No')]
+    df2 = (df.groupby(cols_to_keep, as_index=False)
+             .agg({'Characterization Factor': 'mean',
+                   'CAS No': 'first'}))
+    log.info(f'{len(duplicates)} duplicate factors consolidated to '
+             f'{(len(duplicates)-(len(df)-len(df2)))}')
 
     return df2
 
