@@ -149,7 +149,15 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
     mapper = fmap.Mapper(df, system=system, mapping=mapping,
                          preserve_unmapped=preserve_unmapped,
                          case_insensitive=case_insensitive)
-    return mapper.run()
+    mapped = mapper.run()
+    x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID']
+                      ].duplicated(keep=False)]
+    duplicates = list(set(zip(x.Indicator, x.Flowable)))
+    util.log.warn(f'Identified duplicate factors for {len(duplicates)} '
+                  f'flow/indicator combinations and {len(x)} factors.')
+    util.log.debug(f'{duplicates}')
+    util.log.warn(f'Use collapse_indicators() to drop these duplicates.')
+    return mapped
 
 
 def supported_mapping_systems() -> list:

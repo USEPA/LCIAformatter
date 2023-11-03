@@ -40,3 +40,4 @@ if __name__ == "__main__":
     method = lciafmt.Method.IPCC
     df = lciafmt.get_method(method)
     mapped_df = lciafmt.map_flows(df, system=method.get_metadata().get('mapping'))
+    mapped_df2 = lciafmt.util.collapse_indicators(mapped_df)
