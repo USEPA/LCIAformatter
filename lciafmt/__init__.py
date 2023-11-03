@@ -8,7 +8,6 @@ in the Federal LCA Commons Elementary Flow List.
 """
 
 import json
-import pkg_resources
 from typing import Union
 
 import pandas as pd
@@ -77,7 +76,7 @@ class Method(Enum):
 
 def supported_methods() -> list:
     """Return a list of dictionaries of supported method meta data."""
-    json_file = pkg_resources.resource_filename("lciafmt", 'data/methods.json')
+    json_file = util.datapath / 'methods.json'
     with open(json_file, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -150,7 +149,15 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
     mapper = fmap.Mapper(df, system=system, mapping=mapping,
                          preserve_unmapped=preserve_unmapped,
                          case_insensitive=case_insensitive)
-    return mapper.run()
+    mapped = mapper.run()
+    x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID']
+                      ].duplicated(keep=False)]
+    duplicates = list(set(zip(x.Indicator, x.Flowable)))
+    util.log.warn(f'Identified duplicate factors for {len(duplicates)} '
+                  f'flow/indicator combinations and {len(x)} factors.')
+    util.log.debug(f'{duplicates}')
+    util.log.warn(f'Use collapse_indicators() to drop these duplicates.')
+    return mapped
 
 
 def supported_mapping_systems() -> list:

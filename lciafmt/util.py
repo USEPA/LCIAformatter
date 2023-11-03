@@ -12,7 +12,6 @@ import logging as log
 import pandas as pd
 import numpy as np
 import yaml
-import pkg_resources
 from pathlib import Path
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
     write_df_to_file, write_metadata_to_file, download_from_remote, \
@@ -22,7 +21,7 @@ from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
-pkg_version_number = '1.1.0'
+pkg_version_number = '1.1.1'
 MODULEPATH = Path(__file__).resolve().parent
 datapath = MODULEPATH / 'data'
 
@@ -36,7 +35,6 @@ paths = Paths()
 paths.local_path = paths.local_path / 'lciafmt'
 OUTPUTPATH = paths.local_path
 
-pkg = pkg_resources.get_distribution('lciafmt')
 GIT_HASH = get_git_hash()
 
 method_metadata = {
@@ -58,7 +56,7 @@ def set_lcia_method_meta(method_id):
         lcia_method_meta.category = ""
     else:
         lcia_method_meta.name_data = method_id
-    lcia_method_meta.tool = pkg.project_name
+    lcia_method_meta.tool = "lciafmt"
     lcia_method_meta.tool_version = pkg_version_number
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = GIT_HASH
@@ -155,11 +153,13 @@ def collapse_indicators(df) -> pd.DataFrame:
     """
     cols = ['Method', 'Indicator', 'Indicator unit', 'Flow UUID']
     duplicates = df[df.duplicated(subset=cols, keep=False)]
-    cols_to_keep = [c for c in df.columns.values.tolist()]
-    cols_to_keep.remove('Characterization Factor')
-    df2 = df.groupby(cols_to_keep, as_index=False)['Characterization Factor'].mean()
-    log.info(str(len(duplicates))+" duplicate factors consolidated to "
-             + str(len(duplicates)-(len(df)-len(df2))))
+    cols_to_keep = [c for c in df.columns.values.tolist() if 
+                    c not in ('Characterization Factor', 'CAS No')]
+    df2 = (df.groupby(cols_to_keep, as_index=False)
+             .agg({'Characterization Factor': 'mean',
+                   'CAS No': 'first'}))
+    log.info(f'{len(duplicates)} duplicate factors consolidated to '
+             f'{(len(duplicates)-(len(df)-len(df2)))}')
 
     return df2
 
