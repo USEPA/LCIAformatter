@@ -196,3 +196,9 @@ def _category_info(c: str):
 
     if c == "Human health CF  [CTUnoncancer/kg], Emission to cont. agric. Soil, non-canc.":
         return "Human health - non-cancer", "CTUnoncancer", "soil/agricultural", "kg"
+ # %%
+
+
+
+
+
