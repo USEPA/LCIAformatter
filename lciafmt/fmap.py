@@ -185,7 +185,8 @@ class Mapper(object):
                 name=row["TargetFlowName"],
                 category=row["TargetFlowContext"],
                 unit=row["TargetUnit"],
-                conversionfactor=row["ConversionFactor"]
+                conversionfactor=(1 if pd.isnull(row["ConversionFactor"]) else
+                                  row["ConversionFactor"])
             ))
 
         log.info("indexed %i mappings for %i flows",
