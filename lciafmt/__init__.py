@@ -19,6 +19,7 @@ import lciafmt.traci as traci
 import lciafmt.recipe as recipe
 import lciafmt.ipcc as ipcc
 import lciafmt.fedefl_inventory as fedefl_inventory
+import lciafmt.epa_scghg as scghg
 import lciafmt.util as util
 import lciafmt.endpoint as ep
 import lciafmt.custom as custom
@@ -35,6 +36,7 @@ class Method(Enum):
     FEDEFL_INV = "FEDEFL Inventory"
     ImpactWorld = "ImpactWorld"
     IPCC = "IPCC"
+    EPA_SCGHG = "EPA SCGHG"
 
     def get_metadata(cls):
         """Return the stored metadata."""
@@ -121,6 +123,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         return ipcc.get()
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
+    if method_id == Method.EPA_SCGHG:
+        return scghg.get()
 
 
 def clear_cache():
@@ -153,10 +157,11 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
     x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID']
                       ].duplicated(keep=False)]
     duplicates = list(set(zip(x.Indicator, x.Flowable)))
-    util.log.warn(f'Identified duplicate factors for {len(duplicates)} '
-                  f'flow/indicator combinations and {len(x)} factors.')
-    util.log.debug(f'{duplicates}')
-    util.log.warn(f'Use collapse_indicators() to drop these duplicates.')
+    if len(duplicates) > 0:
+        util.log.warn(f'Identified duplicate factors for {len(duplicates)} '
+                      f'flow/indicator combinations and {len(x)} factors.')
+        util.log.debug(f'{duplicates}')
+        util.log.warn(f'Use collapse_indicators() to drop these duplicates.')
     return mapped
 
 

@@ -60,6 +60,15 @@
     "url": "https://github.com/USEPA/LCIAformatter/blob/master/lciafmt/data/IPCC_GWP_values.csv",
     "citation": "Forster and Ramaswamy 2007 (AR4), Myhre and Shindell 2013 (AR5), Forster and Storelvmo 2021 (AR6)",
     "source_type": "csv"
+  },
+  {
+    "id": "EPA_SCGHG",
+    "name": "EPA SCGHG",
+    "mapping": "GHGI",
+    "path": "epa_scghg",
+    "case_insensitivity": "False",
+    "url": "https://raw.githubusercontent.com/USEPA/scghg/v1.0.0/EPA/output/scghg_annual.csv",
+    "citation": "US EPA (2023). EPA Report on the Social Cost of Greenhouse Gases: Estimates Incorporating Recent Scientific Advances. https://www.epa.gov/environmental-economics/scghg",
+    "source_type": "csv"
   }
-
 ]
