@@ -15,7 +15,7 @@ import lciafmt.cache as cache
 import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
-from .util import log, aggregate_factors_for_primary_contexts, format_cas,\
+from lciafmt.util import log, aggregate_factors_for_primary_contexts, format_cas,\
     datapath
 
 
@@ -69,8 +69,18 @@ def get(add_factors_for_missing_contexts=True, file=None,
     df.drop_duplicates(keep='first', inplace=True)
     length = length - len(df)
     log.info(f"{length} duplicate entries removed")
+    
+    """add eutrophication updates 
+    the function _read_eutro is a function to read the raw data from the new
+    eutrophication updates
+    """
+    log.info("getting Eutrophication updates")
+    eutro_raw = datapath / 'traci_raw.xlsx'
+    df_eutro = _read_eutro(eutro_raw)
+    frames = [df, df_eutro]
+    df_w_eutro = pd.concat(frames)
 
-    return df
+    return df_w_eutro
 
 
 def _read(xls_file: str) -> pd.DataFrame:
@@ -196,9 +206,52 @@ def _category_info(c: str):
 
     if c == "Human health CF  [CTUnoncancer/kg], Emission to cont. agric. Soil, non-canc.":
         return "Human health - non-cancer", "CTUnoncancer", "soil/agricultural", "kg"
- # %% this is a test  
 
+def _read_eutro(xls_file: str) -> pd.DataFrame:
+    log.info(f"read Eutrophication category from file {xls_file}")
+    wb = openpyxl.load_workbook(xls_file, read_only=True, data_only=True)
+    sheet = wb["Sheet1"]
+    records = []
+    flow_category=[]
+    for row in sheet.iter_rows(min_row=2):
+        sector = row [9].value 
+        '''column number 9 is the "Sector" column, with three possible inputs:
+        "Genrl", "Argic" and "NonAg" '''
+        aggregation = row[7].value
+        '''column number 7 is the "Aggregation" column, with possible inputs:
+        US_Nation, US_States, US_Counties, Countries, etc '''
+        if sector == "Genrl":
+            if  aggregation == "US_Nation" or aggregation == "US_States" or aggregation == "US_Counties":
+                region = xls.cell_str(row[16]) 
+                """ column No. 16 is the "Name" column """
 
+                flow = xls.cell_str(row[1])
+                """ column No. 1 is the "Flowable" column """
+                context = xls.cell_str(row[5])
+                """ column No. 5 is the "Emit Compartment" column """
+                if context == "Comp_Fw":
+                    flow_category = "Water"
+                elif context == "Comp_Air":
+                    flow_category = "Air"
+                elif context == "Comp_Soil":
+                    flow_category = "Soil"
+                else:
+                    flow_category = "context"
+                    
+                factor = xls.cell_f64(row[20])
+                """ column No. 20 is the "Average Target Value" column """
+                
+                
+                dfutil.record(records,method="TRACI 2.1", indicator="Eutrophication",
+                              indicator_unit="kg N eq",
+                              flow=flow,
+                              flow_category = flow_category,
+                              flow_unit="yr",
+                              factor=factor,
+                              location = region)
+    wb.close()
+            
+    return dfutil.data_frame(records)
 
 
 
