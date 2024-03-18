@@ -30,8 +30,10 @@ def get() -> pd.DataFrame:
             )
     method = pd.concat([method, df])
     method['Context'] = 'air'
-    method['Unit'] = 'kg'
+    # Original source factors are in $ per metric tonne
+    method['Unit'] = 'MT'
     method['Indicator unit'] = 'USD / kg'
+    # ^^ Units following flow mapping and conversion
     method['Method'] = method_meta['name']
 
     return method
