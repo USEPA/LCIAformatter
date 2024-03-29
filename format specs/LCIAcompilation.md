@@ -1,8 +1,8 @@
 ## LCIA Compilation
 
-Custom methods consisting of indicators from multiple indicators can be created using FXN. 
+Custom methods consisting of indicators from multiple indicators can be created using `lciafmt.generate_lcia_compilation()`. 
 This requires an input `.yaml` file with the following specifications.
-See [epd.yaml](lciafmt/data/epd.yaml) for an example.
+See [epd.yaml](../lciafmt/data/epd.yaml) for an example.
 
 ```
 name: # Name given to new method
