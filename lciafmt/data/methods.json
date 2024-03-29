@@ -7,6 +7,7 @@
     "mapping": "TRACI2.1",
     "case_insensitivity": "False",
     "url": "https://www.epa.gov/sites/default/files/2015-12/traci_2_1_2014_dec_10_0.xlsx",
+    "bib_id": "bare_traci_2011",
     "citation": "Bare 2012",
     "source_type": "Excel file"
   },
