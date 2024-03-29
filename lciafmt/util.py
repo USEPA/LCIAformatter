@@ -175,7 +175,7 @@ def generate_method_description(name: str, indicator: str='') -> str:
         generic = yaml.safe_load(f)
     desc = generic['description']
     method = check_as_class(name)
-    if method is None:
+    if type(method) is str:
         method_meta = {}
         method_meta['name'] = name
         method_meta['url'] = ''
