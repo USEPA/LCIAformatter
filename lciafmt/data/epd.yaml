@@ -1,0 +1,27 @@
+name: EPA EPD
+rename_indicators: True
+indicators:
+    Climate change:
+      method: IPCC
+      indicator: AR5-100
+      code: GHG
+
+    Ozone depletion potential:
+      method: TRACI2.1
+      indicator: Ozone depletion
+      code: ODP
+
+    Eutrophication potential:
+      method: TRACI2.1
+      indicator: Eutrophication
+      code: EP
+
+    Acidification potential:
+      method: TRACI2.1
+      indicator: Acidification
+      code: AP
+
+    Photochemical oxidant creation potential:
+      method: TRACI2.1
+      indicator: Smog formation
+      code: POCP
