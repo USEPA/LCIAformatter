@@ -36,6 +36,12 @@ class Writer(object):
         self.__writer.close()
 
     def write(self, df: pd.DataFrame, write_flows=False):
+        if 'source_method' not in df:
+            df['source_method'] = df['Method']
+        if 'source_indicator' not in df:
+            df['source_indicator'] = ''
+        if 'category' not in df:
+            df['category'] = df['Method']
         for _, row in df.iterrows():
             indicator = self.__indicator(row)
             factor = o.ImpactFactor()
@@ -60,7 +66,7 @@ class Writer(object):
     def __indicator(self, row) -> o.ImpactCategory:
         uid = row['Indicator UUID']
         if not is_non_empty_str(uid):
-            uid = make_uuid(row['Method'], row['Indicator'])
+            uid = make_uuid(row['category'], row['Indicator'])
 
         ind = self.__indicators.get(uid)
         if ind is not None:
@@ -70,14 +76,15 @@ class Writer(object):
         ind.id = uid
         ind.name = row['Indicator']
         ind.ref_unit = row['Indicator unit']
-        ind.category = row['Method']
+        ind.category = row['category']
         if 'Code' in row:
             ind.code = row['Code']
         direction = ('INPUT' if row['Context'].startswith('resource')
                      else 'OUTPUT')
         ind.direction = o.Direction(direction)
-        ind.description = generate_method_description(row['Method'],
-                                                      row['Indicator'])
+        ind.description = generate_method_description(row['source_method'],
+                                                      row['Indicator'],
+                                                      row['source_indicator'])
         ind.impact_factors = []
         ind.version = pkg_version_number
         self.__indicators[uid] = ind

@@ -23,4 +23,7 @@ description:
     '
 
 indicator:
-    '[Indicator] is built from LCIA Formatter v[LCIAfmt_version] for use with [Method]'
+    '[Indicator] is built with LCIA Formatter v[LCIAfmt_version] for use with [Method]'
+
+source_indicator:
+    '[Indicator] is built with LCIA Formatter v[LCIAfmt_version] based on [source_indicator] in [Method]'

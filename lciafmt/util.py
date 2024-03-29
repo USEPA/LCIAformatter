@@ -170,7 +170,10 @@ def check_as_class(method_id):
     return method_id
 
 
-def generate_method_description(name: str, indicator: str='') -> str:
+def generate_method_description(name: str,
+                                indicator: str='',
+                                source_indicator: str=''
+                                ) -> str:
     with open(datapath / "description.yaml") as f:
         generic = yaml.safe_load(f)
     desc = generic['description']
@@ -192,6 +195,8 @@ def generate_method_description(name: str, indicator: str='') -> str:
             log.debug(f'{name} not found in methods.json')
     if indicator:
         desc = generic['indicator']
+    if source_indicator:
+        desc = generic['source_indicator'] 
 
     # Replace tagged fields
     if 'version' in method_meta:
@@ -206,6 +211,7 @@ def generate_method_description(name: str, indicator: str='') -> str:
             .replace('[citation]', method_meta['citation'])
             .replace('[url]', method_meta['url'])
             .replace('[Indicator]', indicator)
+            .replace('[source_indicator]', source_indicator)
             )
 
     return desc
