@@ -71,6 +71,8 @@ class Writer(object):
         ind.name = row['Indicator']
         ind.ref_unit = row['Indicator unit']
         ind.category = row['Method']
+        if 'Code' in row:
+            ind.code = row['Code']
         direction = ('INPUT' if row['Context'].startswith('resource')
                      else 'OUTPUT')
         ind.direction = o.Direction(direction)
