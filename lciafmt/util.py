@@ -60,6 +60,7 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.tool_version = pkg_version_number
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = GIT_HASH
+    lcia_method_meta.date_created = pd.to_datetime('today').strftime('%Y-%m-%d %H:%M:%S')
     return lcia_method_meta
 
 
