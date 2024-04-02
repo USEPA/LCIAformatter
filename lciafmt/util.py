@@ -176,7 +176,7 @@ def generate_method_description(name: str,
                                 ) -> str:
     with open(datapath / "description.yaml") as f:
         generic = yaml.safe_load(f)
-    desc = generic['description']
+    desc = generic['base']
     method = check_as_class(name)
     if type(method) is str:
         method_meta = {}
@@ -185,6 +185,7 @@ def generate_method_description(name: str,
         method_meta['citation'] = ''
     else:
         method_meta = method.get_metadata()
+        desc += generic['description']
     if 'detail_note' in method_meta:
         desc += method_meta['detail_note']
     if 'methods' in method_meta:
