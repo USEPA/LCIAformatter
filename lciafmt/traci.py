@@ -75,9 +75,11 @@ def get(add_factors_for_missing_contexts=True, file=None,
     eutrophication updates
     """
     log.info("getting Eutrophication updates")
-    eutro_raw = datapath / 'traci_raw.xlsx'
-    df_eutro = _read_eutro(eutro_raw)
-    frames = [df, df_eutro]
+    url = method_meta['eutro_url']
+    f = cache.get_or_download('TRACI Spatial Eutrophication Characterization Factors_2020-10.xlsx',
+                              url)
+    df_eutro = _read_eutro(f)
+    frames = [df.query('Indicator != "Eutrophication"'), df_eutro]
     df_w_eutro = pd.concat(frames)
 
     return df_w_eutro
@@ -209,49 +211,48 @@ def _category_info(c: str):
 
 def _read_eutro(xls_file: str) -> pd.DataFrame:
     log.info(f"read Eutrophication category from file {xls_file}")
-    wb = openpyxl.load_workbook(xls_file, read_only=True, data_only=True)
-    sheet = wb["Sheet1"]
+    source_df = pd.read_excel(xls_file, sheet_name="S5. Raw Data")
     records = []
     flow_category=[]
-    for row in sheet.iter_rows(min_row=2):
-        sector = row [9].value 
-        '''column number 9 is the "Sector" column, with three possible inputs:
-        "Genrl", "Argic" and "NonAg" '''
-        aggregation = row[7].value
-        '''column number 7 is the "Aggregation" column, with possible inputs:
-        US_Nation, US_States, US_Counties, Countries, etc '''
-        if sector == "Genrl":
-            if  aggregation == "US_Nation" or aggregation == "US_States" or aggregation == "US_Counties":
-                region = xls.cell_str(row[16]) 
-                """ column No. 16 is the "Name" column """
-
-                flow = xls.cell_str(row[1])
-                """ column No. 1 is the "Flowable" column """
-                context = xls.cell_str(row[5])
-                """ column No. 5 is the "Emit Compartment" column """
-                if context == "Comp_Fw":
-                    flow_category = "Water"
-                elif context == "Comp_Air":
-                    flow_category = "Air"
-                elif context == "Comp_Soil":
-                    flow_category = "Soil"
+    for i, row in source_df.iterrows():
+        sector = row['Sector']
+        flow = row['Flowable']
+        aggregation = row['Aggregation Target']
+        if  aggregation in ("US_Nation", "US_States", "US_Counties"):
+            if flow == "Flow_N" or sector == "Genrl":
+                region = row['Name']
+                region_id = str(row['Target ID'])
+                if region_id == "US_Nation":
+                    region_id = "00000"
+                elif len(region_id) < 3:
+                    region_id = region_id.ljust(5, '0')
                 else:
-                    flow_category = "context"
+                    region_id = region_id.rjust(5, '0')
+                context = row['Emit Compartment']
+
+                if context == "Comp_Fw":
+                    flow_category = "freshwater"
+                elif context == "Comp_Air":
+                    flow_category = "air"
+                elif context == "Comp_Soil":
+                    flow_category = "soil"
+                elif context == "Comp_LME":
+                    flow_category = "marine"
+                else:
+                    flow_category = "n/a"
                     
-                factor = xls.cell_f64(row[20])
-                """ column No. 20 is the "Average Target Value" column """
+                factor = row['Average Target Value']
                 
+                indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
+                             else "Eutrophication (Marine)")
                 
-                dfutil.record(records,method="TRACI 2.1", indicator="Eutrophication",
+                dfutil.record(records,method="TRACI 2.2",
+                              indicator=indicator,
                               indicator_unit="kg N eq",
                               flow=flow,
                               flow_category = flow_category,
                               flow_unit="yr",
                               factor=factor,
-                              location = region)
-    wb.close()
-            
+                              location=region_id)
+    # df = dfutil.data_frame(records)
     return dfutil.data_frame(records)
-
-
-
