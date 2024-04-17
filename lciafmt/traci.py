@@ -210,6 +210,10 @@ def _category_info(c: str):
         return "Human health - non-cancer", "CTUnoncancer", "soil/agricultural", "kg"
 
 def _read_eutro(xls_file: str) -> pd.DataFrame:
+    context_dict = {'Comp_Fw': 'freshwater',
+                    'Comp_Air': 'air',
+                    'Comp_Soil': 'soil',
+                    'Comp_LME': 'marine'}
     log.info(f"read Eutrophication category from file {xls_file}")
     source_df = pd.read_excel(xls_file, sheet_name="S5. Raw Data")
     records = []
@@ -228,25 +232,13 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                     region_id = region_id.ljust(5, '0')
                 else:
                     region_id = region_id.rjust(5, '0')
-                context = row['Emit Compartment']
-
-                if context == "Comp_Fw":
-                    flow_category = "freshwater"
-                elif context == "Comp_Air":
-                    flow_category = "air"
-                elif context == "Comp_Soil":
-                    flow_category = "soil"
-                elif context == "Comp_LME":
-                    flow_category = "marine"
-                else:
-                    flow_category = "n/a"
-                    
+                flow_category = context_dict.get(row['Emit Compartment'], "n/a")
                 factor = row['Average Target Value']
-                
                 indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
                              else "Eutrophication (Marine)")
                 
-                dfutil.record(records,method="TRACI 2.2",
+                dfutil.record(records,
+                              method="TRACI 2.1",
                               indicator=indicator,
                               indicator_unit="kg N eq",
                               flow=flow,
@@ -254,5 +246,38 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                               flow_unit="yr",
                               factor=factor,
                               location=region_id)
+
+                if region_id == "US_Nation":
+                # openLCA requires a factor without location for use by default
+                    dfutil.record(records,
+                                  method="TRACI 2.1",
+                                  indicator=indicator,
+                                  indicator_unit="kg N eq",
+                                  flow=flow,
+                                  flow_category = flow_category,
+                                  flow_unit="yr",
+                                  factor=factor,
+                                  location="")
+
     # df = dfutil.data_frame(records)
     return dfutil.data_frame(records)
+
+
+def assign_state_names(df):
+    import flowsa
+    f = flowsa.location.get_state_FIPS(abbrev=True).drop(columns='County')
+    f['State'] = f['State'].apply(lambda x: f"US-{x}")
+    fd = f.set_index('FIPS').to_dict()['State']
+    fd['00000'] = 'US'
+    df['Location'] = df['Location'].replace(fd)
+    return df.dropna(subset='Location')
+
+
+#%%
+if __name__ == "__main__":
+    df_orig = get()
+    #%%
+    df = df_orig.query('Location.str.endswith("000") or '
+                       'Location == ""').reset_index(drop=True)
+    df = assign_state_names(df)
+    lciafmt.to_jsonld(df, 'test.zip')
