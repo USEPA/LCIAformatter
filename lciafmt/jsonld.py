@@ -18,7 +18,10 @@ except ImportError:
 from esupy.util import make_uuid
 from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number
+from .location import extract_coordinates
 
+location_meta = ('https://raw.githubusercontent.com/GreenDelta/data/'
+                 'master/refdata/locations.csv')
 
 class Writer(object):
 
@@ -28,6 +31,9 @@ class Writer(object):
         self.__methods = {}
         self.__indicators = {}
         self.__flows = {}
+        self.__coordinates = {}
+        self.__locations = {}
+        self.__location_meta = pd.read_csv(location_meta).fillna('')
 
     def __enter__(self):
         return self
@@ -36,6 +42,8 @@ class Writer(object):
         self.__writer.close()
 
     def write(self, df: pd.DataFrame, write_flows=False):
+        if any(df['Location'] != ''):
+            self.__coordinates = extract_coordinates(group='states')
         for _, row in df.iterrows():
             indicator = self.__indicator(row)
             factor = o.ImpactFactor()
@@ -44,12 +52,15 @@ class Writer(object):
             factor.flow_property = units.property_ref(unit)
             factor.unit = units.unit_ref(unit)
             factor.value = row['Characterization Factor']
+            if self.__coordinates != {}:
+                factor.location = self.__location(row)
             indicator.impact_factors.append(factor)
 
         log.debug("write entities")
         dicts = [
             self.__indicators,
-            self.__methods
+            self.__methods,
+            self.__locations
         ]
         if write_flows:
             dicts.append(self.__flows)
@@ -137,3 +148,28 @@ class Writer(object):
 
         self.__flows[uid] = flow
         return flow
+
+    def __location(self, row):
+        if row['Location'] == '':
+            # no location specified
+            return None
+        meta = (self.__location_meta.loc[
+            self.__location_meta['Code'] == row['Location']].squeeze())
+        if len(meta) == 0:
+            # not an available location
+            return None
+        location = self.__locations.get(meta.ID)
+        if location is not None:
+            # location found, no need to regenerate
+            return location
+        location = o.Location(
+            id=meta.ID,
+            name=meta.Name,
+            description=meta.Description,
+            category=meta.Category,
+            code=meta.Code,
+            geometry=self.__coordinates.get(row['Location']),
+            latitude=meta.Latitude,
+            longitude=meta.Longitude)
+        self.__locations[meta.ID] = location
+        return location
