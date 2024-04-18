@@ -6,9 +6,23 @@
     "path": "traci",
     "mapping": "TRACI2.1",
     "case_insensitivity": "False",
+    "file": "traci_2.1.xlsx",
     "url": "https://www.epa.gov/sites/default/files/2015-12/traci_2_1_2014_dec_10_0.xlsx",
-    "eutro_url": "https://pasteur.epa.gov/uploads/10.23719/1520443/TRACI%20Spatial%20Eutrophication%20Characterization%20Factors_2020-10.xlsx",
     "citation": "Bare 2012",
+    "source_type": "Excel file"
+  },
+  {
+    "id": "TRACI2_2",
+    "name": "TRACI 2.2",
+    "detail_note": "UPDATE",
+    "path": "traci",
+    "mapping": "TRACI2.2",
+    "case_insensitivity": "False",
+    "file": "TRACI_2.2.xlsx",
+    "url": "https://github.com/USEPA/TRACI/raw/master/TraciTool/TRACI_2_2.xlsx",
+    "eutro_url": "https://pasteur.epa.gov/uploads/10.23719/1520443/TRACI%20Spatial%20Eutrophication%20Characterization%20Factors_2020-10.xlsx",
+    "eutro_file": "TRACI Spatial Eutrophication Characterization Factors_2020-10.xlsx",
+    "citation": "Henderson et al. 2021",
     "source_type": "Excel file"
   },
   {

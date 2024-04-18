@@ -23,7 +23,7 @@ flowables_replace = pd.read_csv(datapath / 'TRACI_2.1_replacement.csv')
 flowables_split = pd.read_csv(datapath / 'TRACI_2.1_split.csv')
 
 
-def get(add_factors_for_missing_contexts=True, file=None,
+def get(method, add_factors_for_missing_contexts=True, file=None,
         url=None) -> pd.DataFrame:
     """Generate a method for TRACI in standard format.
 
@@ -34,11 +34,11 @@ def get(add_factors_for_missing_contexts=True, file=None,
     :param url: str, alternate url for method, defaults to url in method config
     :return: DataFrame of method in standard format
     """
-    log.info("getting method Traci 2.1")
-    method_meta = lciafmt.Method.TRACI.get_metadata()
+    log.info("getting method TRACI")
+    method_meta = method.get_metadata()
     f = file
     if f is None:
-        fname = "traci_2.1.xlsx"
+        fname = method_meta['file']
         if url is None:
             url = method_meta['url']
         f = cache.get_or_download(fname, url)
@@ -74,20 +74,21 @@ def get(add_factors_for_missing_contexts=True, file=None,
     the function _read_eutro is a function to read the raw data from the new
     eutrophication updates
     """
-    log.info("getting Eutrophication updates")
-    url = method_meta['eutro_url']
-    f = cache.get_or_download('TRACI Spatial Eutrophication Characterization Factors_2020-10.xlsx',
-                              url)
-    df_eutro = _read_eutro(f)
-    frames = [df.query('Indicator != "Eutrophication"'), df_eutro]
-    df_w_eutro = pd.concat(frames)
+    if 'eutro_url' in method_meta:
+        log.info("getting Eutrophication updates")
+        f = cache.get_or_download(file=method_meta['eutro_file'],
+                                  url=method_meta['eutro_url'])
+        df_eutro = _read_eutro(f)
+        frames = [df.query('Indicator != "Eutrophication"'), df_eutro]
+        df = pd.concat(frames)
+    df['Method'] = method_meta.get('name')
 
-    return df_w_eutro
+    return df
 
 
 def _read(xls_file: str) -> pd.DataFrame:
     """Read the data from Excel with given path into a DataFrame."""
-    log.info(f"read Traci 2.1 from file {xls_file}")
+    log.info(f"read TRACI from file {xls_file}")
     wb = openpyxl.load_workbook(xls_file, read_only=True, data_only=True)
     sheet = wb["Substances"]
     categories = {}
@@ -114,7 +115,6 @@ def _read(xls_file: str) -> pd.DataFrame:
             if factor == 0.0:
                 continue
             dfutil.record(records,
-                          method="TRACI 2.1",
                           indicator=cat_info[0],
                           indicator_unit=cat_info[1],
                           flow=flow,
@@ -134,6 +134,9 @@ def _category_info(c: str):
     given category name. If it is an unknown category, `None` is returned.
     """
     if c == "Global Warming Air (kg CO2 eq / kg substance)":
+        return "Global warming", "kg CO2 eq", "air", "kg"
+
+    if c == "Global Climate Air (kg CO2 eq / kg substance)":
         return "Global warming", "kg CO2 eq", "air", "kg"
 
     if c == "Acidification Air (kg SO2 eq / kg substance)":
@@ -238,29 +241,27 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                              else "Eutrophication (Marine)")
                 
                 dfutil.record(records,
-                              method="TRACI 2.1",
                               indicator=indicator,
                               indicator_unit="kg N eq",
                               flow=flow,
                               flow_category = flow_category,
-                              flow_unit="yr",
+                              flow_unit="kg",
                               factor=factor,
                               location=region_id)
 
                 if region_id == "US_Nation":
                 # openLCA requires a factor without location for use by default
                     dfutil.record(records,
-                                  method="TRACI 2.1",
                                   indicator=indicator,
                                   indicator_unit="kg N eq",
                                   flow=flow,
                                   flow_category = flow_category,
-                                  flow_unit="yr",
+                                  flow_unit="kg",
                                   factor=factor,
                                   location="")
 
-    # df = dfutil.data_frame(records)
-    return dfutil.data_frame(records)
+    df = dfutil.data_frame(records)
+    return df
 
 
 def assign_state_names(df):
@@ -275,9 +276,13 @@ def assign_state_names(df):
 
 #%%
 if __name__ == "__main__":
-    df_orig = get()
+    method = lciafmt.Method.TRACI2_2
+    df_orig = get(method)
     #%%
-    df = df_orig.query('Location.str.endswith("000") or '
-                       'Location == ""').reset_index(drop=True)
-    df = assign_state_names(df)
-    lciafmt.to_jsonld(df, 'test.zip')
+    df = assign_state_names(df_orig)
+    df = df.query('~Location.str.isnumeric()').reset_index(drop=True)
+    # df = df.query('Location != ""').reset_index(drop=True)
+    mapping = method.get_metadata()['mapping']
+    #%%
+    df2 = lciafmt.map_flows(df, system=mapping)
+    lciafmt.to_jsonld(df2, 'test.zip')

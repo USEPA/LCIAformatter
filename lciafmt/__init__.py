@@ -31,6 +31,7 @@ class Method(Enum):
     """LCIAFormatter Method object with available metadata."""
 
     TRACI = "TRACI 2.1"
+    TRACI2_2 = "TRACI 2.2"
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
     ImpactWorld = "ImpactWorld"
@@ -109,8 +110,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         return custom.get_custom_method(file=file)
     else:
         method_id = util.check_as_class(method_id)
-    if method_id == Method.TRACI:
-        return traci.get(add_factors_for_missing_contexts, file=file, url=None)
+    if method_id == Method.TRACI or method_id == Method.TRACI2_2:
+        return traci.get(method_id, add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary,
                           file=file, url=url)
