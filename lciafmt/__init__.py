@@ -151,7 +151,7 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
                          preserve_unmapped=preserve_unmapped,
                          case_insensitive=case_insensitive)
     mapped = mapper.run()
-    x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID']
+    x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID', 'Location']
                       ].duplicated(keep=False)]
     duplicates = list(set(zip(x.Indicator, x.Flowable)))
     if len(duplicates) > 0:
