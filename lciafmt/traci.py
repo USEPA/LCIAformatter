@@ -229,7 +229,7 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
             if flow == "Flow_N" or sector == "Genrl":
                 region = row['Name']
                 region_id = str(row['Target ID'])
-                if region_id == "US_Nation":
+                if aggregation == "US_Nation":
                     region_id = "00000"
                 elif len(region_id) < 3:
                     region_id = region_id.ljust(5, '0')
@@ -249,7 +249,7 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                               factor=factor,
                               location=region_id)
 
-                if region_id == "US_Nation":
+                if aggregation == "US_Nation":
                 # openLCA requires a factor without location for use by default
                     dfutil.record(records,
                                   indicator=indicator,
@@ -281,6 +281,7 @@ if __name__ == "__main__":
     #%%
     df = assign_state_names(df_orig)
     df = df.query('~Location.str.isnumeric()').reset_index(drop=True)
+    df = df.query('Indicator.str.contains("Eutrophication")').reset_index(drop=True)
     # df = df.query('Location != ""').reset_index(drop=True)
     mapping = method.get_metadata()['mapping']
     #%%
