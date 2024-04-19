@@ -55,6 +55,7 @@
     "id": "IPCC",
     "name": "IPCC",
     "mapping": "IPCC",
+    "detail_note": "Factors are based on those reported in Table 2.14 (AR4), Table 8.A.1 (AR5), and Table 7.SM.7 (AR6).",
     "path": "ipcc",
     "case_insensitivity": "False",
     "url": "https://github.com/USEPA/LCIAformatter/blob/master/lciafmt/data/IPCC_GWP_values.csv",
