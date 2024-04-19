@@ -45,7 +45,7 @@ class Writer(object):
             m = check_as_class(method)
             bib = m.get_metadata().get('bib_id')
             if bib:
-                self.__bibids[bib] = method
+                self.__bibids[bib] = m.value
         for i in generate_sources(self.__bibpath, self.__bibids):
             self.__sources[i.id] = i
 
