@@ -33,10 +33,23 @@ def test_endpoint_method():
 
 
 def test_method_write_json():
-    method = lciafmt.get_mapped_method(method_id = 'TRACI2.1',
+    # Test TRACI2.1 Acidification
+    method_id = lciafmt.Method.TRACI
+    method = lciafmt.get_mapped_method(method_id = method_id,
                                        indicators=['Acidification'],
                                        download_from_remote=True)
-    lciafmt.to_jsonld(method, 'test.zip', write_flows=True)
+    lciafmt.util.save_json(method_id = method_id,
+                           name = 'test_TRACI',
+                           mapped_data = method,
+                           write_flows=True)
+    # Test FEDEFL Inventory
+    method_id = lciafmt.Method.FEDEFL_INV
+    method = lciafmt.get_mapped_method(method_id = method_id,
+                                       download_from_remote=True)
+    lciafmt.util.save_json(method_id = method_id,
+                           mapped_data = method,
+                           name = 'test_FEDEFL',
+                           write_flows=True)
 
 
 if __name__ == "__main__":
