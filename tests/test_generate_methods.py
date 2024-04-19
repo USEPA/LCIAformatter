@@ -31,5 +31,14 @@ def test_endpoint_method():
     store_method(method, method_id=None)
     assert method is not None
 
+
+def test_method_write_json():
+    method = lciafmt.get_mapped_method(method_id = 'TRACI2.1',
+                                       indicators=['Acidification'],
+                                       download_from_remote=True)
+    lciafmt.to_jsonld(method, 'test.zip', write_flows=True)
+
+
 if __name__ == "__main__":
-    test_generate_methods()
+    # test_generate_methods()
+    test_method_write_json()
