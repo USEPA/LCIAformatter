@@ -30,7 +30,7 @@ def apply_endpoints(endpoints, matching_fields, download_from_remote=False):
     method = pd.DataFrame()
 
     for e in matching_fields:
-        endpoints[e].fillna("", inplace=True)
+        endpoints[e] = endpoints[e].fillna("")
 
     for m in indicators['Method'].unique():
         method_indicators = indicators[indicators['Method'] == m]
