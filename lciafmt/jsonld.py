@@ -67,7 +67,8 @@ class Writer(object):
             factor.unit = units.unit_ref(unit)
             factor.value = row['Characterization Factor']
             if self.__coordinates != {}:
-                factor.location = self.__location(row)
+                location = self.__location(row)
+                factor.location = location.to_ref()
             indicator.impact_factors.append(factor)
 
         log.debug("write entities")
