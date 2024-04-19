@@ -50,7 +50,9 @@ def generate_lcia_compilation(filename: str,
 
     method_list = []
     for method, indicators in indicator_dict.items():
-        df = lciafmt.get_mapped_method(method_id = method, indicators=indicators)
+        df = lciafmt.get_mapped_method(method_id = method,
+                                       indicators = indicators,
+                                       methods = [method])
         method_list.append(df)
 
     df = pd.concat(method_list, ignore_index=True)

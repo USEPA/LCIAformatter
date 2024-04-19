@@ -7,21 +7,21 @@ indicators:
       code: GHG
 
     Ozone depletion potential:
-      method: TRACI2.1
+      method: TRACI 2.1
       indicator: Ozone depletion
       code: ODP
 
     Eutrophication potential:
-      method: TRACI2.1
+      method: TRACI 2.1
       indicator: Eutrophication
       code: EP
 
     Acidification potential:
-      method: TRACI2.1
+      method: TRACI 2.1
       indicator: Acidification
       code: AP
 
     Photochemical oxidant creation potential:
-      method: TRACI2.1
+      method: TRACI 2.1
       indicator: Smog formation
       code: POCP
