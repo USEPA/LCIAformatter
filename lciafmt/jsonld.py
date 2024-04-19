@@ -16,9 +16,11 @@ except ImportError:
                       "openLCA v2.0. Use pip install olca-schema")
 
 from esupy.util import make_uuid
+from esupy.bibtex import generate_sources
 from .util import is_non_empty_str, generate_method_description,\
-    log, pkg_version_number
+    log, pkg_version_number, datapath, check_as_class
 from .location import extract_coordinates
+
 
 location_meta = ('https://raw.githubusercontent.com/GreenDelta/data/'
                  'master/refdata/locations.csv')
@@ -34,6 +36,9 @@ class Writer(object):
         self.__coordinates = {}
         self.__locations = {}
         self.__location_meta = pd.read_csv(location_meta).fillna('')
+        self.__sources = {}
+        self.__bibids = {}
+        self.__bibpath = datapath / 'lcia.bib'
 
     def __enter__(self):
         return self
@@ -44,6 +49,15 @@ class Writer(object):
     def write(self, df: pd.DataFrame, write_flows=False):
         if any(df['Location'] != ''):
             self.__coordinates = extract_coordinates(group='states')
+
+        for method in df['Method'].unique():
+            m = check_as_class(method)
+            bib = m.get_metadata().get('bib_id')
+            if bib:
+                self.__bibids[bib] = m.value
+        for i in generate_sources(self.__bibpath, self.__bibids):
+            self.__sources[i.id] = i
+
         for _, row in df.iterrows():
             indicator = self.__indicator(row)
             factor = o.ImpactFactor()
@@ -60,7 +74,8 @@ class Writer(object):
         dicts = [
             self.__indicators,
             self.__methods,
-            self.__locations
+            self.__locations,
+            self.__sources
         ]
         if write_flows:
             dicts.append(self.__flows)
@@ -72,7 +87,6 @@ class Writer(object):
         uid = row['Indicator UUID']
         if not is_non_empty_str(uid):
             uid = make_uuid(row['Method'], row['Indicator'])
-
         ind = self.__indicators.get(uid)
         if ind is not None:
             return ind
@@ -89,21 +103,19 @@ class Writer(object):
                                                       row['Indicator'])
         ind.impact_factors = []
         ind.version = pkg_version_number
+        source = self._return_source(row['Method'])
+        if source:
+            ind.source = source.to_ref()
         self.__indicators[uid] = ind
 
         method = self.__method(row)
-        ref = o.ImpactCategory()
-        ref.id = uid
-        ref.name = ind.name
-        ref.ref_unit = ind.ref_unit
-        method.impact_categories.append(ref)
+        method.impact_categories.append(ind.to_ref())
         return ind
 
     def __method(self, row) -> o.ImpactMethod:
         uid = row['Method UUID']
         if not is_non_empty_str(uid):
             uid = make_uuid(row['Method'])
-        description = generate_method_description(row['Method'])
         m = self.__methods.get(uid)
         if m is not None:
             return m
@@ -113,7 +125,7 @@ class Writer(object):
         m.name = row['Method']
         m.version = pkg_version_number
         m.impact_categories = []
-        m.description = description
+        m.description = generate_method_description(row['Method'])
         self.__methods[uid] = m
         return m
 
@@ -173,3 +185,9 @@ class Writer(object):
             longitude=meta.Longitude)
         self.__locations[meta.ID] = location
         return location
+
+    def _return_source(self, name):
+        for uid, s in self.__sources.items():
+            if s.name == name:
+                return s
+        return None

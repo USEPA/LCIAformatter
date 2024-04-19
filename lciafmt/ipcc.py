@@ -9,6 +9,10 @@ import pandas as pd
 from lciafmt.util import log, datapath
 from lciafmt.df import lciafmt_cols
 
+### IPCC data for each AR were sourced from the following:
+## AR4: Table 2.14 (https://archive.ipcc.ch/publications_and_data/ar4/wg1/en/errataserrata-errata.html#table214)
+## AR5: Table 8.A.1 (https://archive.ipcc.ch/pdf/assessment-report/ar5/wg1/WG1AR5_Chapter08_FINAL.pdf)
+## AR6: Table 7.SM.7 (https://github.com/IPCC-WG1/Chapter-7/blob/main/data_output/7sm/metrics_supplement_cleaned.csv)
 
 def get() -> pd.DataFrame:
     """Generate a method for IPCC in standard format.
