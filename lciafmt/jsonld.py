@@ -47,7 +47,7 @@ class Writer(object):
         if 'category' not in df:
             df['category'] = df['Method']
 
-        for method in df['Method'].unique():
+        for method in df['source_method'].unique():
             m = check_as_class(method)
             bib = m.get_metadata().get('bib_id')
             if bib:
