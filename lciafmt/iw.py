@@ -18,12 +18,13 @@ except ImportError:
               "and retry.")
 
 
-def get(file=None, url=None) -> pd.DataFrame:
+def get(file=None, url=None, region=None) -> pd.DataFrame:
     """Generate a method for ImpactWorld+ in standard format.
 
     :param file: str, alternate filepath for method, defaults to file stored
         in cache
     :param url: str, alternate url for method, defaults to url in method config
+    :param region: str, 3-digit code for Region; if not specified uses Global values
     :return: DataFrame of method in standard format
     """
     log.info("get method ImpactWorld+")
@@ -44,7 +45,7 @@ def get(file=None, url=None) -> pd.DataFrame:
         if url is None:
             url = "https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1"
         f = cache.get_or_download(fname, url)
-    df = _read(f)
+    df = _read(f, region)
 
     # Identify midpoint and endpoint records and differentiate in data frame.
     end_point_units = ['DALY', 'PDF.m2.yr']
@@ -58,7 +59,7 @@ def get(file=None, url=None) -> pd.DataFrame:
     return df
 
 
-def _read(access_file: str) -> pd.DataFrame:
+def _read(access_file: str, region) -> pd.DataFrame:
     """Read the Access database at passed access_file into DataFrame."""
     log.info(f"read ImpactWorld+ from file {access_file}")
 
@@ -84,6 +85,7 @@ def _read(access_file: str) -> pd.DataFrame:
                       flow_category=row[3] + "/" + row[4],
                       flow_unit=row[8],
                       cas_number=format_cas(row[6]).lstrip("0"),
+                      location='Global',
                       factor=row[7])
 
     """List relevant sheets in Impact World Access file. Second item in tuple
@@ -103,11 +105,15 @@ def _read(access_file: str) -> pd.DataFrame:
                        ("CF - regionalized - EutroFW - aggregated", "Compartment"),
                        ]
 
-    for x in regional_sheets:
-        if x[0] == "CF - regionalized - PartMatterForm - aggregated":
+    for sheet, compartment in regional_sheets:
+        if sheet == "CF - regionalized - PartMatterForm - aggregated":
             # Extract global flows from the particulate matter Access sheet
-            # Structure of this sheet is
-            sql = "SELECT * FROM [" + x[0] + "] WHERE (([" + x[0] + "].Region In('World')))"
+
+            region_dict = {
+                'USA': 'US+Latin America',
+                }
+            reg = region_dict.get(region, 'World')
+            sql = f"SELECT * FROM [{sheet}] WHERE (([{sheet}].Region In('{reg}')))"
             crsr.execute(sql)
             rows = crsr.fetchall()
 
@@ -120,10 +126,15 @@ def _read(access_file: str) -> pd.DataFrame:
                               flow_category="Air/" + row.__getattribute__("Archetype 1"),
                               flow_unit=row.Unit.strip('[]').split('/')[1],
                               cas_number="",
+                              location=reg,
                               factor=row.CFvalue)
 
         else:
-            sql = "SELECT * FROM [" + x[0] + "] WHERE (([" + x[0] + "].Resolution In('Global', 'Not regionalized')))"
+            reg = region if region else 'GLO'
+            sql = (f"SELECT * FROM [{sheet}] WHERE "
+                   f"(([{sheet}].[Region code] In('{reg}')) OR "
+                   f"([{sheet}].Resolution In('Not regionalized')))")
+            # ^^ 'Not regionalized' applies in all cases
             crsr.execute(sql)
             rows = crsr.fetchall()
 
@@ -132,7 +143,7 @@ def _read(access_file: str) -> pd.DataFrame:
 
             for row in rows:
                 # Add water to detailed context information available in Access file
-                if x[0] in ['CF - regionalized - WaterScarc - aggregated',
+                if sheet in ['CF - regionalized - WaterScarc - aggregated',
                             'CF - regionalized - WaterAvailab_HH - aggregated']:
                     flow_stmt = 'Water, ' + row.__getattribute__('Elem flow')
                 else:
@@ -140,14 +151,14 @@ def _read(access_file: str) -> pd.DataFrame:
 
                 # Define context/compartment for flow based on impact category.
                 if {'Compartment', 'Subcompartment'}.issubset(cols):
-                    category_stmt = row.Compartment + "/" + row.Subcompartment
-                elif x[0] in ['CF - regionalized - LandTrans - aggregated',
-                              'CF - regionalized - LandOcc - aggregated',
-                              'CF - regionalized - WaterScarc - aggregated',
-                              'CF - regionalized - WaterAvailab_HH - aggregated']:
+                    category_stmt = f"{row.Compartment}/{row.Subcompartment}"
+                elif sheet in ['CF - regionalized - LandTrans - aggregated',
+                               'CF - regionalized - LandOcc - aggregated',
+                               'CF - regionalized - WaterScarc - aggregated',
+                               'CF - regionalized - WaterAvailab_HH - aggregated']:
                     category_stmt = flow_stmt
                 else:
-                    category_stmt = x[1]
+                    category_stmt = compartment
 
                 dfutil.record(records,
                               method="ImpactWorld+",
@@ -157,6 +168,7 @@ def _read(access_file: str) -> pd.DataFrame:
                               flow_category=category_stmt,
                               flow_unit=row.Unit.strip('[]').split('/')[1],
                               cas_number="",
+                              location=reg,
                               factor=row.__getattribute__('Weighted Average'))
 
     return dfutil.data_frame(records)

@@ -22,6 +22,7 @@ import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
 import lciafmt.endpoint as ep
 import lciafmt.custom as custom
+from lciafmt.custom import generate_lcia_compilation
 
 
 from enum import Enum
@@ -153,10 +154,11 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
     x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID']
                       ].duplicated(keep=False)]
     duplicates = list(set(zip(x.Indicator, x.Flowable)))
-    util.log.warn(f'Identified duplicate factors for {len(duplicates)} '
-                  f'flow/indicator combinations and {len(x)} factors.')
-    util.log.debug(f'{duplicates}')
-    util.log.warn(f'Use collapse_indicators() to drop these duplicates.')
+    if len(duplicates) > 0:
+        util.log.warning(f'Identified duplicate factors for {len(duplicates)} '
+                         f'flow/indicator combinations and {len(x)} factors.')
+        util.log.debug(f'{duplicates}')
+        util.log.warning('Use collapse_indicators() to drop these duplicates.')
     return mapped
 
 
