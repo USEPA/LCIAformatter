@@ -1,7 +1,7 @@
 name: EPA EPD
 rename_indicators: True
 indicators:
-    Climate change:
+    Greenhouse Gases:
       method: IPCC
       indicator: AR5-100
       code: GHG
