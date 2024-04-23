@@ -264,22 +264,12 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
     return df
 
 
-def assign_state_names(df):
-    import flowsa
-    f = flowsa.location.get_state_FIPS(abbrev=True).drop(columns='County')
-    f['State'] = f['State'].apply(lambda x: f"US-{x}")
-    fd = f.set_index('FIPS').to_dict()['State']
-    fd['00000'] = 'US'
-    df['Location'] = df['Location'].replace(fd)
-    return df.dropna(subset='Location')
-
-
 #%%
 if __name__ == "__main__":
     method = lciafmt.Method.TRACI2_2
     df_orig = get(method)
     #%%
-    df = assign_state_names(df_orig)
+    df = lciafmt.location.assign_state_names(df_orig)
     df = df.query('~Location.str.isnumeric()').reset_index(drop=True)
     df = df.query('Indicator.str.contains("Eutrophication")').reset_index(drop=True)
     # df = df.query('Location != ""').reset_index(drop=True)

@@ -19,11 +19,8 @@ from esupy.util import make_uuid
 from esupy.bibtex import generate_sources
 from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number, datapath, check_as_class
-from .location import extract_coordinates
+from .location import extract_coordinates, location_meta
 
-
-location_meta = ('https://raw.githubusercontent.com/GreenDelta/data/'
-                 'master/refdata/locations.csv')
 
 class Writer(object):
 
