@@ -17,6 +17,7 @@ except ImportError:
 
 from esupy.util import make_uuid
 from esupy.bibtex import generate_sources
+import fedelemflowlist
 from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number, datapath, check_as_class
 
@@ -66,7 +67,14 @@ class Writer(object):
             self.__sources
         ]
         if write_flows:
-            dicts.append(self.__flows)
+            log.info("writing flows from the fedelemflowlist ...")
+            flowlist = fedelemflowlist.get_flows()
+            flow_dict = self.__flows
+            flows = flowlist.query('`Flow UUID` in @flow_dict.keys()')
+            if len(flows) != len(flow_dict):
+                log.warning("not all flows written...")
+            fedelemflowlist.write_jsonld(flows, path=None,
+                                         zw = self.__writer)
         for d in dicts:
             for v in d.values():
                 self.__writer.write(v)
