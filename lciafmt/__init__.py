@@ -22,6 +22,7 @@ import lciafmt.fedefl_inventory as fedefl_inventory
 import lciafmt.util as util
 import lciafmt.endpoint as ep
 import lciafmt.custom as custom
+from lciafmt.custom import generate_lcia_compilation
 
 
 from enum import Enum
