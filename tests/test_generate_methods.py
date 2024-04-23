@@ -51,6 +51,18 @@ def test_method_write_json():
                            name = 'test_FEDEFL',
                            write_flows=True)
 
+    # # Test TRACI2.2 Eutrophication
+    # method_id = lciafmt.Method.TRACI2_2
+    # method = lciafmt.get_mapped_method(method_id = method_id,
+    #                                    indicators=['Eutrophication (Marine)'],
+    #                                    download_from_remote=True)
+    # method = lciafmt.location.assign_state_names(method)
+    # ## ^ requires flowsa
+    # method = method.query('~Location.str.isnumeric()').reset_index(drop=True)
+    # lciafmt.util.save_json(method_id = method_id,
+    #                        name = 'test_Eutro',
+    #                        mapped_data = method,
+    #                        write_flows=False)
 
 if __name__ == "__main__":
     # test_generate_methods()
