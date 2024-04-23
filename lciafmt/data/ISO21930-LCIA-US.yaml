@@ -1,4 +1,4 @@
-name: EPA EPD
+name: ISO21930-LCIA-US
 rename_indicators: True
 indicators:
     Greenhouse Gases:
