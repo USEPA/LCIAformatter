@@ -1,4 +1,5 @@
 name: ISO21930-LCIA-US
+version: v0.1
 rename_indicators: True
 indicators:
     Greenhouse Gases:

@@ -69,9 +69,3 @@ def generate_lcia_compilation(filename: str,
 
     return df
 
-
-if __name__ == "__main__":
-    df = generate_lcia_compilation('ISO21930-LCIA-US.yaml')
-    name = df['Method'][0]
-    lciafmt.util.store_method(df, method_id=None, name=name)
-    lciafmt.util.save_json(method_id=None, mapped_data=df, name=name)
