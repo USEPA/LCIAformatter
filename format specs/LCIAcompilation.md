@@ -2,7 +2,7 @@
 
 Custom methods consisting of indicators from multiple indicators can be created using `lciafmt.generate_lcia_compilation()`. 
 This requires an input `.yaml` file with the following specifications.
-See [compilation.yaml](../../tests/compilation.yaml) for an example.
+See [compilation.yaml](../tests/compilation.yaml) for an example.
 
 ```
 name: # Name given to new method
