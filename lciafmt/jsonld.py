@@ -30,6 +30,7 @@ class Writer(object):
         self.__indicators = {}
         self.__flows = {}
         self.__sources = {}
+        self.__sources_to_write = {}
         self.__bibids = {}
         self.__bibpath = datapath / 'lcia.bib'
 
@@ -64,8 +65,7 @@ class Writer(object):
                     self.__bibids[bib] = m.value
                 elif isinstance(bib, dict):
                     for k,v in bib.items():
-                        if k in indicators:
-                            self.__bibids[v] = f'{m.value} {k}'
+                        self.__bibids[v] = f'{m.value} {k}'
         for i in generate_sources(self.__bibpath, self.__bibids):
             self.__sources[i.id] = i
 
@@ -83,7 +83,7 @@ class Writer(object):
         dicts = [
             self.__indicators,
             self.__methods,
-            self.__sources
+            self.__sources_to_write
         ]
         if write_flows:
             dicts.append(self.__flows)
@@ -115,11 +115,13 @@ class Writer(object):
         ind.impact_factors = []
         ind.version = pkg_version_number
         source = (self._return_source(row['source_method']) or
-                  self._return_source(row['Indicator']) or
+                  self._return_source(row['Method'] + ' ' +
+                                      row['Indicator']) or
                   self._return_source(row['source_method'] + ' ' +
                                       row['source_indicator']))
         if source:
             ind.source = source.to_ref()
+            self.__sources_to_write[source.id] = source
         self.__indicators[uid] = ind
 
         method = self.__method(row)
@@ -141,6 +143,7 @@ class Writer(object):
         source = self._return_source(row['Method'])
         if source:
             m.source = source.to_ref()
+            self.__sources_to_write[source.id] = source
         m.impact_categories = []
         m.description = generate_method_description(row['Method'])
         self.__methods[uid] = m
