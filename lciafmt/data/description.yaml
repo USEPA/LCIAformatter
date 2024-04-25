@@ -1,26 +1,27 @@
-description:
-    '[Method][version] is built from LCIA Formatter v[LCIAfmt_version] and flows from the Federal 
-    Elementary Flow List (FEDEFL) v[FEDEFL_version]
-    
+base: >+
+    [Method][version] is built from LCIA Formatter v[LCIAfmt_version] and
+    flows from the Federal Elementary Flow List (FEDEFL) v[FEDEFL_version]
+
+description: >+
     [Method] source file: [url]
     
     Source citation: [citation]
     
-    [Method] flowable and context input files are maintained in the FEDEFL GitHub Repository: 
-    https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List 
+    [Method] flowable and context input files are maintained in the FEDEFL
+    GitHub Repository: https://github.com/USEPA/fedelemflowlist
     
-        
-    The LCIA Formatter (https://github.com/USEPA/LCIAformatter) applies [Method] 
-    characterization factors to flows using the mapping housed in the FEDEFL. 
-    The flowable and context input files for [Method] are used by the LCIA Formatter 
-    to translate the names from the [Method] source file and generate a mapping 
-    file for the FEDEFL. This file contains all of the accepted flowable and context 
+    The LCIA Formatter (https://github.com/USEPA/LCIAformatter) applies [Method]
+    characterization factors to flows using the mapping housed in the FEDEFL.
+    The flowable and context input files for [Method] are used by the LCIA Formatter
+    to translate the names from the [Method] source file and generate a mapping
+    file for the FEDEFL. This file contains all of the accepted flowable and context
     combinations which can be mapped to [Method] characterization factors. It also
     includes target UUID, units, and conversion factors as well as tracking
     who mapped and verified each record and when they were last updated.
-    
-    
-    '
 
-indicator:
-    '[Indicator] is built from LCIA Formatter v[LCIAfmt_version] for use with [Method]'
+indicator: >
+    [Indicator] is built with LCIA Formatter v[LCIAfmt_version] for use with [Method]
+
+source_indicator: >
+    [Indicator] is built with LCIA Formatter v[LCIAfmt_version] based on
+    [source_indicator] in [Method]

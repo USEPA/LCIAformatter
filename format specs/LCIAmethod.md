@@ -6,9 +6,9 @@ The flow name fields match those in the fedelemflowlist [FlowList](https://githu
  Index | Field | Type | Required |  Note |
 | ---- | ------ |  ---- | ---------| -----  |
  0 | Method | string | Y | The LCIA method name, e.g. 'Traci 2.1' |
- 1 | Method UUID | string | Y | ID for the method  |
+ 1 | Method UUID | string | N | ID for the method, generated if not supplied  |
  2 | Indicator | string | Y | Name of indicator, e.g. 'Acidification Potential' |
- 3 | Indicator UUID| string | Y | ID for the indicator |
+ 3 | Indicator UUID| string | N | ID for the indicator, generated if not supplied |
  4 | Indicator unit | string | Y | The unit for the indicator, e.g. 'kg CO2 eq' |
  5 | Flowable | string | Y | The flow name, e.g. 'Sulfur dioxide' |
  6 | Flow UUID | string | Y | ID of the flow |
@@ -18,3 +18,4 @@ The flow name fields match those in the fedelemflowlist [FlowList](https://githu
  10 | Location | string | N | Name of the location
  11 | Location UUID | string | N | ID of the location
  12 | Characterization factor | float | Y | LCIA characterization factor
+ 13 | Code | string | N | string abbreviation for indicator
