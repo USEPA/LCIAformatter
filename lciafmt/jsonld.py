@@ -47,11 +47,25 @@ class Writer(object):
         if 'category' not in df:
             df['category'] = df['Method']
 
-        for method in df['source_method'].unique():
+        methods = pd.unique(
+                df[['Method', 'source_method']].values.ravel('K'))
+        indicators = pd.unique(
+                df[['Indicator', 'source_indicator']].values.ravel('K'))
+
+        # identify all relevant bib_ids and sources
+        for method in methods:
             m = check_as_class(method)
+            if isinstance(m, str):
+                # not a recognized method, so no bib_id
+                continue
             bib = m.get_metadata().get('bib_id')
             if bib:
-                self.__bibids[bib] = m.value
+                if isinstance(bib, str):
+                    self.__bibids[bib] = m.value
+                elif isinstance(bib, dict):
+                    for k,v in bib.items():
+                        if k in indicators:
+                            self.__bibids[v] = f'{m.value} {k}'
         for i in generate_sources(self.__bibpath, self.__bibids):
             self.__sources[i.id] = i
 
@@ -100,7 +114,10 @@ class Writer(object):
                                                       row['source_indicator'])
         ind.impact_factors = []
         ind.version = pkg_version_number
-        source = self._return_source(row['Method'])
+        source = (self._return_source(row['source_method']) or
+                  self._return_source(row['Indicator']) or
+                  self._return_source(row['source_method'] + ' ' +
+                                      row['source_indicator']))
         if source:
             ind.source = source.to_ref()
         self.__indicators[uid] = ind
@@ -121,6 +138,9 @@ class Writer(object):
         m.id = uid
         m.name = row['Method']
         m.version = pkg_version_number
+        source = self._return_source(row['Method'])
+        if source:
+            m.source = source.to_ref()
         m.impact_categories = []
         m.description = generate_method_description(row['Method'])
         self.__methods[uid] = m
@@ -160,6 +180,6 @@ class Writer(object):
 
     def _return_source(self, name):
         for uid, s in self.__sources.items():
-            if s.name == name:
+            if s.name == name or name.startswith(s.name):
                 return s
         return None
