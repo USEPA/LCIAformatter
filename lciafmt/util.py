@@ -272,7 +272,8 @@ def download_method(method_id):
     download_from_remote(meta, paths)
 
 
-def save_json(method_id, mapped_data, method=None, name='', write_flows=False):
+def save_json(method_id, mapped_data, method=None, name='',
+              write_flows=False, **kwargs):
     """Save a method as json file in the outputpath.
 
     :param method_id: class Method
@@ -288,12 +289,13 @@ def save_json(method_id, mapped_data, method=None, name='', write_flows=False):
         filename = name
     if method is not None:
         filename = method.replace('/', '_')
-        mapped_data = mapped_data[mapped_data['Method'] == method]
+        mapped_data = mapped_data.query('Method == @method').reset_index(drop=True)
     path = OUTPUTPATH / meta.category
     mkdir_if_missing(OUTPUTPATH)
     json_pack = path / f'{filename}_json_v{meta.tool_version}.zip'
     json_pack.unlink(missing_ok=True)
-    lciafmt.to_jsonld(mapped_data, json_pack, write_flows=write_flows)
+    lciafmt.to_jsonld(mapped_data, json_pack, write_flows=write_flows,
+                      **kwargs)
 
 
 def compare_to_remote(local_df, method_id):
