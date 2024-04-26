@@ -76,6 +76,10 @@
     "path": "ipcc",
     "case_insensitivity": "False",
     "url": "https://github.com/USEPA/LCIAformatter/blob/master/lciafmt/data/IPCC_GWP_values.csv",
+    "bib_id": {"AR6": "smith_earths_2021",
+               "AR5": "myhre_anthropogenic_2013",
+               "AR4": "forster_changes_2007"
+                },
     "citation": "Forster and Ramaswamy 2007 (AR4), Myhre and Shindell 2013 (AR5), Forster and Storelvmo 2021 (AR6)",
     "source_type": "csv"
   }

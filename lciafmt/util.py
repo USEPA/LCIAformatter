@@ -21,7 +21,7 @@ from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
-pkg_version_number = '1.1.1'
+pkg_version_number = '1.1.2'
 MODULEPATH = Path(__file__).resolve().parent
 datapath = MODULEPATH / 'data'
 
@@ -60,6 +60,7 @@ def set_lcia_method_meta(method_id):
     lcia_method_meta.tool_version = pkg_version_number
     lcia_method_meta.ext = write_format
     lcia_method_meta.git_hash = GIT_HASH
+    lcia_method_meta.date_created = pd.to_datetime('today').strftime('%Y-%m-%d %H:%M:%S')
     return lcia_method_meta
 
 
@@ -170,18 +171,22 @@ def check_as_class(method_id):
     return method_id
 
 
-def generate_method_description(name: str, indicator: str='') -> str:
+def generate_method_description(name: str,
+                                indicator: str='',
+                                source_indicator: str=''
+                                ) -> str:
     with open(datapath / "description.yaml") as f:
         generic = yaml.safe_load(f)
-    desc = generic['description']
+    desc = generic['base']
     method = check_as_class(name)
-    if method is None:
+    if type(method) is str:
         method_meta = {}
         method_meta['name'] = name
         method_meta['url'] = ''
         method_meta['citation'] = ''
     else:
         method_meta = method.get_metadata()
+        desc += generic['description']
     if 'detail_note' in method_meta:
         desc += method_meta['detail_note']
     if 'methods' in method_meta:
@@ -192,6 +197,8 @@ def generate_method_description(name: str, indicator: str='') -> str:
             log.debug(f'{name} not found in methods.json')
     if indicator:
         desc = generic['indicator']
+    if source_indicator:
+        desc = generic['source_indicator'] 
 
     # Replace tagged fields
     if 'version' in method_meta:
@@ -206,6 +213,7 @@ def generate_method_description(name: str, indicator: str='') -> str:
             .replace('[citation]', method_meta['citation'])
             .replace('[url]', method_meta['url'])
             .replace('[Indicator]', indicator)
+            .replace('[source_indicator]', source_indicator)
             )
 
     return desc
@@ -264,7 +272,8 @@ def download_method(method_id):
     download_from_remote(meta, paths)
 
 
-def save_json(method_id, mapped_data, method=None, name='', write_flows=False):
+def save_json(method_id, mapped_data, method=None, name='',
+              write_flows=False, **kwargs):
     """Save a method as json file in the outputpath.
 
     :param method_id: class Method
@@ -280,12 +289,13 @@ def save_json(method_id, mapped_data, method=None, name='', write_flows=False):
         filename = name
     if method is not None:
         filename = method.replace('/', '_')
-        mapped_data = mapped_data[mapped_data['Method'] == method]
+        mapped_data = mapped_data.query('Method == @method').reset_index(drop=True)
     path = OUTPUTPATH / meta.category
     mkdir_if_missing(OUTPUTPATH)
     json_pack = path / f'{filename}_json_v{meta.tool_version}.zip'
     json_pack.unlink(missing_ok=True)
-    lciafmt.to_jsonld(mapped_data, json_pack, write_flows=write_flows)
+    lciafmt.to_jsonld(mapped_data, json_pack, write_flows=write_flows,
+                      **kwargs)
 
 
 def compare_to_remote(local_df, method_id):

@@ -2,7 +2,7 @@
 
 import pytest
 import lciafmt
-from lciafmt.util import store_method
+from lciafmt.util import store_method, MODULEPATH
 
 skip_list = ['ImpactWorld'] # requires pyodbc
 
@@ -41,7 +41,8 @@ def test_method_write_json():
     lciafmt.util.save_json(method_id = method_id,
                            name = 'test_TRACI',
                            mapped_data = method,
-                           write_flows=True)
+                           write_flows=True,
+                           preferred_only=True)
     # Test FEDEFL Inventory
     method_id = lciafmt.Method.FEDEFL_INV
     method = lciafmt.get_mapped_method(method_id = method_id,
@@ -64,6 +65,16 @@ def test_method_write_json():
     #                        mapped_data = method,
     #                        write_flows=False)
 
+
+def test_compilation_method():
+    df = lciafmt.generate_lcia_compilation('compilation.yaml',
+                                           filepath=MODULEPATH.parent / 'tests')
+    name = df['Method'][0]
+    lciafmt.util.store_method(df, method_id=None, name=name)
+    lciafmt.util.save_json(method_id=None, mapped_data=df, name=name)
+
+
 if __name__ == "__main__":
     # test_generate_methods()
-    test_method_write_json()
+    # test_method_write_json()
+    test_compilation_method()
