@@ -17,6 +17,7 @@ except ImportError:
 
 from esupy.util import make_uuid
 from esupy.bibtex import generate_sources
+import fedelemflowlist
 from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number, datapath, check_as_class
 
@@ -39,7 +40,7 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pd.DataFrame, write_flows=False):
+    def write(self, df: pd.DataFrame, write_flows=False, preferred_only=False):
         if 'source_method' not in df:
             df['source_method'] = df['Method']
         if 'source_indicator' not in df:
@@ -72,7 +73,16 @@ class Writer(object):
             self.__sources
         ]
         if write_flows:
-            dicts.append(self.__flows)
+            log.info("writing flows from the fedelemflowlist ...")
+            flowlist = fedelemflowlist.get_flows(preferred_only)
+            flow_dict = self.__flows
+            flows = flowlist.query('`Flow UUID` in @flow_dict.keys()')
+            if preferred_only:
+                log.info("writing only preferred flows ...")
+            elif len(flows) != len(flow_dict):
+                log.warning("not all flows written...")
+            fedelemflowlist.write_jsonld(flows, path=None,
+                                         zw = self.__writer)
         for d in dicts:
             for v in d.values():
                 self.__writer.write(v)
