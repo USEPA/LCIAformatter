@@ -239,10 +239,12 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                 factor = row['Average Target Value']
                 indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
                              else "Eutrophication (Marine)")
+                unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
+                        else "kg N eq")
                 
                 dfutil.record(records,
                               indicator=indicator,
-                              indicator_unit="kg N eq",
+                              indicator_unit=unit,
                               flow=flow,
                               flow_category = flow_category,
                               flow_unit="kg",
@@ -253,7 +255,7 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                 # openLCA requires a factor without location for use by default
                     dfutil.record(records,
                                   indicator=indicator,
-                                  indicator_unit="kg N eq",
+                                  indicator_unit=unit,
                                   flow=flow,
                                   flow_category = flow_category,
                                   flow_unit="kg",
