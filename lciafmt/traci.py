@@ -222,12 +222,14 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
     records = []
     flow_category=[]
     for i, row in source_df.iterrows():
+        skip = True
         sector = row['Sector']
         flow = row['Flowable']
         aggregation = row['Aggregation Target']
-        if  aggregation in ("US_Nation", "US_States", "US_Counties"):
+
+        if aggregation in ("US_Nation", "US_States", "US_Counties"):
             if flow == "Flow_N" or sector == "Genrl":
-                region = row['Name']
+                skip = False
                 region_id = str(row['Target ID'])
                 if aggregation == "US_Nation":
                     region_id = "00000"
@@ -235,32 +237,38 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                     region_id = region_id.ljust(5, '0')
                 else:
                     region_id = region_id.rjust(5, '0')
-                flow_category = context_dict.get(row['Emit Compartment'], "n/a")
-                factor = row['Average Target Value']
-                indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
-                             else "Eutrophication (Marine)")
-                unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
-                        else "kg N eq")
-                
+                region = region_id
+        if aggregation in ("World", "Countries") & sector == "Genrl":
+            region = row['Name']
+            skip = False if region != "United States" else True
+            ## ^^ Skip US as country in favor of aggregation == "US_Nation"
+        if not skip:
+            flow_category = context_dict.get(row['Emit Compartment'], "n/a")
+            factor = row['Average Target Value']
+            indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
+                         else "Eutrophication (Marine)")
+            unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
+                    else "kg N eq")
+
+            dfutil.record(records,
+                          indicator=indicator,
+                          indicator_unit=unit,
+                          flow=flow,
+                          flow_category=flow_category,
+                          flow_unit="kg",
+                          factor=factor,
+                          location=region)
+
+            if aggregation == "US_Nation":
+            # openLCA requires a factor without location for use by default
                 dfutil.record(records,
                               indicator=indicator,
                               indicator_unit=unit,
                               flow=flow,
-                              flow_category = flow_category,
+                              flow_category=flow_category,
                               flow_unit="kg",
                               factor=factor,
-                              location=region_id)
-
-                if aggregation == "US_Nation":
-                # openLCA requires a factor without location for use by default
-                    dfutil.record(records,
-                                  indicator=indicator,
-                                  indicator_unit=unit,
-                                  flow=flow,
-                                  flow_category = flow_category,
-                                  flow_unit="kg",
-                                  factor=factor,
-                                  location="")
+                              location="")
 
     df = dfutil.data_frame(records)
     return df
