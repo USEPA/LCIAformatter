@@ -45,9 +45,13 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pd.DataFrame, write_flows=False, preferred_only=False):
-        if any(df['Location'] != ''):
-            self.__coordinates = extract_coordinates(group='states')
+    def write(self, df: pd.DataFrame,
+              write_flows=False,
+              preferred_only=False,
+              region=None #states, countries
+              ):
+        if any(df['Location'] != '') and region is not None:
+            self.__coordinates = extract_coordinates(group=region)
         if 'source_method' not in df:
             df['source_method'] = df['Method']
         if 'source_indicator' not in df:

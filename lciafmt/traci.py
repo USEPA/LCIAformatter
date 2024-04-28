@@ -238,7 +238,7 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                 else:
                     region_id = region_id.rjust(5, '0')
                 region = region_id
-        if aggregation in ("World", "Countries") & sector == "Genrl":
+        if (aggregation in ("World", "Countries")) and sector == "Genrl":
             region = row['Name']
             skip = False if region != "United States" else True
             ## ^^ Skip US as country in favor of aggregation == "US_Nation"
@@ -286,4 +286,4 @@ if __name__ == "__main__":
     mapping = method.get_metadata()['mapping']
     #%%
     df2 = lciafmt.map_flows(df, system=mapping)
-    lciafmt.to_jsonld(df2, 'test.zip')
+    lciafmt.to_jsonld(df2, 'test.zip', region='states')
