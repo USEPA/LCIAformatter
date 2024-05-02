@@ -226,11 +226,10 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
         sector = row['Sector']
         flow = row['Flowable']
         aggregation = row['Aggregation Target']
-
+        region_id = str(row['Target ID'])
         if aggregation in ("US_Nation", "US_States", "US_Counties"):
             if flow == "Flow_N" or sector == "Genrl":
                 skip = False
-                region_id = str(row['Target ID'])
                 if aggregation == "US_Nation":
                     region_id = "00000"
                 elif len(region_id) < 3:
@@ -240,8 +239,14 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                 region = region_id
         if (aggregation in ("World", "Countries")) and sector == "Genrl":
             region = row['Name']
-            skip = False if region != "United States" else True
-            ## ^^ Skip US as country in favor of aggregation == "US_Nation"
+            if region == "United States":
+                skip = True
+                ## ^^ Skip US as country in favor of aggregation == "US_Nation"
+            elif region == "Russian Federation" and region_id == "254":
+                skip = True
+                ## Two entries for Russian Federation, 254 is a very small island
+            else:
+                skip = False
         if not skip:
             flow_category = context_dict.get(row['Emit Compartment'], "n/a")
             factor = row['Average Target Value']
@@ -271,7 +276,20 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                               location="")
 
     df = dfutil.data_frame(records)
-    return df
+
+    # Resolve duplicate factors for a single location
+    cols_to_keep = [c for c in df.columns if
+                    c not in ('Characterization Factor')]
+    duplicates = df[df.duplicated(subset=cols_to_keep, keep=False)]
+    ## United States Minor Outlying Islands and Jan Mayen
+    # are unexplicably shown multiple times with different location IDs.
+    # Average those factors together.
+    df2 = (df.groupby(cols_to_keep, as_index=False)
+             .agg({'Characterization Factor': 'mean'}))
+    log.debug(f'{len(duplicates)} duplicate locations consolidated to '
+             f'{(len(duplicates)-(len(df)-len(df2)))}')
+
+    return df2
 
 
 #%%
