@@ -41,7 +41,8 @@ def test_method_write_json():
     lciafmt.util.save_json(method_id = method_id,
                            name = 'test_TRACI',
                            mapped_data = method,
-                           write_flows=True)
+                           write_flows=True,
+                           preferred_only=True)
     # Test FEDEFL Inventory
     method_id = lciafmt.Method.FEDEFL_INV
     method = lciafmt.get_mapped_method(method_id = method_id,

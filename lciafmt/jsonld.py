@@ -17,6 +17,7 @@ except ImportError:
 
 from esupy.util import make_uuid
 from esupy.bibtex import generate_sources
+import fedelemflowlist
 from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number, datapath, check_as_class
 
@@ -30,6 +31,7 @@ class Writer(object):
         self.__indicators = {}
         self.__flows = {}
         self.__sources = {}
+        self.__sources_to_write = {}
         self.__bibids = {}
         self.__bibpath = datapath / 'lcia.bib'
 
@@ -39,7 +41,7 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pd.DataFrame, write_flows=False):
+    def write(self, df: pd.DataFrame, write_flows=False, preferred_only=False):
         if 'source_method' not in df:
             df['source_method'] = df['Method']
         if 'source_indicator' not in df:
@@ -47,11 +49,24 @@ class Writer(object):
         if 'category' not in df:
             df['category'] = df['Method']
 
-        for method in df['source_method'].unique():
+        methods = pd.unique(
+                df[['Method', 'source_method']].values.ravel('K'))
+        indicators = pd.unique(
+                df[['Indicator', 'source_indicator']].values.ravel('K'))
+
+        # identify all relevant bib_ids and sources
+        for method in methods:
             m = check_as_class(method)
+            if isinstance(m, str):
+                # not a recognized method, so no bib_id
+                continue
             bib = m.get_metadata().get('bib_id')
             if bib:
-                self.__bibids[bib] = m.value
+                if isinstance(bib, str):
+                    self.__bibids[bib] = m.value
+                elif isinstance(bib, dict):
+                    for k,v in bib.items():
+                        self.__bibids[v] = f'{m.value} {k}'
         for i in generate_sources(self.__bibpath, self.__bibids):
             self.__sources[i.id] = i
 
@@ -69,10 +84,19 @@ class Writer(object):
         dicts = [
             self.__indicators,
             self.__methods,
-            self.__sources
+            self.__sources_to_write
         ]
         if write_flows:
-            dicts.append(self.__flows)
+            log.info("writing flows from the fedelemflowlist ...")
+            flowlist = fedelemflowlist.get_flows(preferred_only)
+            flow_dict = self.__flows
+            flows = flowlist.query('`Flow UUID` in @flow_dict.keys()')
+            if preferred_only:
+                log.info("writing only preferred flows ...")
+            elif len(flows) != len(flow_dict):
+                log.warning("not all flows written...")
+            fedelemflowlist.write_jsonld(flows, path=None,
+                                         zw = self.__writer)
         for d in dicts:
             for v in d.values():
                 self.__writer.write(v)
@@ -100,9 +124,14 @@ class Writer(object):
                                                       row['source_indicator'])
         ind.impact_factors = []
         ind.version = pkg_version_number
-        source = self._return_source(row['Method'])
+        source = (self._return_source(row['source_method']) or
+                  self._return_source(row['Method'] + ' ' +
+                                      row['Indicator']) or
+                  self._return_source(row['source_method'] + ' ' +
+                                      row['source_indicator']))
         if source:
             ind.source = source.to_ref()
+            self.__sources_to_write[source.id] = source
         self.__indicators[uid] = ind
 
         method = self.__method(row)
@@ -121,6 +150,10 @@ class Writer(object):
         m.id = uid
         m.name = row['Method']
         m.version = pkg_version_number
+        source = self._return_source(row['Method'])
+        if source:
+            m.source = source.to_ref()
+            self.__sources_to_write[source.id] = source
         m.impact_categories = []
         m.description = generate_method_description(row['Method'])
         self.__methods[uid] = m
@@ -160,6 +193,6 @@ class Writer(object):
 
     def _return_source(self, name):
         for uid, s in self.__sources.items():
-            if s.name == name:
+            if s.name == name or name.startswith(s.name):
                 return s
         return None

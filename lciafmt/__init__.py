@@ -129,11 +129,13 @@ def clear_cache():
     cache.clear()
 
 
-def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False):
+def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False, **kwargs):
     """Generate a JSONLD file of the methods passed as DataFrame."""
     util.log.info(f"write JSON-LD package to {zip_file}")
     with jsonld.Writer(zip_file) as w:
-        w.write(df, write_flows)
+        w.write(df, write_flows,
+                preferred_only=kwargs.get('preferred_only', False),
+                )
 
 
 def map_flows(df: pd.DataFrame, system=None, mapping=None,

@@ -2,13 +2,13 @@ from setuptools import setup
 
 setup(
     name="lciafmt",
-    version="1.1.2",
+    version="1.1.3",
     packages=["lciafmt"],
     package_dir={'lciafmt': 'lciafmt'},
     package_data={'lciafmt': ["data/*.*"]},
     include_package_data=True,
     python_requires=">=3.9",
-    install_requires=["fedelemflowlist @ git+https://github.com/USEPA/Federal-LCA-Commons-Elementary-Flow-List.git#egg=fedelemflowlist",
+    install_requires=["fedelemflowlist @ git+https://github.com/USEPA/fedelemflowlist.git#egg=fedelemflowlist",
                       "esupy @ git+https://github.com/USEPA/esupy.git#egg=esupy",
                       "olca-schema>=0.0.11",
                       "pandas>=0.22",
