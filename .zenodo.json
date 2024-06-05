@@ -1,0 +1,38 @@
+{
+    "description": "Standardizes the format and flows of life cycle impact assessment (LCIA) data.", 
+    "license": "MIT",
+    "title": "LCIA Formatter",
+    "upload_type": "software", 
+    "creators": [
+        {
+            "affiliation": "Eastern Research Group, Inc.", 
+            "name": "Ben Young",
+            "orcid": "https://orcid.org/0000-0001-6276-8670"
+        }, 
+        {
+            "affiliation": "GreenDelta", 
+            "name": "Michael Srocka"
+        },
+        {
+            "affiliation": "US Environmental Protection Agency", 
+            "name": "Wesley Ingwersen",
+            "orcid": "https://orcid.org/0000-0002-9614-701X"
+        }, 
+        {
+            "affiliation": "Eastern Research Group, Inc.", 
+            "name": "Ben Morelli",
+            "orcid": "https://orcid.org/0000-0002-7660-6485"
+        },
+        {
+            "affiliation": "Eastern Research Group, Inc.", 
+            "name": "Sarah Cashman",
+            "orcid": "https://orcid.org/0000-0001-9859-9557"
+        },
+        {
+            "affiliation": "Eastern Research Group, Inc.", 
+            "name": "Andrew Henderson",
+            "orcid": "https://orcid.org/0000-0003-2436-7512"
+        }
+    ],
+    "access_right": "open"
+}
