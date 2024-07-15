@@ -67,6 +67,15 @@
                 },
     "citation": "Forster and Ramaswamy 2007 (AR4), Myhre and Shindell 2013 (AR5), Forster and Storelvmo 2021 (AR6)",
     "source_type": "csv"
+  },
+  {
+    "id": "CED",
+    "name": "Cumulative Energy Demand",
+    "detail_note": "ADD",
+    "path": "fedefl",
+    "url": "",
+    "citation": "",
+    "source_type": ""
   }
 
 ]
