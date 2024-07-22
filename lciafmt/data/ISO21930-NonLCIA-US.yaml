@@ -1,0 +1,26 @@
+name: ISO21930-NonLCIA-US
+version: v0.1
+rename_indicators: True
+indicators:
+
+# Resource - Energy
+    Non-renewable primary resources with energy content:
+      method: FEDEFL Inventory
+      indicator: nonrenewable_energy
+      code: NRPR
+
+    Renewable primary resources with energy content:
+      method: FEDEFL Inventory
+      indicator: renewable_energy
+      code: RPR
+
+# Resource - Water
+    Gross freshwater consumption:
+      method: FEDEFL Inventory
+      indicator: freshwater_resources
+      code: GH2O
+
+    Net freshwater consumption:
+      method: FEDEFL Inventory
+      indicator: freshwater_resources
+      code: NH2O
