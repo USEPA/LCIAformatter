@@ -213,48 +213,88 @@ def _category_info(c: str):
         return "Human health - non-cancer", "CTUnoncancer", "soil/agricultural", "kg"
 
 def _read_eutro(xls_file: str) -> pd.DataFrame:
+    """
+    Logic used for selecting US data (max 15 per region):
+    |               | Comp_Air | Comp_Fw | Comp_Soil | Comp_LME |
+    |---------------|----------|---------|-----------|----------|
+    | Flow_N        | n/a      | NonAg   | Agric     | NonAg    |
+    | Flow_NH3 as N | All      | n/a     | n/a       | n/a      |
+    | Flow_NOx as N | All      | n/a     | n/a       | n/a      |
+    | Flow_P        | n/a      | All     | All       | n/a      |
+    * skip Agric & NonAg
+
+    Logic used for selecting global data (max 15 per region):
+    |               | Comp_Air | Comp_Fw        | Comp_Soil | Comp_LME |
+    |---------------|----------|----------------|-----------|----------|
+    | Flow_N        | n/a      | Genrl == NonAg | Agric     | NonAg    |
+    | Flow_NH3 as N | All      | n/a            | n/a       | n/a      |
+    | Flow_NOx as N | All      | n/a            | n/a       | n/a      |
+    | Flow_P        | n/a      | All            | All       | n/a      |
+
+    """
     context_dict = {'Comp_Fw': 'freshwater',
                     'Comp_Air': 'air',
                     'Comp_Soil': 'soil',
                     'Comp_LME': 'marine'}
+    compartment_dict = {'Genrl': 'unspecified',
+                        'Agric': 'rural',
+                        'NonAg': 'urbran'}
     log.info(f"read Eutrophication category from file {xls_file}")
     source_df = pd.read_excel(xls_file, sheet_name="S5. Raw Data")
     records = []
     flow_category=[]
     for i, row in source_df.iterrows():
-        skip = True
         sector = row['Sector']
         flow = row['Flowable']
+        compartment = row['Emit Compartment']
+        flow_category = context_dict.get(compartment, "n/a")
+        if flow_category == "soil" and flow == "Flow_P":
+            flow_category = f'{flow_category} (P)'
+            # required to enable distinct mappings to ground for these flows
         aggregation = row['Aggregation Target']
         region_id = str(row['Target ID'])
         if aggregation in ("US_Nation", "US_States", "US_Counties"):
-            if flow == "Flow_N" or sector == "Genrl":
-                skip = False
-                if aggregation == "US_Nation":
-                    region_id = "00000"
-                elif len(region_id) < 3:
-                    region_id = region_id.ljust(5, '0')
-                else:
-                    region_id = region_id.rjust(5, '0')
-                region = region_id
-        if (aggregation in ("World", "Countries")) and sector == "Genrl":
+            if aggregation == "US_Nation":
+                region = "00000"
+            elif len(region_id) < 3:
+                region = region_id.ljust(5, '0')
+            else:
+                region = region_id.rjust(5, '0')
+
+        elif (aggregation in ("World", "Countries")):
             region = row['Name']
             if region == "United States":
-                skip = True
                 ## ^^ Skip US as country in favor of aggregation == "US_Nation"
+                continue
             elif region == "Russian Federation" and region_id == "254":
-                skip = True
                 ## Two entries for Russian Federation, 254 is a very small island
-            else:
-                skip = False
-        if not skip:
-            flow_category = context_dict.get(row['Emit Compartment'], "n/a")
-            factor = row['Average Target Value']
-            indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
-                         else "Eutrophication (Marine)")
-            unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
-                    else "kg N eq")
+                continue
+            if sector == "Genrl" and flow == "Flow_N":
+                ## Drops duplicate factors for Flow_N Comp_Fw
+                continue
+        else:
+            # Ignore aggregation == "Continents"
+            continue
+        if flow != "Flow_N":
+            flow_category = f'{flow_category}/{compartment_dict.get(sector)}'
 
+        factor = row['Average Target Value']
+        indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
+                     else "Eutrophication (Marine)")
+        unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
+                else "kg N eq")
+
+        dfutil.record(records,
+                      indicator=indicator,
+                      indicator_unit=unit,
+                      flow=flow,
+                      flow_category=flow_category,
+                      flow_unit="kg",
+                      factor=factor,
+                      location=region)
+
+        if aggregation == "World":
+        # openLCA requires a factor without location for use by default
             dfutil.record(records,
                           indicator=indicator,
                           indicator_unit=unit,
@@ -262,18 +302,7 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                           flow_category=flow_category,
                           flow_unit="kg",
                           factor=factor,
-                          location=region)
-
-            if aggregation == "US_Nation":
-            # openLCA requires a factor without location for use by default
-                dfutil.record(records,
-                              indicator=indicator,
-                              indicator_unit=unit,
-                              flow=flow,
-                              flow_category=flow_category,
-                              flow_unit="kg",
-                              factor=factor,
-                              location="")
+                          location="")
 
     df = dfutil.data_frame(records)
 
@@ -295,13 +324,16 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
 #%%
 if __name__ == "__main__":
     method = lciafmt.Method.TRACI2_2
+    # method_meta = method.get_metadata()
+    # f = cache.get_or_download(file=method_meta['eutro_file'], url=method_meta['eutro_url'])
+    # df_eutro = _read_eutro(f)
     df_orig = get(method)
     #%%
     df = lciafmt.location.assign_state_names(df_orig)
     df = df.query('~Location.str.isnumeric()').reset_index(drop=True)
     df = df.query('Indicator.str.contains("Eutrophication")').reset_index(drop=True)
     # df = df.query('Location != ""').reset_index(drop=True)
-    mapping = method.get_metadata()['mapping']
     #%%
+    mapping = method.get_metadata()['mapping']
     df2 = lciafmt.map_flows(df, system=mapping)
     lciafmt.to_jsonld(df2, 'test.zip', region='states')
