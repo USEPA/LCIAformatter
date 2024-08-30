@@ -323,17 +323,25 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
 
 #%%
 if __name__ == "__main__":
+    from lciafmt.util import store_method, save_json
     method = lciafmt.Method.TRACI2_2
     # method_meta = method.get_metadata()
     # f = cache.get_or_download(file=method_meta['eutro_file'], url=method_meta['eutro_url'])
     # df_eutro = _read_eutro(f)
-    df_orig = get(method)
-    #%%
-    df = lciafmt.location.assign_state_names(df_orig)
-    df = df.query('~Location.str.isnumeric()').reset_index(drop=True)
-    df = df.query('Indicator.str.contains("Eutrophication")').reset_index(drop=True)
-    # df = df.query('Location != ""').reset_index(drop=True)
+    df = get(method)
     #%%
     mapping = method.get_metadata()['mapping']
-    df2 = lciafmt.map_flows(df, system=mapping)
-    lciafmt.to_jsonld(df2, 'test.zip', region='states')
+    mapped_df = lciafmt.map_flows(df, system=mapping)
+    store_method(mapped_df, method)
+    #%% create JSON separately for US and for countries
+    state_df = lciafmt.location.assign_state_names(mapped_df)
+    state_df2 = (state_df
+                 .query('Location == "" or Location.str.startswith("US")')
+                 .reset_index(drop=True)
+                 )
+    save_json(method, state_df2, name='TRACI2.2_states', region='states')
+    country_df = pd.concat([mapped_df.query('~Location.str.isnumeric()'),
+                            (mapped_df.query('Location == "00000"')
+                             .assign(Location = "United States"))],
+                            ignore_index=True)
+    save_json(method, country_df, name='TRACI2.2_countries') # region='countries')
