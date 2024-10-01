@@ -57,7 +57,7 @@ def test_method_write_json():
     # method = lciafmt.get_mapped_method(method_id = method_id,
     #                                    indicators=['Eutrophication (Marine)'],
     #                                    download_from_remote=True)
-    # method = lciafmt.location.assign_state_names(method)
+    # method = esupy.location.assign_state_names(method)
     # ## ^ requires flowsa
     # method = method.query('~Location.str.isnumeric()').reset_index(drop=True)
     # lciafmt.util.save_json(method_id = method_id,
