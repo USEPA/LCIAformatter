@@ -136,7 +136,7 @@ def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False, **kwargs):
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows=write_flows,
                 preferred_only=kwargs.get('preferred_only', False),
-                region=kwargs.get('region'),
+                regions=kwargs.get('regions'),
                 )
 
 

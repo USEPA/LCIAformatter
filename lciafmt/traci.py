@@ -340,9 +340,9 @@ if __name__ == "__main__":
                  .query('Location == "" or Location.str.startswith("US")')
                  .reset_index(drop=True)
                  )
-    save_json(method, state_df2, name='TRACI2.2_states', region='states')
+    save_json(method, state_df2, name='TRACI2.2_states', regions=['states'])
     country_df = pd.concat([mapped_df.query('~Location.str.isnumeric()'),
                             (mapped_df.query('Location == "00000"')
                              .assign(Location = "United States"))],
                             ignore_index=True)
-    save_json(method, country_df, name='TRACI2.2_countries') # region='countries')
+    save_json(method, country_df, name='TRACI2.2_countries', regions=['countries'])
