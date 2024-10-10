@@ -85,7 +85,7 @@ class Writer(object):
             indicator = self.__indicator(row)
             factor = o.ImpactFactor()
             unit = row['Unit']
-            factor.flow = self.__flow(row)
+            factor.flow = self.__flow(row).to_ref()
             factor.flow_property = units.property_ref(unit)
             factor.unit = units.unit_ref(unit)
             factor.value = row['Characterization Factor']
