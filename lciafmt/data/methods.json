@@ -25,7 +25,7 @@
                 "ReCiPe 2016 - Midpoint/E":"ReCiPe 2016 v1.1 midpoint method, Egalitarian version. The typical ReCiPe midpoint method used is the Hierarchist version."},
     "path": "recipe",
     "case_insensitivity": "True",
-    "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx",
+    "url": "https://www.rivm.nl/sites/default/files/2024-10/ReCiPe2016_CFs_v1.1_20180117.xlsx",
     "bib_id": "huijbregts_recipe_2017",
     "citation": "Huijbregts 2017",
     "source_type": "Excel file"
