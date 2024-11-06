@@ -9,6 +9,7 @@ ReCiPe model
 import pandas as pd
 import openpyxl
 
+import lciafmt
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
 import lciafmt.xls as xls
@@ -52,13 +53,10 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
     :return: DataFrame of method in standard format
     """
     log.info("getting method ReCiPe 2016")
+    method_meta = lciafmt.Method.RECIPE_2016.get_metadata()
     f = file
     if f is None:
-        fname = "recipe_2016.xlsx"
-        if url is None:
-            url = ("http://www.rivm.nl/sites/default/files/2018-11/" +
-                   "ReCiPe2016_CFs_v1.1_20180117.xlsx")
-        f = cache.get_or_download(fname, url)
+        f = _get_file(method_meta, url)
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("adding average factors for primary contexts")
@@ -133,6 +131,14 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
                                  "Location", "Location UUID",
                                  "Characterization Factor"])
     return df
+
+
+def _get_file(method_meta, url=None):
+    fname = "recipe_2016.xlsx"
+    if url is None:
+        url = method_meta['url']
+    f = cache.get_or_download(fname, url)
+    return f
 
 
 def _read(file: str) -> pd.DataFrame:
