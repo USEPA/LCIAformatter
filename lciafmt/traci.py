@@ -335,12 +335,6 @@ if __name__ == "__main__":
     mapped_df = lciafmt.map_flows(df, system=mapping)
     store_method(mapped_df, method)
     #%% create JSON separately for US and for countries
-    state_df = esupy.location.assign_state_names(mapped_df)
-    state_df2 = (state_df
-                 .query('Location == "" or Location.str.startswith("US")')
-                 .reset_index(drop=True)
-                 )
-    save_json(method, state_df2, name='TRACI2.2_states', regions=['states'])
     country_df = pd.concat([mapped_df.query('~Location.str.isnumeric()'),
                             (mapped_df.query('Location == "00000"')
                              .assign(Location = "United States"))],
