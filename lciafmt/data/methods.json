@@ -40,7 +40,7 @@
                 "ReCiPe 2016 - Midpoint/E":"ReCiPe 2016 v1.1 midpoint method, Egalitarian version. The typical ReCiPe midpoint method used is the Hierarchist version."},
     "path": "recipe",
     "case_insensitivity": "True",
-    "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx",
+    "url": "https://www.rivm.nl/sites/default/files/2024-10/ReCiPe2016_CFs_v1.1_20180117.xlsx",
     "bib_id": "huijbregts_recipe_2017",
     "citation": "Huijbregts 2017",
     "source_type": "Excel file"
@@ -64,7 +64,7 @@
                 "ImpactWorld+ - Endpoint":"This method includes all global endpoint flows and their attributes."},
     "path": "impactworld",
     "case_insensitivity": "False",
-    "url": "http://www.impactworldplus.org/en/writeToFile.php",
+    "url": "https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1",
     "citation": "Bulle, Cecile, Manuele Margni, Laure Patouillard, Anne-Marie Boulay, Guillaume Bourgault, Vincent De Bruille, Viet Cao, et al. IMPACT World+: A Globally Regionalized Life Cycle Impact Assessment Method. The International Journal of Life Cycle Assessment 24, no. 9 (September 2019), 1653–74. https://doi.org/10.1007/s11367-019-01583-0",
     "source_type": "Access file"
   },
