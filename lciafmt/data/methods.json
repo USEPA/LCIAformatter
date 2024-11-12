@@ -76,6 +76,7 @@
     "case_insensitivity": "False",
     "url": "https://raw.githubusercontent.com/USEPA/scghg/v1.0.0/EPA/output/scghg_annual.csv",
     "citation": "US EPA (2023). EPA Report on the Social Cost of Greenhouse Gases: Estimates Incorporating Recent Scientific Advances. https://www.epa.gov/environmental-economics/scghg",
+    "bib_id": "usepa_report_2023",
     "source_type": "csv"
   }
 ]
