@@ -2,7 +2,7 @@
 
 import pytest
 import lciafmt
-from lciafmt.util import store_method
+from lciafmt.util import store_method, MODULEPATH
 
 skip_list = ['ImpactWorld'] # requires pyodbc
 
@@ -23,6 +23,12 @@ def test_generate_methods():
     assert not error_list
 
 
+def test_url_access():
+    import lciafmt.iw as impactworld
+    f = lciafmt.recipe._get_file(lciafmt.Method.RECIPE_2016.get_metadata())
+    f = lciafmt.traci._get_file(lciafmt.Method.TRACI.get_metadata())
+    f = impactworld._get_file(lciafmt.Method.ImpactWorld.get_metadata())
+
 def test_endpoint_method():
     method = lciafmt.generate_endpoints('Weidema_valuation',
                                         name='Weidema Valuation',
@@ -31,5 +37,37 @@ def test_endpoint_method():
     store_method(method, method_id=None)
     assert method is not None
 
+
+def test_method_write_json():
+    # Test TRACI2.1 Acidification
+    method_id = lciafmt.Method.TRACI
+    method = lciafmt.get_mapped_method(method_id = method_id,
+                                       indicators=['Acidification'],
+                                       download_from_remote=True)
+    lciafmt.util.save_json(method_id = method_id,
+                           name = 'test_TRACI',
+                           mapped_data = method,
+                           write_flows=True,
+                           preferred_only=True)
+    # Test FEDEFL Inventory
+    method_id = lciafmt.Method.FEDEFL_INV
+    method = lciafmt.get_mapped_method(method_id = method_id,
+                                       download_from_remote=True)
+    lciafmt.util.save_json(method_id = method_id,
+                           mapped_data = method,
+                           name = 'test_FEDEFL',
+                           write_flows=True)
+
+def test_compilation_method():
+    df = lciafmt.generate_lcia_compilation('compilation.yaml',
+                                           filepath=MODULEPATH.parent / 'tests')
+    name = df['Method'][0]
+    lciafmt.util.store_method(df, method_id=None, name=name)
+    lciafmt.util.save_json(method_id=None, mapped_data=df, name=name)
+
+
 if __name__ == "__main__":
-    test_generate_methods()
+    # test_generate_methods()
+    # test_method_write_json()
+    # test_url_access()
+    test_compilation_method()

@@ -38,10 +38,7 @@ def get(add_factors_for_missing_contexts=True, file=None,
     method_meta = lciafmt.Method.TRACI.get_metadata()
     f = file
     if f is None:
-        fname = "traci_2.1.xlsx"
-        if url is None:
-            url = method_meta['url']
-        f = cache.get_or_download(fname, url)
+        f = _get_file(method_meta, url)
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("adding average factors for primary contexts")
@@ -72,6 +69,12 @@ def get(add_factors_for_missing_contexts=True, file=None,
 
     return df
 
+def _get_file(method_meta, url=None):
+    fname = "traci_2.1.xlsx"
+    if url is None:
+        url = method_meta['url']
+    f = cache.get_or_download(fname, url)
+    return f
 
 def _read(xls_file: str) -> pd.DataFrame:
     """Read the data from Excel with given path into a DataFrame."""

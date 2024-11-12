@@ -16,8 +16,10 @@ except ImportError:
                       "openLCA v2.0. Use pip install olca-schema")
 
 from esupy.util import make_uuid
+from esupy.bibtex import generate_sources
+import fedelemflowlist
 from .util import is_non_empty_str, generate_method_description,\
-    log, pkg_version_number
+    log, pkg_version_number, datapath, check_as_class
 
 
 class Writer(object):
@@ -28,6 +30,10 @@ class Writer(object):
         self.__methods = {}
         self.__indicators = {}
         self.__flows = {}
+        self.__sources = {}
+        self.__sources_to_write = {}
+        self.__bibids = {}
+        self.__bibpath = datapath / 'lcia.bib'
 
     def __enter__(self):
         return self
@@ -35,12 +41,40 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pd.DataFrame, write_flows=False):
+    def write(self, df: pd.DataFrame, write_flows=False, preferred_only=False):
+        if 'source_method' not in df:
+            df['source_method'] = df['Method']
+        if 'source_indicator' not in df:
+            df['source_indicator'] = ''
+        if 'category' not in df:
+            df['category'] = df['Method']
+
+        methods = pd.unique(
+                df[['Method', 'source_method']].values.ravel('K'))
+        indicators = pd.unique(
+                df[['Indicator', 'source_indicator']].values.ravel('K'))
+
+        # identify all relevant bib_ids and sources
+        for method in methods:
+            m = check_as_class(method)
+            if isinstance(m, str):
+                # not a recognized method, so no bib_id
+                continue
+            bib = m.get_metadata().get('bib_id')
+            if bib:
+                if isinstance(bib, str):
+                    self.__bibids[bib] = m.value
+                elif isinstance(bib, dict):
+                    for k,v in bib.items():
+                        self.__bibids[v] = f'{m.value} {k}'
+        for i in generate_sources(self.__bibpath, self.__bibids):
+            self.__sources[i.id] = i
+
         for _, row in df.iterrows():
             indicator = self.__indicator(row)
             factor = o.ImpactFactor()
             unit = row['Unit']
-            factor.flow = self.__flow(row)
+            factor.flow = self.__flow(row).to_ref()
             factor.flow_property = units.property_ref(unit)
             factor.unit = units.unit_ref(unit)
             factor.value = row['Characterization Factor']
@@ -49,10 +83,20 @@ class Writer(object):
         log.debug("write entities")
         dicts = [
             self.__indicators,
-            self.__methods
+            self.__methods,
+            self.__sources_to_write
         ]
         if write_flows:
-            dicts.append(self.__flows)
+            log.info("writing flows from the fedelemflowlist ...")
+            flowlist = fedelemflowlist.get_flows(preferred_only)
+            flow_dict = self.__flows
+            flows = flowlist.query('`Flow UUID` in @flow_dict.keys()')
+            if preferred_only:
+                log.info("writing only preferred flows ...")
+            elif len(flows) != len(flow_dict):
+                log.warning("not all flows written...")
+            fedelemflowlist.write_jsonld(flows, path=None,
+                                         zw = self.__writer)
         for d in dicts:
             for v in d.values():
                 self.__writer.write(v)
@@ -60,8 +104,7 @@ class Writer(object):
     def __indicator(self, row) -> o.ImpactCategory:
         uid = row['Indicator UUID']
         if not is_non_empty_str(uid):
-            uid = make_uuid(row['Method'], row['Indicator'])
-
+            uid = make_uuid(row['category'], row['Indicator'])
         ind = self.__indicators.get(uid)
         if ind is not None:
             return ind
@@ -70,29 +113,35 @@ class Writer(object):
         ind.id = uid
         ind.name = row['Indicator']
         ind.ref_unit = row['Indicator unit']
-        ind.category = row['Method']
+        ind.category = row['category']
+        if 'Code' in row:
+            ind.code = row['Code']
         direction = ('INPUT' if row['Context'].startswith('resource')
                      else 'OUTPUT')
         ind.direction = o.Direction(direction)
-        ind.description = generate_method_description(row['Method'],
-                                                      row['Indicator'])
+        ind.description = generate_method_description(row['source_method'],
+                                                      row['Indicator'],
+                                                      row['source_indicator'])
         ind.impact_factors = []
         ind.version = pkg_version_number
+        source = (self._return_source(row['source_method']) or
+                  self._return_source(row['Method'] + ' ' +
+                                      row['Indicator']) or
+                  self._return_source(row['source_method'] + ' ' +
+                                      row['source_indicator']))
+        if source:
+            ind.source = source.to_ref()
+            self.__sources_to_write[source.id] = source
         self.__indicators[uid] = ind
 
         method = self.__method(row)
-        ref = o.ImpactCategory()
-        ref.id = uid
-        ref.name = ind.name
-        ref.ref_unit = ind.ref_unit
-        method.impact_categories.append(ref)
+        method.impact_categories.append(ind.to_ref())
         return ind
 
     def __method(self, row) -> o.ImpactMethod:
         uid = row['Method UUID']
         if not is_non_empty_str(uid):
             uid = make_uuid(row['Method'])
-        description = generate_method_description(row['Method'])
         m = self.__methods.get(uid)
         if m is not None:
             return m
@@ -101,8 +150,12 @@ class Writer(object):
         m.id = uid
         m.name = row['Method']
         m.version = pkg_version_number
+        source = self._return_source(row['Method'])
+        if source:
+            m.source = source.to_ref()
+            self.__sources_to_write[source.id] = source
         m.impact_categories = []
-        m.description = description
+        m.description = generate_method_description(row['Method'])
         self.__methods[uid] = m
         return m
 
@@ -137,3 +190,9 @@ class Writer(object):
 
         self.__flows[uid] = flow
         return flow
+
+    def _return_source(self, name):
+        for uid, s in self.__sources.items():
+            if s.name == name or name.startswith(s.name):
+                return s
+        return None

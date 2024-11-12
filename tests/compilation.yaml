@@ -1,0 +1,22 @@
+name: Test Compilation Method
+rename_indicators: False
+indicators:
+    Climate change:
+      method: IPCC
+      indicator: AR6-100
+      code: GHG
+
+    Acidification potential:
+      method: TRACI 2.1
+      indicator: Acidification
+      code: AP
+
+    Particulate matter formation potential:
+      method: ReCiPe 2016 - Midpoint/H
+      indicator: Particulate matter formation
+      code: PMFP
+
+    Water consumption:
+      method: FEDEFL Inventory
+      indicator: freshwater_resources
+      code: WAT
