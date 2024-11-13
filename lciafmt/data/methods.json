@@ -71,10 +71,12 @@
   {
     "id": "CED",
     "name": "Cumulative Energy Demand",
-    "detail_note": "ADD",
+    "version": "1.0",
+    "detail_note": "All heating values are per the FEDEFL, and the list of external references is found on the EPA FEDEFL GitHub at: https://github.com/USEPA/fedelemflowlist. This CED method is based on the categorization scheme used in Frischknecht et al. (2007) found in the ecoinvent report 'Implementation of Life Cycle Impact Assessment Methods.'",
     "path": "fedefl",
+    "bib_id": "frischknecht_implementation_2007",
     "url": "",
-    "citation": "",
+    "citation": "Frischknecht et al. 2007",
     "source_type": ""
   }
 
