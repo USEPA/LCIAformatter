@@ -177,7 +177,7 @@ def _read_endpoints(file: str) -> pd.DataFrame:
                 continue
             endpoints['Method'] = "ReCiPe 2016 - Midpoint/" + perspectives[i]
             endpoints['EndpointMethod'] = "ReCiPe 2016 - Endpoint/" + perspectives[i]
-            endpoints['EndpointIndicator'] = indicator
+            endpoints['EndpointIndicator'] = indicator.replace(' -a', ' - a') # fix missing space
             endpoints['EndpointUnit'] = indicator_unit
             endpoints['EndpointConversion'] = val
             endpoint = pd.concat(
@@ -221,6 +221,7 @@ def _read_mid_points(sheet: openpyxl.worksheet.worksheet.Worksheet,
     cas_col = _find_cas_column(sheet)
     indicator_unit, flow_unit, unit_col = _determine_units(sheet)
     compartment, compartment_col = _determine_compartments(sheet)
+    sheet_title = sheet.title.replace('Ecosyste damage', 'Ecosystem damage')
 
     perspectives = ["I", "H", "E"]
     factor_count = 0
@@ -244,7 +245,7 @@ def _read_mid_points(sheet: openpyxl.worksheet.worksheet.Worksheet,
                     continue
                 dfutil.record(records,
                               method="ReCiPe 2016 - Midpoint/" + perspectives[i],
-                              indicator=sheet.title,
+                              indicator=sheet_title,
                               indicator_unit=indicator_unit,
                               flow=xls.cell_str(row[flow_col]),
                               flow_category=compartment,
@@ -259,7 +260,7 @@ def _read_mid_points(sheet: openpyxl.worksheet.worksheet.Worksheet,
             for p in perspectives:
                 dfutil.record(records,
                               method="ReCiPe 2016 - Midpoint/" + p,
-                              indicator=sheet.title,
+                              indicator=sheet_title,
                               indicator_unit=indicator_unit,
                               flow=xls.cell_str(row[flow_col]),
                               flow_category=compartment,
