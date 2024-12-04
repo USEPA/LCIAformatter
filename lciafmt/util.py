@@ -210,6 +210,7 @@ def generate_method_description(name: str,
     desc = (desc
             .replace('[LCIAfmt_version]', pkg_version_number)
             .replace('[FEDEFL_version]', flow_list_specs['list_version'])
+            .replace('[fedelemflowlist_version]', flow_list_specs['package_version'])
             .replace('[Method]', method_meta['name'])
             .replace('[version]', version)
             .replace('[citation]', method_meta['citation'])
