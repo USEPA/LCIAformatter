@@ -35,7 +35,7 @@
     "name": "FEDEFL Inventory",
     "version": "1.0.0",
     "path": "fedefl",
-    "url": "http://www.github.com/usepa//Federal-LCA-Commons-Elementary-Flow-List",
+    "url": "https://github.com/USEPA/fedelemflowlist/blob/master/fedelemflowlist/subset_list.py",
     "citation": "",
     "source_type": "FEDEFL Python function"
   },
@@ -75,7 +75,7 @@
     "detail_note": "All heating values are per the FEDEFL, and the list of external references is found on the EPA FEDEFL GitHub at: https://github.com/USEPA/fedelemflowlist. This CED method is based on the categorization scheme used in Frischknecht et al. (2007) found in the ecoinvent report 'Implementation of Life Cycle Impact Assessment Methods.'",
     "path": "fedefl",
     "bib_id": "frischknecht_implementation_2007",
-    "url": "",
+    "url": "https://github.com/USEPA/fedelemflowlist/blob/master/fedelemflowlist/subset_list.py",
     "citation": "Frischknecht et al. 2007",
     "source_type": ""
   }
