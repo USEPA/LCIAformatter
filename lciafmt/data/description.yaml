@@ -1,6 +1,7 @@
 base: >+
     [Method][version] is built from LCIA Formatter v[LCIAfmt_version] and
-    flows from the Federal Elementary Flow List (FEDEFL) v[FEDEFL_version]
+    flows from v[FEDEFL_version] of the Federal Elementary Flow List (FEDEFL),
+    using fedelemflowlist v[fedelemflowlist_version].
 
 description: >+
     [Method] source file: [url]
