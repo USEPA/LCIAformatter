@@ -39,14 +39,14 @@ def get() -> pd.DataFrame():
     inv['Indicator'] = np.select(conditions, indicators, default='')
 
     ## Original CED Method included the
-    # "Energy, fossil, unspecified" technosphere flow
+    # "Energy, fossil, unspecified" technosphere flow;
+    # this has been dropped
     # https://www.lcacommons.gov/lca-collaboration/National_Renewable_Energy_Laboratory/USLCI_Database_Public/dataset/FLOW/46dc4693-2f24-39d2-b69f-dd059737fd5e
 
     ## Original CED Method used HHV for biomass/wood flows
     # Some wood flows were removed after the original method in FEDEFLv1.0.8
 
     # Dropped flows from FEDEFL inv method: "Hydrogen", "Energy, heat"
-
     inv = inv.query('Indicator != ""').reset_index(drop=True)
 
     return inv
@@ -57,3 +57,4 @@ if __name__ == "__main__":
     df = get()
     store_method(df, method)
     lciafmt.util.save_json(method, df)
+    # lciafmt.util.save_json(method, df, write_flows=True)
