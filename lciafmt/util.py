@@ -187,6 +187,8 @@ def generate_method_description(name: str,
     else:
         method_meta = method.get_metadata()
         desc += generic['description']
+    if 'mapping' in method_meta:
+        desc += generic['mapping']
     if 'detail_note' in method_meta:
         desc += method_meta['detail_note']
     if 'methods' in method_meta:
