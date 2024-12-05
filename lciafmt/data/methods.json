@@ -33,7 +33,7 @@
   {
     "id": "FEDEFL_INV",
     "name": "FEDEFL Inventory",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "path": "fedefl",
     "url": "https://github.com/USEPA/fedelemflowlist/blob/master/fedelemflowlist/subset_list.py",
     "citation": "",

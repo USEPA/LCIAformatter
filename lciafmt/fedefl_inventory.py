@@ -27,7 +27,8 @@ def get(subset=None) -> pd.DataFrame:
         method['Characterization Factor'])
 
     if subset is None:
-        list_of_inventories = subsets.get_subsets()
+        list_of_inventories = [s for s in subsets.get_subsets() if s
+                               not in ('ced')]
     else:
         list_of_inventories = subset
 
