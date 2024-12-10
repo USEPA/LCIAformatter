@@ -21,7 +21,7 @@
     "case_insensitivity": "False",
     "file": "TRACI_2.2.xlsx",
     "url": "https://github.com/USEPA/TRACI/raw/master/TraciTool/TRACI_2_2.xlsx",
-    "eutro_url": "https://pasteur.epa.gov/uploads/10.23719/1520443/TRACI%20Spatial%20Eutrophication%20Characterization%20Factors_2020-10.xlsx",
+    "eutro_url": "https://pasteur.epa.gov/uploads/10.23719/1520443/TRACI Spatial Eutrophication Characterization Factors_2020-10.xlsx",
     "eutro_file": "TRACI Spatial Eutrophication Characterization Factors_2020-10.xlsx",
     "citation": "Henderson et al. 2021",
     "source_type": "Excel file"
