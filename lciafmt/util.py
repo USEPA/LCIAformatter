@@ -21,7 +21,7 @@ from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
-pkg_version_number = '1.1.3'
+pkg_version_number = '1.1.4'
 MODULEPATH = Path(__file__).resolve().parent
 datapath = MODULEPATH / 'data'
 
@@ -187,6 +187,8 @@ def generate_method_description(name: str,
     else:
         method_meta = method.get_metadata()
         desc += generic['description']
+    if 'mapping' in method_meta:
+        desc += generic['mapping']
     if 'detail_note' in method_meta:
         desc += method_meta['detail_note']
     if 'methods' in method_meta:
@@ -208,6 +210,7 @@ def generate_method_description(name: str,
     desc = (desc
             .replace('[LCIAfmt_version]', pkg_version_number)
             .replace('[FEDEFL_version]', flow_list_specs['list_version'])
+            .replace('[fedelemflowlist_version]', flow_list_specs['tool_version'])
             .replace('[Method]', method_meta['name'])
             .replace('[version]', version)
             .replace('[citation]', method_meta['citation'])
