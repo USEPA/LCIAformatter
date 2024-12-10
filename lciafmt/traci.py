@@ -326,20 +326,9 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
 
 #%%
 if __name__ == "__main__":
-    import esupy.location
-    from lciafmt.util import store_method, save_json
+    from lciafmt.util import store_method
     method = lciafmt.Method.TRACI2_2
-    # method_meta = method.get_metadata()
-    # f = cache.get_or_download(file=method_meta['eutro_file'], url=method_meta['eutro_url'])
-    # df_eutro = _read_eutro(f)
     df = get(method)
-    #%%
     mapping = method.get_metadata()['mapping']
     mapped_df = lciafmt.map_flows(df, system=mapping)
     store_method(mapped_df, method)
-    #%% create JSON separately for US and for countries
-    country_df = pd.concat([mapped_df.query('~Location.str.isnumeric()'),
-                            (mapped_df.query('Location == "00000"')
-                             .assign(Location = "United States"))],
-                            ignore_index=True)
-    save_json(method, country_df, name='TRACI2.2_countries', regions=['countries'])
