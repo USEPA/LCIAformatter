@@ -27,7 +27,8 @@ def get(subset=None) -> pd.DataFrame:
         method['Characterization Factor'])
 
     if subset is None:
-        list_of_inventories = subsets.get_subsets()
+        list_of_inventories = [s for s in subsets.get_subsets() if s
+                               not in ('ced')]
     else:
         list_of_inventories = subset
 
@@ -39,7 +40,7 @@ def get(subset=None) -> pd.DataFrame:
                    axis=1, inplace=True)
         flows['Indicator'] = inventory
         flows['Indicator unit'] = subsets.get_inventory_unit(inventory)
-        flows['Characterization Factor'] = 1
+        flows['Characterization Factor'] = 1.0
 
         # Apply unit conversions where flow unit differs from indicator unit
         flows_w_conversion = pd.merge(flows, alt_units, how='left',
@@ -56,3 +57,6 @@ def get(subset=None) -> pd.DataFrame:
 
     method['Method'] = 'FEDEFL Inventory'
     return method
+
+if __name__ == "__main__":
+    df = get()

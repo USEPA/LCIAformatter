@@ -9,6 +9,7 @@ ReCiPe model
 import pandas as pd
 import openpyxl
 
+import lciafmt
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
 import lciafmt.xls as xls
@@ -52,13 +53,10 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
     :return: DataFrame of method in standard format
     """
     log.info("getting method ReCiPe 2016")
+    method_meta = lciafmt.Method.RECIPE_2016.get_metadata()
     f = file
     if f is None:
-        fname = "recipe_2016.xlsx"
-        if url is None:
-            url = ("http://www.rivm.nl/sites/default/files/2018-11/" +
-                   "ReCiPe2016_CFs_v1.1_20180117.xlsx")
-        f = cache.get_or_download(fname, url)
+        f = _get_file(method_meta, url)
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("adding average factors for primary contexts")
@@ -135,6 +133,14 @@ def get(add_factors_for_missing_contexts=True, endpoint=True,
     return df
 
 
+def _get_file(method_meta, url=None):
+    fname = "recipe_2016.xlsx"
+    if url is None:
+        url = method_meta['url']
+    f = cache.get_or_download(fname, url)
+    return f
+
+
 def _read(file: str) -> pd.DataFrame:
     log.info(f"read ReCiPe 2016 from file {file}")
     wb = openpyxl.load_workbook(file, read_only=True, data_only=True)
@@ -171,7 +177,7 @@ def _read_endpoints(file: str) -> pd.DataFrame:
                 continue
             endpoints['Method'] = "ReCiPe 2016 - Midpoint/" + perspectives[i]
             endpoints['EndpointMethod'] = "ReCiPe 2016 - Endpoint/" + perspectives[i]
-            endpoints['EndpointIndicator'] = indicator
+            endpoints['EndpointIndicator'] = indicator.replace(' -a', ' - a') # fix missing space
             endpoints['EndpointUnit'] = indicator_unit
             endpoints['EndpointConversion'] = val
             endpoint = pd.concat(
@@ -215,6 +221,7 @@ def _read_mid_points(sheet: openpyxl.worksheet.worksheet.Worksheet,
     cas_col = _find_cas_column(sheet)
     indicator_unit, flow_unit, unit_col = _determine_units(sheet)
     compartment, compartment_col = _determine_compartments(sheet)
+    sheet_title = sheet.title.replace('Ecosyste damage', 'Ecosystem damage')
 
     perspectives = ["I", "H", "E"]
     factor_count = 0
@@ -238,7 +245,7 @@ def _read_mid_points(sheet: openpyxl.worksheet.worksheet.Worksheet,
                     continue
                 dfutil.record(records,
                               method="ReCiPe 2016 - Midpoint/" + perspectives[i],
-                              indicator=sheet.title,
+                              indicator=sheet_title,
                               indicator_unit=indicator_unit,
                               flow=xls.cell_str(row[flow_col]),
                               flow_category=compartment,
@@ -253,7 +260,7 @@ def _read_mid_points(sheet: openpyxl.worksheet.worksheet.Worksheet,
             for p in perspectives:
                 dfutil.record(records,
                               method="ReCiPe 2016 - Midpoint/" + p,
-                              indicator=sheet.title,
+                              indicator=sheet_title,
                               indicator_unit=indicator_unit,
                               flow=xls.cell_str(row[flow_col]),
                               flow_category=compartment,

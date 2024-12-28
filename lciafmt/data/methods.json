@@ -25,7 +25,7 @@
                 "ReCiPe 2016 - Midpoint/E":"ReCiPe 2016 v1.1 midpoint method, Egalitarian version. The typical ReCiPe midpoint method used is the Hierarchist version."},
     "path": "recipe",
     "case_insensitivity": "True",
-    "url": "http://www.rivm.nl/sites/default/files/2018-11/ReCiPe2016_CFs_v1.1_20180117.xlsx",
+    "url": "https://www.rivm.nl/sites/default/files/2024-10/ReCiPe2016_CFs_v1.1_20180117.xlsx",
     "bib_id": "huijbregts_recipe_2017",
     "citation": "Huijbregts 2017",
     "source_type": "Excel file"
@@ -33,9 +33,9 @@
   {
     "id": "FEDEFL_INV",
     "name": "FEDEFL Inventory",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "path": "fedefl",
-    "url": "http://www.github.com/usepa//Federal-LCA-Commons-Elementary-Flow-List",
+    "url": "https://github.com/USEPA/fedelemflowlist/blob/master/fedelemflowlist/subset_list.py",
     "citation": "",
     "source_type": "FEDEFL Python function"
   },
@@ -49,7 +49,7 @@
                 "ImpactWorld+ - Endpoint":"This method includes all global endpoint flows and their attributes."},
     "path": "impactworld",
     "case_insensitivity": "False",
-    "url": "http://www.impactworldplus.org/en/writeToFile.php",
+    "url": "https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1",
     "citation": "Bulle, Cecile, Manuele Margni, Laure Patouillard, Anne-Marie Boulay, Guillaume Bourgault, Vincent De Bruille, Viet Cao, et al. IMPACT World+: A Globally Regionalized Life Cycle Impact Assessment Method. The International Journal of Life Cycle Assessment 24, no. 9 (September 2019), 1653–74. https://doi.org/10.1007/s11367-019-01583-0",
     "source_type": "Access file"
   },
@@ -67,6 +67,17 @@
                 },
     "citation": "Forster and Ramaswamy 2007 (AR4), Myhre and Shindell 2013 (AR5), Forster and Storelvmo 2021 (AR6)",
     "source_type": "csv"
+  },
+  {
+    "id": "CED",
+    "name": "Cumulative Energy Demand",
+    "version": "1.0",
+    "detail_note": "All heating values are per the FEDEFL, and the list of external references is found on the EPA FEDEFL GitHub at: https://github.com/USEPA/fedelemflowlist. This CED method is based on the categorization scheme used in Frischknecht et al. (2007) found in the ecoinvent report 'Implementation of Life Cycle Impact Assessment Methods.'",
+    "path": "fedefl",
+    "bib_id": "frischknecht_implementation_2007",
+    "url": "https://github.com/USEPA/fedelemflowlist/blob/master/fedelemflowlist/subset_list.py",
+    "citation": "Frischknecht et al. 2007",
+    "source_type": ""
   }
 
 ]
