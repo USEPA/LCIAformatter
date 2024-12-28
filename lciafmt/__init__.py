@@ -33,6 +33,7 @@ class Method(Enum):
     """LCIAFormatter Method object with available metadata."""
 
     TRACI = "TRACI 2.1"
+    TRACI2_2 = "TRACI 2.2"
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
     CED = "Cumulative Energy Demand"
@@ -112,8 +113,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         return custom.get_custom_method(file=file)
     else:
         method_id = util.check_as_class(method_id)
-    if method_id == Method.TRACI:
-        return traci.get(add_factors_for_missing_contexts, file=file, url=None)
+    if method_id == Method.TRACI or method_id == Method.TRACI2_2:
+        return traci.get(method_id, add_factors_for_missing_contexts, file=file, url=None)
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary,
                           file=file, url=url)
@@ -137,8 +138,9 @@ def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False, **kwargs):
     """Generate a JSONLD file of the methods passed as DataFrame."""
     util.log.info(f"write JSON-LD package to {zip_file}")
     with jsonld.Writer(zip_file) as w:
-        w.write(df, write_flows,
+        w.write(df, write_flows=write_flows,
                 preferred_only=kwargs.get('preferred_only', False),
+                regions=kwargs.get('regions'),
                 )
 
 
@@ -157,7 +159,7 @@ def map_flows(df: pd.DataFrame, system=None, mapping=None,
                          preserve_unmapped=preserve_unmapped,
                          case_insensitive=case_insensitive)
     mapped = mapper.run()
-    x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID']
+    x = mapped[mapped[['Method', 'Indicator', 'Flowable', 'Flow UUID', 'Location']
                       ].duplicated(keep=False)]
     duplicates = list(set(zip(x.Indicator, x.Flowable)))
     if len(duplicates) > 0:
