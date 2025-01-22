@@ -25,6 +25,13 @@ flowables_split = pd.read_csv(datapath / 'TRACI_2.1_split.csv')
 
 def get(method, add_factors_for_missing_contexts=True, file=None,
         url=None) -> pd.DataFrame:
+    if method.name.startswith('TRACI2'):
+        return get_traci2(method, add_factors_for_missing_contexts, file, url)
+    elif method.name.startswith('TRACI3'):
+        return get_traci3(method, add_factors_for_missing_contexts)
+
+def get_traci2(method, add_factors_for_missing_contexts=True, file=None,
+        url=None) -> pd.DataFrame:
     """Generate a method for TRACI in standard format.
 
     :param add_factors_for_missing_contexts: bool, if True generates average
@@ -291,6 +298,19 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
 
     return df2
 
+def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
+    df_list = []
+    meta = method.get_metadata()
+    # use config to id which methods to use
+    for ind, m_dict in meta.get('methods').items():
+        indicators = list(x for x in m_dict.values())[0]
+        df0 = lciafmt.get_mapped_method(method_id=list(m_dict.keys())[0],
+                                       indicators=indicators,
+                                       download_from_remote=False)
+        df0['Method'] = meta.get('name')
+        df0['Indicator'] = ind
+        df_list.append(df0)
+    return pd.concat(df_list, ignore_index=True)
 
 #%%
 if __name__ == "__main__":

@@ -27,6 +27,30 @@
     "source_type": "Excel file"
   },
   {
+    "id": "TRACI3_0",
+    "name": "TRACI 3.0",
+    "detail_note": "UPDATE",
+    "methods": {"Global Climate Change": {"IPCC": ["AR6-100"]},
+                "Eutrophication (Freshwater)": {"TRACI2_2": ["Eutrophication (Freshwater)"]},
+                "Eutrophication (Marine)": {"TRACI2_2": ["Eutrophication (Marine)"]}
+                },
+    "path": "traci",
+    "case_insensitivity": "False",
+    "citation": "UPDATE",
+    "source_type": "UPDATE"
+  },
+  {
+    "id": "NOAA_ODP",
+    "name": "NOAA ODP",
+    "detail_note": "UPDATE",
+    "path": "traci",
+    "mapping": "NOAA_ODP",
+    "case_insensitivity": "False",
+    "url": "https://github.com/USEPA/LCIAformatter/blob/master/lciafmt/data/odp_factors.csv",
+    "citation": "UPDATE",
+    "source_type": "Excel file"
+  },
+  {
     "id": "RECIPE_2016",
     "name": "ReCiPe 2016",
     "version": "1.1",
