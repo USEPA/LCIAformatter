@@ -1,5 +1,6 @@
 # LCIA formatter
-[![DOI](https://joss.theoj.org/papers/10.21105/joss.03392/status.svg)](https://doi.org/10.21105/joss.03392)
+[![JOSS](https://joss.theoj.org/papers/10.21105/joss.03392/status.svg)](https://doi.org/10.21105/joss.03392)
+[![DOI](https://zenodo.org/badge/188049640.svg)](https://zenodo.org/doi/10.5281/zenodo.7400857)
 [![build](https://github.com/USEPA/LCIAformatter/actions/workflows/python-package.yml/badge.svg)](https://github.com/USEPA/LCIAformatter/actions/workflows/python-package.yml)
 
 The LCIA formatter, or `lciafmt`, is a Python tool for standardizing the format and flows of life cycle impact assessment (LCIA) data. The tool acquires LCIA data transparently from its original 
@@ -18,6 +19,7 @@ The LCIA Formatter v1 was peer-reviewed internally at USEPA and externally throu
 |ImpactWorld+ Endpoint*|International Reference Center for Life Cycle of Products, Services and Systems (CIRAIG)|[ImpactWorld+](http://www.impactworldplus.org/en/team.php)|
 |IPCC GWP|Intergovernmental Panel on Climate Change (IPCC)| |
 |FEDEFL Inventory Methods|US Environmental Protection Agency|[FEDEFL Inventory Methods](https://github.com/USEPA/LCIAformatter/wiki/Inventory-Methods)|
+|Cumulative Energy Demand|Federal LCA Commons|[FEDEFL Inventory Methods](https://github.com/USEPA/LCIAformatter/wiki/Inventory-Methods)|
 
 \* only works on Windows installations
 

@@ -17,10 +17,10 @@ except ImportError:
 
 from esupy.util import make_uuid
 from esupy.bibtex import generate_sources
+from esupy.location import extract_coordinates, olca_location_meta
 import fedelemflowlist
 from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number, datapath, check_as_class
-from .location import extract_coordinates, location_meta
 
 
 class Writer(object):
@@ -33,7 +33,7 @@ class Writer(object):
         self.__flows = {}
         self.__coordinates = {}
         self.__locations = {}
-        self.__location_meta = pd.read_csv(location_meta).fillna('')
+        self.__location_meta = olca_location_meta().fillna('')
         self.__sources = {}
         self.__sources_to_write = {}
         self.__bibids = {}
@@ -48,10 +48,11 @@ class Writer(object):
     def write(self, df: pd.DataFrame,
               write_flows=False,
               preferred_only=False,
-              region=None #states, countries
+              regions=None # list, options include: 'states', 'countries'
               ):
-        if any(df['Location'] != '') and region is not None:
-            self.__coordinates = extract_coordinates(group=region)
+        if any(df['Location'] != '') and regions is not None:
+            coord = [extract_coordinates(group=r) for r in regions]
+            self.__coordinates = {k: v for d in coord for k, v in d.items()}
         if 'source_method' not in df:
             df['source_method'] = df['Method']
         if 'source_indicator' not in df:
@@ -84,7 +85,7 @@ class Writer(object):
             indicator = self.__indicator(row)
             factor = o.ImpactFactor()
             unit = row['Unit']
-            factor.flow = self.__flow(row)
+            factor.flow = self.__flow(row).to_ref()
             factor.flow_property = units.property_ref(unit)
             factor.unit = units.unit_ref(unit)
             factor.value = row['Characterization Factor']

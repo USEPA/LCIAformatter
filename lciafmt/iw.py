@@ -6,6 +6,7 @@ This module contains functions needed to compile LCIA methods from ImpactWorld+
 """
 
 import pandas as pd
+import lciafmt
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
 from lciafmt.util import log, format_cas
@@ -38,13 +39,10 @@ def get(file=None, url=None, region=None) -> pd.DataFrame:
             "Please install drivers to remotely connect to Access Database. "
             "Drivers only available on windows platform. For instructions visit: "
             "https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access")
-
+    method_meta = lciafmt.Method.ImpactWorld.get_metadata()
     f = file
     if f is None:
-        fname = "Impact_World.accdb"
-        if url is None:
-            url = "https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1"
-        f = cache.get_or_download(fname, url)
+        f = _get_file(method_meta, url)
     df = _read(f, region)
 
     # Identify midpoint and endpoint records and differentiate in data frame.
@@ -58,6 +56,12 @@ def get(file=None, url=None, region=None) -> pd.DataFrame:
 
     return df
 
+def _get_file(method_meta, url=None):
+    fname = "Impact_World.accdb"
+    if url is None:
+        url = method_meta['url']
+    f = cache.get_or_download(fname, url)
+    return f
 
 def _read(access_file: str, region) -> pd.DataFrame:
     """Read the Access database at passed access_file into DataFrame."""

@@ -13,6 +13,7 @@ from typing import Union
 import pandas as pd
 
 import lciafmt.cache as cache
+import lciafmt.ced as ced
 import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
@@ -37,6 +38,7 @@ class Method(Enum):
     NOAA_ODP = "NOAA ODP"
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
+    CED = "Cumulative Energy Demand"
     ImpactWorld = "ImpactWorld"
     IPCC = "IPCC"
 
@@ -127,6 +129,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         return ipcc.get()
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
+    if method_id == Method.CED:
+        return ced.get()
 
 
 def clear_cache():
@@ -140,7 +144,7 @@ def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False, **kwargs):
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows=write_flows,
                 preferred_only=kwargs.get('preferred_only', False),
-                region=kwargs.get('region'),
+                regions=kwargs.get('regions'),
                 )
 
 
