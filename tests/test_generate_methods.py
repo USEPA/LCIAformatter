@@ -23,6 +23,12 @@ def test_generate_methods():
     assert not error_list
 
 
+def test_url_access():
+    import lciafmt.iw as impactworld
+    f = lciafmt.recipe._get_file(lciafmt.Method.RECIPE_2016.get_metadata())
+    f = lciafmt.traci._get_file(lciafmt.Method.TRACI.get_metadata())
+    f = impactworld._get_file(lciafmt.Method.ImpactWorld.get_metadata())
+
 def test_endpoint_method():
     method = lciafmt.generate_endpoints('Weidema_valuation',
                                         name='Weidema Valuation',
@@ -57,7 +63,7 @@ def test_method_write_json():
     # method = lciafmt.get_mapped_method(method_id = method_id,
     #                                    indicators=['Eutrophication (Marine)'],
     #                                    download_from_remote=True)
-    # method = lciafmt.location.assign_state_names(method)
+    # method = esupy.location.assign_state_names(method)
     # ## ^ requires flowsa
     # method = method.query('~Location.str.isnumeric()').reset_index(drop=True)
     # lciafmt.util.save_json(method_id = method_id,
@@ -77,4 +83,5 @@ def test_compilation_method():
 if __name__ == "__main__":
     # test_generate_methods()
     # test_method_write_json()
+    # test_url_access()
     test_compilation_method()

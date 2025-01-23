@@ -13,6 +13,7 @@ from typing import Union
 import pandas as pd
 
 import lciafmt.cache as cache
+import lciafmt.ced as ced
 import lciafmt.fmap as fmap
 import lciafmt.jsonld as jsonld
 import lciafmt.traci as traci
@@ -33,8 +34,11 @@ class Method(Enum):
 
     TRACI = "TRACI 2.1"
     TRACI2_2 = "TRACI 2.2"
+    TRACI3_0 = "TRACI 3.0"
+    NOAA_ODP = "NOAA ODP"
     RECIPE_2016 = "ReCiPe 2016"
     FEDEFL_INV = "FEDEFL Inventory"
+    CED = "Cumulative Energy Demand"
     ImpactWorld = "ImpactWorld"
     IPCC = "IPCC"
 
@@ -111,8 +115,10 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         return custom.get_custom_method(file=file)
     else:
         method_id = util.check_as_class(method_id)
-    if method_id == Method.TRACI or method_id == Method.TRACI2_2:
+    if method_id == Method.TRACI or method_id == Method.TRACI2_2 or method_id == Method.TRACI3_0:
         return traci.get(method_id, add_factors_for_missing_contexts, file=file, url=None)
+    # if method_id == Method.NOAA_ODP:
+    #     return odp.get()
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary,
                           file=file, url=url)
@@ -123,6 +129,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         return ipcc.get()
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
+    if method_id == Method.CED:
+        return ced.get()
 
 
 def clear_cache():
@@ -136,7 +144,7 @@ def to_jsonld(df: pd.DataFrame, zip_file: str, write_flows=False, **kwargs):
     with jsonld.Writer(zip_file) as w:
         w.write(df, write_flows=write_flows,
                 preferred_only=kwargs.get('preferred_only', False),
-                region=kwargs.get('region'),
+                regions=kwargs.get('regions'),
                 )
 
 

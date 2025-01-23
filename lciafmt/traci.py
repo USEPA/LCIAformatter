@@ -25,6 +25,13 @@ flowables_split = pd.read_csv(datapath / 'TRACI_2.1_split.csv')
 
 def get(method, add_factors_for_missing_contexts=True, file=None,
         url=None) -> pd.DataFrame:
+    if method.name.startswith('TRACI2'):
+        return get_traci2(method, add_factors_for_missing_contexts, file, url)
+    elif method.name.startswith('TRACI3'):
+        return get_traci3(method, add_factors_for_missing_contexts)
+
+def get_traci2(method, add_factors_for_missing_contexts=True, file=None,
+        url=None) -> pd.DataFrame:
     """Generate a method for TRACI in standard format.
 
     :param add_factors_for_missing_contexts: bool, if True generates average
@@ -38,10 +45,7 @@ def get(method, add_factors_for_missing_contexts=True, file=None,
     method_meta = method.get_metadata()
     f = file
     if f is None:
-        fname = method_meta['file']
-        if url is None:
-            url = method_meta['url']
-        f = cache.get_or_download(fname, url)
+        f = _get_file(method_meta, url)
     df = _read(f)
     if add_factors_for_missing_contexts:
         log.info("adding average factors for primary contexts")
@@ -85,6 +89,12 @@ def get(method, add_factors_for_missing_contexts=True, file=None,
 
     return df
 
+def _get_file(method_meta, url=None):
+    fname = "traci_2.1.xlsx"
+    if url is None:
+        url = method_meta['url']
+    f = cache.get_or_download(fname, url)
+    return f
 
 def _read(xls_file: str) -> pd.DataFrame:
     """Read the data from Excel with given path into a DataFrame."""
@@ -213,48 +223,88 @@ def _category_info(c: str):
         return "Human health - non-cancer", "CTUnoncancer", "soil/agricultural", "kg"
 
 def _read_eutro(xls_file: str) -> pd.DataFrame:
+    """
+    Logic used for selecting US data (max 15 per region):
+    |               | Comp_Air | Comp_Fw | Comp_Soil | Comp_LME |
+    |---------------|----------|---------|-----------|----------|
+    | Flow_N        | n/a      | NonAg   | Agric     | NonAg    |
+    | Flow_NH3 as N | All      | n/a     | n/a       | n/a      |
+    | Flow_NOx as N | All      | n/a     | n/a       | n/a      |
+    | Flow_P        | n/a      | All     | All       | n/a      |
+    * skip Agric & NonAg
+
+    Logic used for selecting global data (max 15 per region):
+    |               | Comp_Air | Comp_Fw        | Comp_Soil | Comp_LME |
+    |---------------|----------|----------------|-----------|----------|
+    | Flow_N        | n/a      | Genrl == NonAg | Agric     | NonAg    |
+    | Flow_NH3 as N | All      | n/a            | n/a       | n/a      |
+    | Flow_NOx as N | All      | n/a            | n/a       | n/a      |
+    | Flow_P        | n/a      | All            | All       | n/a      |
+
+    """
     context_dict = {'Comp_Fw': 'freshwater',
                     'Comp_Air': 'air',
                     'Comp_Soil': 'soil',
                     'Comp_LME': 'marine'}
+    compartment_dict = {'Genrl': 'unspecified',
+                        'Agric': 'rural',
+                        'NonAg': 'urbran'}
     log.info(f"read Eutrophication category from file {xls_file}")
     source_df = pd.read_excel(xls_file, sheet_name="S5. Raw Data")
     records = []
     flow_category=[]
     for i, row in source_df.iterrows():
-        skip = True
         sector = row['Sector']
         flow = row['Flowable']
+        compartment = row['Emit Compartment']
+        flow_category = context_dict.get(compartment, "n/a")
+        if flow_category == "soil" and flow == "Flow_P":
+            flow_category = f'{flow_category} (P)'
+            # required to enable distinct mappings to ground for these flows
         aggregation = row['Aggregation Target']
         region_id = str(row['Target ID'])
         if aggregation in ("US_Nation", "US_States", "US_Counties"):
-            if flow == "Flow_N" or sector == "Genrl":
-                skip = False
-                if aggregation == "US_Nation":
-                    region_id = "00000"
-                elif len(region_id) < 3:
-                    region_id = region_id.ljust(5, '0')
-                else:
-                    region_id = region_id.rjust(5, '0')
-                region = region_id
-        if (aggregation in ("World", "Countries")) and sector == "Genrl":
+            if aggregation == "US_Nation":
+                region = "00000"
+            elif len(region_id) < 3:
+                region = region_id.ljust(5, '0')
+            else:
+                region = region_id.rjust(5, '0')
+
+        elif (aggregation in ("World", "Countries")):
             region = row['Name']
             if region == "United States":
-                skip = True
                 ## ^^ Skip US as country in favor of aggregation == "US_Nation"
+                continue
             elif region == "Russian Federation" and region_id == "254":
-                skip = True
                 ## Two entries for Russian Federation, 254 is a very small island
-            else:
-                skip = False
-        if not skip:
-            flow_category = context_dict.get(row['Emit Compartment'], "n/a")
-            factor = row['Average Target Value']
-            indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
-                         else "Eutrophication (Marine)")
-            unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
-                    else "kg N eq")
+                continue
+            if sector == "Genrl" and flow == "Flow_N":
+                ## Drops duplicate factors for Flow_N Comp_Fw
+                continue
+        else:
+            # Ignore aggregation == "Continents"
+            continue
+        if flow != "Flow_N":
+            flow_category = f'{flow_category}/{compartment_dict.get(sector)}'
 
+        factor = row['Average Target Value']
+        indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
+                     else "Eutrophication (Marine)")
+        unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
+                else "kg N eq")
+
+        dfutil.record(records,
+                      indicator=indicator,
+                      indicator_unit=unit,
+                      flow=flow,
+                      flow_category=flow_category,
+                      flow_unit="kg",
+                      factor=factor,
+                      location=region)
+
+        if aggregation == "World":
+        # openLCA requires a factor without location for use by default
             dfutil.record(records,
                           indicator=indicator,
                           indicator_unit=unit,
@@ -262,18 +312,7 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                           flow_category=flow_category,
                           flow_unit="kg",
                           factor=factor,
-                          location=region)
-
-            if aggregation == "US_Nation":
-            # openLCA requires a factor without location for use by default
-                dfutil.record(records,
-                              indicator=indicator,
-                              indicator_unit=unit,
-                              flow=flow,
-                              flow_category=flow_category,
-                              flow_unit="kg",
-                              factor=factor,
-                              location="")
+                          location="")
 
     df = dfutil.data_frame(records)
 
@@ -291,17 +330,26 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
 
     return df2
 
+def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
+    df_list = []
+    meta = method.get_metadata()
+    # use config to id which methods to use
+    for ind, m_dict in meta.get('methods').items():
+        indicators = list(x for x in m_dict.values())[0]
+        df0 = lciafmt.get_mapped_method(method_id=list(m_dict.keys())[0],
+                                       indicators=indicators,
+                                       download_from_remote=False)
+        df0['category'] = df0['Method']
+        df0['source_method'] = df0['Method']
+        df0['Method'] = meta.get('name')
+        df0['Indicator'] = ind
+        df_list.append(df0)
+    return pd.concat(df_list, ignore_index=True)
 
 #%%
 if __name__ == "__main__":
-    method = lciafmt.Method.TRACI2_2
-    df_orig = get(method)
-    #%%
-    df = lciafmt.location.assign_state_names(df_orig)
-    df = df.query('~Location.str.isnumeric()').reset_index(drop=True)
-    df = df.query('Indicator.str.contains("Eutrophication")').reset_index(drop=True)
-    # df = df.query('Location != ""').reset_index(drop=True)
-    mapping = method.get_metadata()['mapping']
-    #%%
-    df2 = lciafmt.map_flows(df, system=mapping)
-    lciafmt.to_jsonld(df2, 'test.zip', region='states')
+    from lciafmt.util import store_method, save_json, drop_county_data
+    method = lciafmt.Method.TRACI3_0
+    df = get(method)
+    store_method(df, method)
+    save_json(method, drop_county_data(df))

@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import yaml
 from pathlib import Path
+from esupy.location import assign_state_abbrev, read_iso_3166
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
     write_df_to_file, write_metadata_to_file, download_from_remote, \
     mkdir_if_missing
@@ -21,7 +22,7 @@ from fedelemflowlist.globals import flow_list_specs
 
 
 # set version number of package, needs to be updated with setup.py
-pkg_version_number = '1.1.2'
+pkg_version_number = '1.2.0'
 MODULEPATH = Path(__file__).resolve().parent
 datapath = MODULEPATH / 'data'
 
@@ -187,6 +188,8 @@ def generate_method_description(name: str,
     else:
         method_meta = method.get_metadata()
         desc += generic['description']
+    if 'mapping' in method_meta:
+        desc += generic['mapping']
     if 'detail_note' in method_meta:
         desc += method_meta['detail_note']
     if 'methods' in method_meta:
@@ -208,6 +211,7 @@ def generate_method_description(name: str,
     desc = (desc
             .replace('[LCIAfmt_version]', pkg_version_number)
             .replace('[FEDEFL_version]', flow_list_specs['list_version'])
+            .replace('[fedelemflowlist_version]', flow_list_specs['tool_version'])
             .replace('[Method]', method_meta['name'])
             .replace('[version]', version)
             .replace('[citation]', method_meta['citation'])
@@ -324,3 +328,25 @@ def compare_to_remote(local_df, method_id):
     else:
         log.info(f'No differences found comparing {method_id.name} '
                  'to remote')
+
+
+def drop_county_data(df):
+    """Assigns state abbreviations to FIPS codes and names to countries.
+    All data not assigned (i.e., counties) are dropped."""
+    # Assigns codes to states e.g., "US-AL", leaves counties as FIPS
+    state_df = assign_state_abbrev(df)
+
+    # Convert country names to ISO Country codes, not all will map
+    country_codes = (read_iso_3166()
+                     .filter(['Name', 'ISO-2d'])
+                     .set_index('Name')['ISO-2d'].to_dict())
+    # prevents dropping of the factors without locations
+    country_codes[''] = ''
+    all_df = state_df.copy()
+    all_df['Location'] = (all_df['Location']
+                          .map(country_codes)
+                          .fillna(all_df['Location']))
+    all_df = (all_df.query('Location.isin(@country_codes.values()) |'
+                           'Location.str.startswith("US")')
+              .reset_index(drop=True))
+    return all_df
