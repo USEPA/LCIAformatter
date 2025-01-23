@@ -339,6 +339,8 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
         df0 = lciafmt.get_mapped_method(method_id=list(m_dict.keys())[0],
                                        indicators=indicators,
                                        download_from_remote=False)
+        df0['category'] = df0['Method']
+        df0['source_method'] = df0['Method']
         df0['Method'] = meta.get('name')
         df0['Indicator'] = ind
         df_list.append(df0)
@@ -346,9 +348,8 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
 
 #%%
 if __name__ == "__main__":
-    from lciafmt.util import store_method
-    method = lciafmt.Method.TRACI2_2
+    from lciafmt.util import store_method, save_json, drop_county_data
+    method = lciafmt.Method.TRACI3_0
     df = get(method)
-    mapping = method.get_metadata()['mapping']
-    mapped_df = lciafmt.map_flows(df, system=mapping)
-    store_method(mapped_df, method)
+    store_method(df, method)
+    save_json(method, drop_county_data(df))
