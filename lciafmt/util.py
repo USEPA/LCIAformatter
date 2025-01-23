@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import yaml
 from pathlib import Path
+from esupy.location import assign_state_abbrev, read_iso_3166
 from esupy.processed_data_mgmt import Paths, FileMeta, load_preprocessed_output,\
     write_df_to_file, write_metadata_to_file, download_from_remote, \
     mkdir_if_missing
@@ -327,3 +328,25 @@ def compare_to_remote(local_df, method_id):
     else:
         log.info(f'No differences found comparing {method_id.name} '
                  'to remote')
+
+
+def drop_county_data(df):
+    """Assigns state abbreviations to FIPS codes and names to countries.
+    All data not assigned (i.e., counties) are dropped."""
+    # Assigns codes to states e.g., "US-AL", leaves counties as FIPS
+    state_df = assign_state_abbrev(df)
+
+    # Convert country names to ISO Country codes, not all will map
+    country_codes = (read_iso_3166()
+                     .filter(['Name', 'ISO-2d'])
+                     .set_index('Name')['ISO-2d'].to_dict())
+    # prevents dropping of the factors without locations
+    country_codes[''] = ''
+    all_df = state_df.copy()
+    all_df['Location'] = (all_df['Location']
+                          .map(country_codes)
+                          .fillna(all_df['Location']))
+    all_df = (all_df.query('Location.isin(@country_codes.values()) |'
+                           'Location.str.startswith("US")')
+              .reset_index(drop=True))
+    return all_df
