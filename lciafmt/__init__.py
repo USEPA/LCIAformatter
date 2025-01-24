@@ -20,6 +20,7 @@ import lciafmt.traci as traci
 import lciafmt.recipe as recipe
 import lciafmt.ipcc as ipcc
 import lciafmt.fedefl_inventory as fedefl_inventory
+import lciafmt.odp as odp
 import lciafmt.util as util
 import lciafmt.endpoint as ep
 import lciafmt.custom as custom
@@ -117,8 +118,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         method_id = util.check_as_class(method_id)
     if method_id == Method.TRACI or method_id == Method.TRACI2_2 or method_id == Method.TRACI3_0:
         return traci.get(method_id, add_factors_for_missing_contexts, file=file, url=None)
-    # if method_id == Method.NOAA_ODP:
-    #     return odp.get()
+    if method_id == Method.NOAA_ODP:
+        return odp.get()
     if method_id == Method.RECIPE_2016:
         return recipe.get(add_factors_for_missing_contexts, endpoint, summary,
                           file=file, url=url)
