@@ -83,14 +83,14 @@ def get() -> pd.DataFrame:
                         except ValueError:
                             log.warning(f'Error in {row["Industrial Designation or Chemical Name"]}')
                 dfutil.record(records,
-                            method='NOAA',
+                            method='NOAA ODP',
                             indicator='Ozone Depletion Potential', 
                             indicator_unit='kg CFC-11 equivalent',
                             flow=row['Industrial Designation or Chemical Name'],
                             flow_category='air',
                             flow_unit='kg', 
                             cas_number=row['CAS RN'],
-                            location='Global',
+                            location='',
                             factor=odpCF)
             # check if the GWP factor is a non-zero number. 
             if row['GWP 100-yr'] not in ['', 0, '–', None, 'xxx', '0']:
@@ -107,14 +107,14 @@ def get() -> pd.DataFrame:
                     else:
                         gwpCF = float(row['GWP 100-yr'])
                 dfutil.record(records,
-                            method='NOAA',
+                            method='NOAA ODP',
                             indicator='Climate Change Potential', 
                             indicator_unit='kg CO2 equivalent',
                             flow=row['Industrial Designation or Chemical Name'],
                             flow_category='air',
                             flow_unit='kg', 
                             cas_number=row['CAS RN'],
-                            location='Global',
+                            location='',
                             factor=gwpCF)   
 
     output_df = dfutil.data_frame(records)
@@ -146,4 +146,4 @@ if __name__ == "__main__":
     mapped_df = lciafmt.map_flows(df, system=method.get_metadata().get('mapping'))
     mapped_df2 = lciafmt.util.collapse_indicators(mapped_df)
     lciafmt.util.store_method(mapped_df2, method)
-    lciafmt.util.save_json(method, mapped_df2, write_flows=True)
+    lciafmt.util.save_json(method, mapped_df2)
