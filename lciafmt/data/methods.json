@@ -31,7 +31,7 @@
     "name": "TRACI 3.0",
     "detail_note": "UPDATE",
     "methods": {"Global Climate Change": {"IPCC": ["AR6-100"]},
-                "Ozone Depletion Potential": {"NOAA_ODP": ["Climate Change Potential"]},
+                "Ozone Depletion Potential": {"NOAA_ODP": ["Ozone Depletion Potential"]},
                 "Eutrophication (Freshwater)": {"TRACI2_2": ["Eutrophication (Freshwater)"]},
                 "Eutrophication (Marine)": {"TRACI2_2": ["Eutrophication (Marine)"]}
                 },
