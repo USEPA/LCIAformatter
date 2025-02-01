@@ -53,6 +53,18 @@
     "source_type": "Excel file"
   },
   {
+    "id": "USETOX",
+    "name": "USEtox",
+    "detail_note": "UPDATE",
+    "path": "usetox",
+    "mapping": "USEtox",
+    "case_insensitivity": "False",
+    "file": ["USEtox_results_organics.xlsx", "USEtox_results_inorganics.xlsx"],
+    "url": "update",
+    "citation": "UPDATE",
+    "source_type": "Excel file"
+  },
+  {
     "id": "RECIPE_2016",
     "name": "ReCiPe 2016",
     "version": "1.1",
