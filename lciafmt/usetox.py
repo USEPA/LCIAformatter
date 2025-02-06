@@ -46,11 +46,11 @@ def _get_file(method_meta, url=None):
 def _read(xls_file, sheet: str) -> pd.DataFrame:
     """Read the data from Excel with given path into a DataFrame."""
     if sheet == "Ecotox CF":
-        usecols = "B:K, U"
-        i_unit = 'UNIT FOR ECOTOX'
+        usecols = "B:K, T:U"
+        i_unit = 'CTUe' # Comparative toxic units
     elif sheet == "Human tox CF":
         usecols = "B:BI"
-        i_unit = 'UNIT FOR HH'
+        i_unit = 'CTUh' # Comparative toxic units
     df = pd.read_excel(xls_file, sheet_name=sheet, skiprows=3, usecols=usecols)
     headers = pd.read_excel(xls_file, sheet_name=sheet, nrows=2, skiprows=1, usecols=usecols).values
     headers = pd.DataFrame(headers).ffill(axis=1)
@@ -58,12 +58,17 @@ def _read(xls_file, sheet: str) -> pd.DataFrame:
     headers = headers.drop(headers.columns[:2], axis=1)
     header = headers.apply(lambda x: f"{x[0]}: {x[1]}")
     df.columns = pd.concat([pd.Series(['CAS', 'Name']), header])
-    df_melt = pd.melt(df, id_vars=['CAS', 'Name'], var_name='header')
+    flag_cols = list(header[header.str.contains('indicative')])
+    df_melt = pd.melt(df, id_vars=(['CAS', 'Name'] + flag_cols), var_name='header')
     df_melt[['compartment', 'indicator']] = df_melt['header'].str.split(": ", expand=True)
+    df_melt[flag_cols] = df_melt[flag_cols].fillna('')
     
     indicator_dict = {'cancer': 'Human health cancer',
                       'non-canc.': 'Human health noncancer',
                       'freshwater': 'Ecotoxicity'}
+    flag_dict = {'cancer': '(F=indicative; n/a=not available): carcinogenic',
+                 'non-canc.': '(F=indicative; n/a=not available): non-carcinogenic',
+                 'freshwater': '(F=indicative; n/a=not available): Ecotox'}
     compartment_dict = {
         'Emission to household indoor air': 'air/indoor',
         'Emission to industrial indoor air': 'air/industrial',
@@ -94,12 +99,23 @@ def _read(xls_file, sheet: str) -> pd.DataFrame:
                                 'CAS': 'CAS No',
                                 'i_unit': 'Indicator unit',
                                 'Name': 'Flowable'})
-               .drop(columns=['header', 'compartment', 'indicator'])
-               .reindex(columns=lciafmt_cols)
+               .assign(col = lambda x: x['indicator'].map(flag_dict))
+               .assign(Flag = lambda x: x.apply(lambda row: row[row['col']], axis=1))
+               ## ^^ pull in the appropriate flag column
+               .drop(columns=['header', 'compartment', 'indicator', 'col'] + flag_cols)
                .fillna('')
                )
 
-    return df_melt
+    # Duplicate indicators with and without Interim CFs
+    df_combined = pd.concat([
+        (df_melt
+         .assign(Indicator = lambda x: x['Indicator'] + ' (Recommended and Interim)')),
+        (df_melt
+         .query('Flag != "F"')
+         .assign(Indicator = lambda x: x['Indicator'] + ' (Recommended)'))]
+        ).reindex(columns=lciafmt_cols)
+
+    return df_combined
 
 
 if __name__ == "__main__":
@@ -109,5 +125,5 @@ if __name__ == "__main__":
     mapping = method.get_metadata()['mapping']
     #%%
     mapped_df = lciafmt.map_flows(df, system=mapping)
-    # store_method(df, method)
-    # save_json(method, df)
+    store_method(mapped_df, method)
+    save_json(method, mapped_df)

@@ -33,7 +33,11 @@
     "methods": {"Global Climate Change": {"IPCC": ["AR6-100"]},
                 "Ozone Depletion Potential": {"NOAA_ODP": ["Ozone Depletion Potential"]},
                 "Eutrophication (Freshwater)": {"TRACI2_2": ["Eutrophication (Freshwater)"]},
-                "Eutrophication (Marine)": {"TRACI2_2": ["Eutrophication (Marine)"]}
+                "Eutrophication (Marine)": {"TRACI2_2": ["Eutrophication (Marine)"]},
+                "Human health particulate matter": {"TRACI2_2": ["Human health - particulate matter"]},
+                "Human health cancer": {"USEtox": ["Human health cancer (Recommended and Interim)"]},
+                "Human health noncancer": {"USEtox": ["Human health noncancer (Recommended and Interim)"]},
+                "Ecotoxicity": {"USEtox": ["Ecotoxicity (Recommended and Interim)"]}
                 },
     "path": "traci",
     "case_insensitivity": "False",
