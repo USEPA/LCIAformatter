@@ -333,6 +333,10 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
 def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
     df_list = []
     meta = method.get_metadata()
+    
+    df_smog = _read_smog()
+    df_smog = lciafmt.map_flows(df_smog, system='TRACI_SAPRC')
+    df_list.append(df_smog)
     # use config to id which methods to use
     for ind, m_dict in meta.get('methods').items():
         indicators = list(x for x in m_dict.values())[0]
@@ -345,6 +349,44 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
         df0['Indicator'] = ind
         df_list.append(df0)
     return pd.concat(df_list, ignore_index=True)
+
+def _read_smog():
+    df = (pd.read_excel(datapath / 'Complied results v01 - 2024-10.xlsx',
+                        sheet_name = 'Aggregated Values')
+            .drop(columns='ID')
+            .rename(columns={'Name': 'Region'})
+            )
+    cols = ['ISO 3', 'Region', 'Level']
+    df = df.melt(id_vars=cols, var_name = 'Name', value_name = 'Amount')
+
+    flows = (pd.read_excel(datapath / 'Complied results v01 - 2024-10.xlsx',
+                           sheet_name = 'Substances')
+               .rename(columns={'Name': 'Flowable',
+                                'SAPRC Name': 'Name'})
+               .drop_duplicates(subset='Name')
+               )
+    df = (df.merge(flows, how='left', on='Name', validate='m:1')
+            .drop(columns='Name')
+            )
+
+    records = []
+    for i, row in df.iterrows():
+        flow = row['Flowable']
+        region_id = row['ISO 3']
+        level = row['Level']
+
+        dfutil.record(records,
+                      method='TRACI 3.0',
+                      indicator='Smog',
+                      indicator_unit='kg O3 eq.',
+                      flow=flow,
+                      flow_category='air',
+                      flow_unit="kg",
+                      factor=row['Amount'],
+                      location=row['Region'])
+
+    return dfutil.data_frame(records)
+
 
 #%%
 if __name__ == "__main__":
