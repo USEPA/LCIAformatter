@@ -334,15 +334,17 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
     df_list = []
     meta = method.get_metadata()
     
-    df_smog = _read_smog()
-    df_smog = lciafmt.map_flows(df_smog, system='TRACI_SAPRC')
-    df_list.append(df_smog)
     # use config to id which methods to use
     for ind, m_dict in meta.get('methods').items():
-        indicators = list(x for x in m_dict.values())[0]
-        df0 = lciafmt.get_mapped_method(method_id=list(m_dict.keys())[0],
-                                       indicators=indicators,
-                                       download_from_remote=False)
+        m = list(m_dict.keys())[0]
+        if m == "TRACI3_0":
+            df0 = _read_smog()
+            df0 = lciafmt.map_flows(df0, system='TRACI_SAPRC')
+        else:
+            indicators = list(x for x in m_dict.values())[0]
+            df0 = lciafmt.get_mapped_method(method_id=list(m_dict.keys())[0],
+                                           indicators=indicators,
+                                           download_from_remote=False)
         df0['category'] = df0['Method']
         df0['source_method'] = df0['Method']
         df0['Method'] = meta.get('name')

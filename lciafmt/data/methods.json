@@ -37,7 +37,8 @@
                 "Human health particulate matter": {"TRACI2_2": ["Human health - particulate matter"]},
                 "Human health cancer": {"USEtox": ["Human health cancer (Recommended and Interim)"]},
                 "Human health noncancer": {"USEtox": ["Human health noncancer (Recommended and Interim)"]},
-                "Ecotoxicity": {"USEtox": ["Ecotoxicity (Recommended and Interim)"]}
+                "Ecotoxicity": {"USEtox": ["Ecotoxicity (Recommended and Interim)"]},
+                "Smog": {"TRACI3_0": ["Smog"]}
                 },
     "path": "traci",
     "case_insensitivity": "False",
