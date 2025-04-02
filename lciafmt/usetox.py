@@ -6,12 +6,13 @@ This module contains functions needed to compile LCIA methods from USETox
 """
 
 import pandas as pd
+import os
+import zipfile
 
 import lciafmt
 import lciafmt.cache as cache
 from lciafmt.df import lciafmt_cols
-from lciafmt.util import log, aggregate_factors_for_primary_contexts, format_cas,\
-    datapath
+from lciafmt.util import log, aggregate_factors_for_primary_contexts
 
 
 def get(method) -> pd.DataFrame:
@@ -26,11 +27,11 @@ def get(method) -> pd.DataFrame:
     """
     log.info("getting method USEtox")
     method_meta = method.get_metadata()
-    # f = _get_file(method_meta)
+    _get_file(method_meta)
     df = pd.DataFrame()
     for xls_file in method_meta.get('file'):
-        df1 = _read(datapath / xls_file, 'Human tox CF')
-        df2 = _read(datapath / xls_file, 'Ecotox CF')
+        df1 = _read(cache.get_path(xls_file), 'Human tox CF')
+        df2 = _read(cache.get_path(xls_file), 'Ecotox CF')
         df = pd.concat([df, df1, df2], ignore_index=True)
     
     df['Method'] = method_meta.get('name')
@@ -40,8 +41,34 @@ def get(method) -> pd.DataFrame:
 def _get_file(method_meta, url=None):
     if url is None:
         url = method_meta['url']
-    f = cache.get_or_download(fname, url)
-    return f
+    fname = os.path.basename(url)
+    file = cache.get_path(fname)
+    path = cache.get_folder()
+    if os.path.isfile(file):
+        log.info(f"take {fname} from cache")
+    else:
+        raise FileNotFoundError(
+            f"{fname} not found. Create a free account to download from "
+            f"{url} and save to {path}")
+
+    try:
+        with zipfile.ZipFile(file, 'r') as zipf:
+            files = zipf.namelist()
+            for filename in method_meta['file']:
+                if any(filename in string for string in files):
+                    z = [string for string in files if string.endswith(filename)][0]
+                    zipf.extract(z, path)
+                    extracted_path = os.path.join(path, z)
+                    new_path = os.path.join(path, os.path.basename(z))
+                    if os.path.exists(new_path):
+                        os.remove(new_path)
+                    os.rename(extracted_path, new_path)
+                    print(f"Extracted '{filename}' to '{path}'")
+                else:
+                    print(f"'{filename}' not found in the ZIP archive.")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Error: ZIP file '{file}' not found.")
+
 
 def _read(xls_file, sheet: str) -> pd.DataFrame:
     """Read the data from Excel with given path into a DataFrame."""
@@ -113,7 +140,7 @@ def _read(xls_file, sheet: str) -> pd.DataFrame:
         (df_melt
          .query('Flag != "F"')
          .assign(Indicator = lambda x: x['Indicator'] + ' (Recommended)'))]
-        ).reindex(columns=lciafmt_cols)
+        ).reindex(columns=lciafmt_cols).fillna('')
 
     return df_combined
 
