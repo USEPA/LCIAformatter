@@ -38,6 +38,10 @@
                 "Human health cancer": {"USEtox": ["Human health cancer (Recommended and Interim)"]},
                 "Human health noncancer": {"USEtox": ["Human health noncancer (Recommended and Interim)"]},
                 "Ecotoxicity": {"USEtox": ["Ecotoxicity (Recommended and Interim)"]},
+                "Human health cancer (Recommended only)": {"USEtox": ["Human health cancer (Recommended)"]},
+                "Human health noncancer (Recommended only)": {"USEtox": ["Human health noncancer (Recommended)"]},
+                "Ecotoxicity (Recommended only)": {"USEtox": ["Ecotoxicity (Recommended)"]},
+                "Acidification": {"TRACI2_2": ["Acidification"]},
                 "Smog": {"TRACI3_0": ["Smog"]}
                 },
     "path": "traci",

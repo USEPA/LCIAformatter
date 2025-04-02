@@ -396,4 +396,5 @@ if __name__ == "__main__":
     method = lciafmt.Method.TRACI3_0
     df = get(method)
     store_method(df, method)
-    save_json(method, drop_county_data(df))
+    df2 = drop_county_data(df)
+    save_json(method, df2)
