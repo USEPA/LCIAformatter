@@ -72,8 +72,7 @@ def _read(xls_file, sheet: str) -> pd.DataFrame:
     records = []
     for index, row in df.iterrows():
         ind_unit, unit = row['Unit'].split('/')
-        location = ('NA' if row['LCIAMethod_location_name'] == "Namibia"
-                    else row['LCIAMethod_location_ISO2'])
+        location = row['LCIAMethod_location_name']
         cas = (row['FLOW_casnumber'].lstrip('0') if isinstance(row['FLOW_casnumber'], str)
                else '')
         dfutil.record(records,

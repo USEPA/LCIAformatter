@@ -1,6 +1,6 @@
 import pandas as pd
 import lciafmt
-from lciafmt.util import store_method, save_json, log, drop_county_data
+from lciafmt.util import store_method, save_json, log, drop_county_data_and_assign_names
 
 
 method = lciafmt.Method.TRACI2_2
@@ -17,7 +17,7 @@ def main():
     store_method(mapped_df, method)
 
     # drop county FIPS, leave only US states and countries
-    all_df = drop_county_data(mapped_df)
+    all_df = drop_county_data_and_assign_names(mapped_df)
 
     save_json(method, all_df, name='TRACI2.2', regions=regions)
 

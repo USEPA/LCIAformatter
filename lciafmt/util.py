@@ -330,7 +330,7 @@ def compare_to_remote(local_df, method_id):
                  'to remote')
 
 
-def drop_county_data(df):
+def drop_county_data_and_assign_names(df):
     """Assigns state abbreviations to FIPS codes and names to countries.
     All data not assigned (i.e., counties) are dropped."""
     # Assigns codes to states e.g., "US-AL", leaves counties as FIPS
@@ -350,3 +350,12 @@ def drop_county_data(df):
                            'Location.str.startswith("US")')
               .reset_index(drop=True))
     return all_df
+
+
+def drop_county_data(df):
+    """Assigns state abbreviations to FIPS codes then drops all numeric
+    locations."""
+    # Assigns codes to states e.g., "US-AL", leaves counties as FIPS
+    state_df = assign_state_abbrev(df)
+    all_df = state_df[~state_df.Location.str.contains(r'[0-9]')]
+    return all_df.reset_index(drop=True)
