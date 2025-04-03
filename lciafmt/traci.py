@@ -338,7 +338,7 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
     for ind, m_dict in meta.get('methods').items():
         m = list(m_dict.keys())[0]
         if m == "TRACI3_0":
-            df0 = _read_smog()
+            df0 = _read_smog(ind)
             df0 = lciafmt.map_flows(df0, system='TRACI_SAPRC')
         else:
             indicators = list(x for x in m_dict.values())[0]
@@ -352,7 +352,7 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
         df_list.append(df0)
     return pd.concat(df_list, ignore_index=True)
 
-def _read_smog():
+def _read_smog(indicator_name):
     df = (pd.read_excel(datapath / 'Complied results v01 - 2024-10.xlsx',
                         sheet_name = 'Aggregated Values')
             .drop(columns='ID')
@@ -379,7 +379,7 @@ def _read_smog():
 
         dfutil.record(records,
                       method='TRACI 3.0',
-                      indicator='Smog',
+                      indicator=indicator_name,
                       indicator_unit='kg O3 eq.',
                       flow=flow,
                       flow_category='air',
