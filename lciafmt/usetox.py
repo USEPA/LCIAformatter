@@ -34,6 +34,7 @@ def get(method) -> pd.DataFrame:
         df2 = _read(cache.get_path(xls_file), 'Ecotox CF')
         df = pd.concat([df, df1, df2], ignore_index=True)
     
+    df = aggregate_factors_for_primary_contexts(df)
     df['Method'] = method_meta.get('name')
 
     return df
@@ -73,10 +74,10 @@ def _get_file(method_meta, url=None):
 def _read(xls_file, sheet: str) -> pd.DataFrame:
     """Read the data from Excel with given path into a DataFrame."""
     if sheet == "Ecotox CF":
-        usecols = "B:K, T:U"
+        usecols = "B:K, T:U" # Midpoint
         i_unit = 'CTUe' # Comparative toxic units
     elif sheet == "Human tox CF":
-        usecols = "B:BI"
+        usecols = "B:AD, BF:BI" # Midpoint
         i_unit = 'CTUh' # Comparative toxic units
     df = pd.read_excel(xls_file, sheet_name=sheet, skiprows=3, usecols=usecols)
     headers = pd.read_excel(xls_file, sheet_name=sheet, nrows=2, skiprows=1, usecols=usecols).values
@@ -97,23 +98,26 @@ def _read(xls_file, sheet: str) -> pd.DataFrame:
                  'non-canc.': '(F=indicative; n/a=not available): non-carcinogenic',
                  'freshwater': '(F=indicative; n/a=not available): Ecotox'}
     compartment_dict = {
+        ## Human Health
         'Emission to household indoor air': 'air/indoor',
         'Emission to industrial indoor air': 'air/industrial',
         'Emission to urban air': 'air/urban',
         'Emission to cont. rural air': 'air/rural',
         'Emission to cont. freshwater': 'water/freshwater',
-        'Emission to cont. sea water': 'water/marine',
-        'Emission to cont. natural soil': 'ground',
-        'Emission to cont. agric. soil': 'ground/agricultural',
+        'Emission to cont. sea water': 'water/sea water',
+        'Emission to cont. natural soil': 'soil/natural',
+        'Emission to cont. agric. soil': 'soil/agricultural',
         # 'Application to wheat': ''
+
+        ## Ecotox
         'Em.hom.airI': 'air/indoor',
         'Em.ind.airI': 'air/industrial',
         'Em.airU': 'air/urban',
         'Em.airC': 'air/rural',
         'Em.fr.waterC': 'water/freshwater',
-        'Em.sea waterC': 'water/marine',
-        'Em.nat.soilC': 'ground',
-        'Em.agr.soilC': 'ground/agricultural',
+        'Em.sea waterC': 'water/sea water',
+        'Em.nat.soilC': 'soil/natural',
+        'Em.agr.soilC': 'soil/agricultural',
         }
     
     df_melt = (df_melt
