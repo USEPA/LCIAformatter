@@ -349,6 +349,7 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
         df0['source_method'] = df0['Method']
         df0['Method'] = meta.get('name')
         df0['Indicator'] = ind
+        df0['Indicator unit'] = df0['Indicator unit'].str.replace('equivalent', 'eq')
         df_list.append(df0)
     return pd.concat(df_list, ignore_index=True)
 
@@ -380,7 +381,7 @@ def _read_smog(indicator_name):
         dfutil.record(records,
                       method='TRACI 3.0',
                       indicator=indicator_name,
-                      indicator_unit='kg O3 eq.',
+                      indicator_unit='kg O3 eq',
                       flow=flow,
                       flow_category='air',
                       flow_unit="kg",
