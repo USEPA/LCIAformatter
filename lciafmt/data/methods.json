@@ -34,7 +34,7 @@
                 "Ozone Depletion": {"NOAA_ODP": ["Ozone Depletion Potential"]},
                 "Eutrophication Freshwater": {"TRACI2_2": ["Eutrophication (Freshwater)"]},
                 "Eutrophication Marine": {"TRACI2_2": ["Eutrophication (Marine)"]},
-                "Human Health Particulate Matter": {"TRACI2_2": ["Human health - particulate matter"]},
+                "Human Health Particulate Matter": {"GLAM": ["HH Fine Particulate Matter Impacts"]},
                 "Human Health Cancer": {"USEtox": ["Human health cancer (Recommended and Interim)"]},
                 "Human Health Noncancer": {"USEtox": ["Human health noncancer (Recommended and Interim)"]},
                 "Ecotoxicity": {"USEtox": ["Ecotoxicity (Recommended and Interim)"]},
@@ -71,6 +71,19 @@
     "case_insensitivity": "False",
     "file": ["USEtox_results_organics.xlsx", "USEtox_results_inorganics.xlsx"],
     "url": "https://www.usetox.org/system/files/download/USEtox_2.14.zip",
+    "citation": "UPDATE",
+    "source_type": "Excel file"
+  },
+  {
+    "id": "GLAM",
+    "name": "GLAM",
+    "version": "1.0.2024.10",
+    "detail_note": "UPDATE",
+    "path": "glam",
+    "mapping": "GLAM",
+    "case_insensitivity": "False",
+    "file": ["GLAM_template_HH_Fine_Particulate_Matter_Impacts.xlsx"],
+    "url": "https://www.lifecycleinitiative.org/wp-content/uploads/2024/10/V1.0.2024.10.zip",
     "citation": "UPDATE",
     "source_type": "Excel file"
   },

@@ -20,6 +20,7 @@ import lciafmt.traci as traci
 import lciafmt.recipe as recipe
 import lciafmt.ipcc as ipcc
 import lciafmt.fedefl_inventory as fedefl_inventory
+import lciafmt.glam as glam
 import lciafmt.odp as odp
 import lciafmt.usetox as usetox
 import lciafmt.util as util
@@ -40,6 +41,7 @@ class Method(Enum):
     NOAA_ODP = "NOAA ODP"
     RECIPE_2016 = "ReCiPe 2016"
     USETOX = "USEtox"
+    GLAM = "GLAM"
     FEDEFL_INV = "FEDEFL Inventory"
     CED = "Cumulative Energy Demand"
     ImpactWorld = "ImpactWorld"
@@ -132,6 +134,8 @@ def get_method(method_id, add_factors_for_missing_contexts=True,
         return ipcc.get()
     if method_id == Method.USETOX:
         return usetox.get(method_id)
+    if method_id == Method.GLAM:
+        return glam.get(method_id)
     if method_id == Method.FEDEFL_INV:
         return fedefl_inventory.get(subset)
     if method_id == Method.CED:
