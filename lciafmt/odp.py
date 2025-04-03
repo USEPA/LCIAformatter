@@ -120,7 +120,7 @@ def get() -> pd.DataFrame:
     output_df = dfutil.data_frame(records)
     output_df['CAS No'] = output_df['CAS No'].astype(str)
     output_df['Flowable'] = output_df['Flowable'].str.strip()
-    output_df = output_df.dropna(subset='Flowable')
+    output_df = output_df.dropna(subset=['Flowable', 'Characterization Factor'])
 
     # # Write output dataframe to a CSV file 
     # # Purpose of this file is for visualizing the dataframe and QC.
