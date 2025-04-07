@@ -57,8 +57,9 @@
     "path": "traci",
     "mapping": "NOAA_ODP",
     "case_insensitivity": "False",
-    "url": "https://github.com/USEPA/LCIAformatter/blob/master/lciafmt/data/odp_factors.csv",
-    "citation": "UPDATE",
+    "url": "https://csl.noaa.gov/assessments/ozone/2022/downloads/Annex_2022OzoneAssessment.pdf",
+    "bib_id": "burkholder_2023_summary",
+    "citation": "Burkholder et al. 2023",
     "source_type": "Excel file"
   },
   {
@@ -71,7 +72,8 @@
     "case_insensitivity": "False",
     "file": ["USEtox_results_organics.xlsx", "USEtox_results_inorganics.xlsx"],
     "url": "https://www.usetox.org/system/files/download/USEtox_2.14.zip",
-    "citation": "UPDATE",
+    "bib_id": "rosenbaum_2008_usetox",
+    "citation": "Rosenbaum et al. 2008",
     "source_type": "Excel file"
   },
   {
