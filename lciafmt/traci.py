@@ -241,7 +241,7 @@ def _read_eutro(xls_file: str) -> pd.DataFrame:
                     'Comp_LME': 'marine'}
     compartment_dict = {'Genrl': 'unspecified',
                         'Agric': 'rural',
-                        'NonAg': 'urbran'}
+                        'NonAg': 'urban'}
     log.info(f"read Eutrophication category from file {xls_file}")
     source_df = pd.read_excel(xls_file, sheet_name="S5. Raw Data")
     records = []
