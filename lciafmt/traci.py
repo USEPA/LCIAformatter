@@ -345,6 +345,16 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
             df0 = lciafmt.get_mapped_method(method_id=list(m_dict.keys())[0],
                                            indicators=indicators,
                                            download_from_remote=False)
+            if m == "IPCC":
+                # Ensure that only the lastest IPCC value is maintained for each flow
+                flow_count = len(df0['Flow UUID'].unique())
+                df0 = (df0
+                       .sort_values(by='Indicator', ascending=False)
+                       .drop_duplicates(subset=['Flowable', 'Flow UUID', 'Context'],
+                                        keep='first')
+                       )
+                if(len(df0['Flow UUID'].unique()) != flow_count):
+                    raise IndexError('Error dropping duplicates from IPCC')
         df0['category'] = df0['Method']
         df0['source_method'] = df0['Method']
         df0['Method'] = meta.get('name')
