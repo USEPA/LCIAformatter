@@ -394,7 +394,6 @@ def _read_smog(method=None):
     for i, row in df.iterrows():
         flow = row['Flowable']
         region_id = row['ISO 3']
-
         dfutil.record(records,
                       method='TRACI 3.0',
                       indicator='Smog Formation',
@@ -403,7 +402,8 @@ def _read_smog(method=None):
                       flow_category='air',
                       flow_unit="kg",
                       factor=row['Amount'],
-                      location=row['Region'])
+                      location='' if region_id == "GLO" else row['Region']
+                      )
 
     return dfutil.data_frame(records)
 
@@ -417,6 +417,11 @@ if __name__ == "__main__":
     df2 = drop_county_data(df)
     smog = df2.query('Indicator == "Ozone Formation"')
     final_df = pd.concat([
-        df2.query('Indicator != "Ozone Formation"'),
+        df2.query('Indicator != "Ozone Formation"')
+           .assign(Location = lambda x: x['Location'].replace('US', 'United States of America')),
         smog.query('Context == "emission/air"')], ignore_index=True)
-    # save_json(method, df2)
+    # final_df.drop(columns='category').to_csv('TRACI 3.0.csv', index=False)
+    save_json(method, df2,
+              regions=['states', 'countries'],
+              write_flows=True,
+              )
