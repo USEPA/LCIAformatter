@@ -334,6 +334,7 @@ def drop_county_data_and_assign_names(df):
     """Assigns state abbreviations to FIPS codes and names to countries.
     All data not assigned (i.e., counties) are dropped."""
     # Assigns codes to states e.g., "US-AL", leaves counties as FIPS
+    df['Location'] = df['Location'].replace('United States of America', '00000')
     state_df = assign_state_abbrev(df)
 
     # Convert country names to ISO Country codes, not all will map
@@ -347,7 +348,8 @@ def drop_county_data_and_assign_names(df):
                           .map(country_codes)
                           .fillna(all_df['Location']))
     all_df = (all_df.query('Location.isin(@country_codes.values()) |'
-                           'Location.str.startswith("US")')
+                           'Location == "US" |'
+                           'Location.str.startswith("US-")')
               .reset_index(drop=True))
     return all_df
 

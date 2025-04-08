@@ -410,10 +410,12 @@ def _read_smog(method=None):
 
 #%%
 if __name__ == "__main__":
-    from lciafmt.util import store_method, save_json, drop_county_data
+    from lciafmt.util import store_method, save_json, drop_county_data,\
+        drop_county_data_and_assign_names
     method = lciafmt.Method.TRACI3_0
     df = get(method)
     store_method(df, method)
+#%% Write to excel
     df2 = drop_county_data(df)
     smog = df2.query('Indicator == "Ozone Formation"')
     final_df = pd.concat([
@@ -421,7 +423,12 @@ if __name__ == "__main__":
            .assign(Location = lambda x: x['Location'].replace('US', 'United States of America')),
         smog.query('Context == "emission/air"')], ignore_index=True)
     # final_df.drop(columns='category').to_csv('TRACI 3.0.csv', index=False)
-    save_json(method, df2,
+#%% Write to json
+    method = lciafmt.Method.TRACI3_0
+    df = lciafmt.get_mapped_method(method)
+    df_json = drop_county_data_and_assign_names(df)
+    # df_json = df_json.query('Context == "emission/air"')
+    save_json(method, df_json,
               regions=['states', 'countries'],
               write_flows=True,
               )
