@@ -44,6 +44,8 @@
                 "Acidification": {"TRACI2_2": ["Acidification"]},
                 "Ozone Formation": {"TRACI3_0": ["Ozone Formation"]}
                 },
+    "smog_url": "",
+    "smog_file": "TRACI Ozone v01a.xlsx",
     "path": "traci",
     "case_insensitivity": "False",
     "url": "TBD",

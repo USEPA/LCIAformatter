@@ -338,7 +338,7 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
     for ind, m_dict in meta.get('methods').items():
         m = list(m_dict.keys())[0]
         if m == "TRACI3_0":
-            df0 = _read_smog(ind)
+            df0 = _read_smog(method)
             df0 = lciafmt.map_flows(df0, system='TRACI_SAPRC')
         else:
             indicators = list(x for x in m_dict.values())[0]
@@ -352,6 +352,7 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
                        .sort_values(by='Indicator', ascending=False)
                        .drop_duplicates(subset=['Flowable', 'Flow UUID', 'Context'],
                                         keep='first')
+                       .sort_values(by=['Flowable', 'Context'])
                        )
                 if(len(df0['Flow UUID'].unique()) != flow_count):
                     raise IndexError('Error dropping duplicates from IPCC')
@@ -363,17 +364,24 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
         df_list.append(df0)
     return pd.concat(df_list, ignore_index=True)
 
-def _read_smog(indicator_name):
-    df = (pd.read_excel(datapath / 'Complied results v01 - 2024-10.xlsx',
-                        sheet_name = 'Aggregated Values')
+def _read_smog(method=None):
+    if not method:
+        method = lciafmt.Method.TRACI3_0
+    meta = method.get_metadata()
+    f = cache.get_or_download(file = meta['smog_file'],
+                              url = meta['smog_url'])
+    df = (pd.read_excel(f, sheet_name = 'Aggregated Values')
             .drop(columns='ID')
+            .query('~`ISO 3`.str.startswith("x")')
             .rename(columns={'Name': 'Region'})
             )
-    cols = ['ISO 3', 'Region', 'Level']
-    df = df.melt(id_vars=cols, var_name = 'Name', value_name = 'Amount')
+    cols = ['ISO 3', 'Region']
+    df = (df
+          .melt(id_vars=cols, var_name = 'Name', value_name = 'Amount')
+          .assign(Name = lambda x: x['Name'].str.strip())
+          )
 
-    flows = (pd.read_excel(datapath / 'Complied results v01 - 2024-10.xlsx',
-                           sheet_name = 'Substances')
+    flows = (pd.read_excel(f, sheet_name = 'Substances')
                .rename(columns={'Name': 'Flowable',
                                 'SAPRC Name': 'Name'})
                .drop_duplicates(subset='Name')
@@ -386,11 +394,10 @@ def _read_smog(indicator_name):
     for i, row in df.iterrows():
         flow = row['Flowable']
         region_id = row['ISO 3']
-        level = row['Level']
 
         dfutil.record(records,
                       method='TRACI 3.0',
-                      indicator=indicator_name,
+                      indicator='Smog Formation',
                       indicator_unit='kg O3 eq',
                       flow=flow,
                       flow_category='air',
@@ -408,4 +415,8 @@ if __name__ == "__main__":
     df = get(method)
     store_method(df, method)
     df2 = drop_county_data(df)
-    save_json(method, df2)
+    smog = df2.query('Indicator == "Ozone Formation"')
+    final_df = pd.concat([
+        df2.query('Indicator != "Ozone Formation"'),
+        smog.query('Context == "emission/air"')], ignore_index=True)
+    # save_json(method, df2)
