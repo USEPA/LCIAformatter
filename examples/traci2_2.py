@@ -31,10 +31,11 @@ def main():
                           .map(country_codes)
                           .fillna(all_df['Location']))
     all_df = (all_df.query('Location.isin(@country_codes.values()) |'
-                           'Location.str.startswith("US")')
+                           'Location == "US" |'
+                           'Location.str.startswith("US-")')
               .reset_index(drop=True))
 
-    save_json(method, all_df, name='TRACI2.2', regions=regions)
+    save_json(method, all_df, regions=regions)
 
 if __name__ == "__main__":
     main()
