@@ -225,7 +225,7 @@ class Writer(object):
             description=meta.Description,
             category=meta.Category,
             code=meta.Code,
-            geometry=self.__coordinates.get(row['Location']),
+            geometry=self.__coordinates.get(row['Location'], {}).get('geometry'),
             latitude=meta.Latitude,
             longitude=meta.Longitude)
         self.__locations[meta.ID] = location
