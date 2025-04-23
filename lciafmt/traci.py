@@ -15,7 +15,7 @@ import lciafmt.cache as cache
 import lciafmt.df as dfutil
 import lciafmt.xls as xls
 
-from .util import log, aggregate_factors_for_primary_contexts, format_cas,\
+from lciafmt.util import log, aggregate_factors_for_primary_contexts, format_cas,\
     datapath
 
 
@@ -23,7 +23,7 @@ flowables_replace = pd.read_csv(datapath / 'TRACI_2.1_replacement.csv')
 flowables_split = pd.read_csv(datapath / 'TRACI_2.1_split.csv')
 
 
-def get(add_factors_for_missing_contexts=True, file=None,
+def get(method, add_factors_for_missing_contexts=True, file=None,
         url=None) -> pd.DataFrame:
     """Generate a method for TRACI in standard format.
 
@@ -34,8 +34,8 @@ def get(add_factors_for_missing_contexts=True, file=None,
     :param url: str, alternate url for method, defaults to url in method config
     :return: DataFrame of method in standard format
     """
-    log.info("getting method Traci 2.1")
-    method_meta = lciafmt.Method.TRACI.get_metadata()
+    log.info("getting method TRACI")
+    method_meta = method.get_metadata()
     f = file
     if f is None:
         f = _get_file(method_meta, url)
@@ -66,6 +66,19 @@ def get(add_factors_for_missing_contexts=True, file=None,
     df.drop_duplicates(keep='first', inplace=True)
     length = length - len(df)
     log.info(f"{length} duplicate entries removed")
+    
+    """add eutrophication updates 
+    the function _read_eutro is a function to read the raw data from the new
+    eutrophication updates
+    """
+    if 'eutro_url' in method_meta:
+        log.info("getting Eutrophication updates")
+        f = cache.get_or_download(file=method_meta['eutro_file'],
+                                  url=method_meta['eutro_url'])
+        df_eutro = _read_eutro(f)
+        frames = [df.query('Indicator != "Eutrophication"'), df_eutro]
+        df = pd.concat(frames)
+    df['Method'] = method_meta.get('name')
 
     return df
 
@@ -78,7 +91,7 @@ def _get_file(method_meta, url=None):
 
 def _read(xls_file: str) -> pd.DataFrame:
     """Read the data from Excel with given path into a DataFrame."""
-    log.info(f"read Traci 2.1 from file {xls_file}")
+    log.info(f"read TRACI from file {xls_file}")
     wb = openpyxl.load_workbook(xls_file, read_only=True, data_only=True)
     sheet = wb["Substances"]
     categories = {}
@@ -105,7 +118,6 @@ def _read(xls_file: str) -> pd.DataFrame:
             if factor == 0.0:
                 continue
             dfutil.record(records,
-                          method="TRACI 2.1",
                           indicator=cat_info[0],
                           indicator_unit=cat_info[1],
                           flow=flow,
@@ -125,6 +137,9 @@ def _category_info(c: str):
     given category name. If it is an unknown category, `None` is returned.
     """
     if c == "Global Warming Air (kg CO2 eq / kg substance)":
+        return "Global warming", "kg CO2 eq", "air", "kg"
+
+    if c == "Global Climate Air (kg CO2 eq / kg substance)":
         return "Global warming", "kg CO2 eq", "air", "kg"
 
     if c == "Acidification Air (kg SO2 eq / kg substance)":
@@ -199,3 +214,121 @@ def _category_info(c: str):
 
     if c == "Human health CF  [CTUnoncancer/kg], Emission to cont. agric. Soil, non-canc.":
         return "Human health - non-cancer", "CTUnoncancer", "soil/agricultural", "kg"
+
+def _read_eutro(xls_file: str) -> pd.DataFrame:
+    """
+    Logic used for selecting US data (max 15 per region):
+    |               | Comp_Air | Comp_Fw | Comp_Soil | Comp_LME |
+    |---------------|----------|---------|-----------|----------|
+    | Flow_N        | n/a      | NonAg   | Agric     | NonAg    |
+    | Flow_NH3 as N | All      | n/a     | n/a       | n/a      |
+    | Flow_NOx as N | All      | n/a     | n/a       | n/a      |
+    | Flow_P        | n/a      | All     | All       | n/a      |
+    * skip Agric & NonAg
+
+    Logic used for selecting global data (max 15 per region):
+    |               | Comp_Air | Comp_Fw        | Comp_Soil | Comp_LME |
+    |---------------|----------|----------------|-----------|----------|
+    | Flow_N        | n/a      | Genrl == NonAg | Agric     | NonAg    |
+    | Flow_NH3 as N | All      | n/a            | n/a       | n/a      |
+    | Flow_NOx as N | All      | n/a            | n/a       | n/a      |
+    | Flow_P        | n/a      | All            | All       | n/a      |
+
+    """
+    context_dict = {'Comp_Fw': 'freshwater',
+                    'Comp_Air': 'air',
+                    'Comp_Soil': 'soil',
+                    'Comp_LME': 'marine'}
+    compartment_dict = {'Genrl': 'unspecified',
+                        'Agric': 'rural',
+                        'NonAg': 'urban'}
+    log.info(f"read Eutrophication category from file {xls_file}")
+    source_df = pd.read_excel(xls_file, sheet_name="S5. Raw Data")
+    records = []
+    flow_category=[]
+    for i, row in source_df.iterrows():
+        sector = row['Sector']
+        flow = row['Flowable']
+        compartment = row['Emit Compartment']
+        flow_category = context_dict.get(compartment, "n/a")
+        if flow_category == "soil" and flow == "Flow_P":
+            flow_category = f'{flow_category} (P)'
+            # required to enable distinct mappings to ground for these flows
+        aggregation = row['Aggregation Target']
+        region_id = str(row['Target ID'])
+        if aggregation in ("US_Nation", "US_States", "US_Counties"):
+            if aggregation == "US_Nation":
+                region = "00000"
+            elif len(region_id) < 3:
+                region = region_id.ljust(5, '0')
+            else:
+                region = region_id.rjust(5, '0')
+
+        elif (aggregation in ("World", "Countries")):
+            region = row['Name']
+            if region == "United States":
+                ## ^^ Skip US as country in favor of aggregation == "US_Nation"
+                continue
+            elif region == "Russian Federation" and region_id == "254":
+                ## Two entries for Russian Federation, 254 is a very small island
+                continue
+            if sector == "Genrl" and flow == "Flow_N":
+                ## Drops duplicate factors for Flow_N Comp_Fw
+                continue
+        else:
+            # Ignore aggregation == "Continents"
+            continue
+        if flow != "Flow_N":
+            flow_category = f'{flow_category}/{compartment_dict.get(sector)}'
+
+        factor = row['Average Target Value']
+        indicator = ("Eutrophication (Freshwater)" if flow == "Flow_P"
+                     else "Eutrophication (Marine)")
+        unit = ("kg P eq" if indicator == "Eutrophication (Freshwater)"
+                else "kg N eq")
+
+        dfutil.record(records,
+                      indicator=indicator,
+                      indicator_unit=unit,
+                      flow=flow,
+                      flow_category=flow_category,
+                      flow_unit="kg",
+                      factor=factor,
+                      location=region)
+
+        if aggregation == "World":
+        # openLCA requires a factor without location for use by default
+            dfutil.record(records,
+                          indicator=indicator,
+                          indicator_unit=unit,
+                          flow=flow,
+                          flow_category=flow_category,
+                          flow_unit="kg",
+                          factor=factor,
+                          location="")
+
+    df = dfutil.data_frame(records)
+
+    # Resolve duplicate factors for a single location
+    cols_to_keep = [c for c in df.columns if
+                    c not in ('Characterization Factor')]
+    duplicates = df[df.duplicated(subset=cols_to_keep, keep=False)]
+    ## United States Minor Outlying Islands and Jan Mayen
+    # are unexplicably shown multiple times with different location IDs.
+    # Average those factors together.
+    df2 = (df.groupby(cols_to_keep, as_index=False)
+             .agg({'Characterization Factor': 'mean'}))
+    log.debug(f'{len(duplicates)} duplicate locations consolidated to '
+             f'{(len(duplicates)-(len(df)-len(df2)))}')
+
+    return df2
+
+
+#%%
+if __name__ == "__main__":
+    from lciafmt.util import store_method
+    method = lciafmt.Method.TRACI2_2
+    df = get(method)
+    mapping = method.get_metadata()['mapping']
+    mapped_df = lciafmt.map_flows(df, system=mapping)
+    store_method(mapped_df, method)

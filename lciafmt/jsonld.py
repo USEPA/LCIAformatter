@@ -17,6 +17,7 @@ except ImportError:
 
 from esupy.util import make_uuid
 from esupy.bibtex import generate_sources
+from esupy.location import extract_coordinates, olca_location_meta
 import fedelemflowlist
 from .util import is_non_empty_str, generate_method_description,\
     log, pkg_version_number, datapath, check_as_class
@@ -30,6 +31,9 @@ class Writer(object):
         self.__methods = {}
         self.__indicators = {}
         self.__flows = {}
+        self.__coordinates = {}
+        self.__locations = {}
+        self.__location_meta = olca_location_meta().fillna('')
         self.__sources = {}
         self.__sources_to_write = {}
         self.__bibids = {}
@@ -41,7 +45,14 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__writer.close()
 
-    def write(self, df: pd.DataFrame, write_flows=False, preferred_only=False):
+    def write(self, df: pd.DataFrame,
+              write_flows=False,
+              preferred_only=False,
+              regions=None # list, options include: 'states', 'countries'
+              ):
+        if any(df['Location'] != '') and regions is not None:
+            coord = [extract_coordinates(group=r) for r in regions]
+            self.__coordinates = {k: v for d in coord for k, v in d.items()}
         if 'source_method' not in df:
             df['source_method'] = df['Method']
         if 'source_indicator' not in df:
@@ -78,12 +89,16 @@ class Writer(object):
             factor.flow_property = units.property_ref(unit)
             factor.unit = units.unit_ref(unit)
             factor.value = row['Characterization Factor']
+            if self.__coordinates != {}:
+                location = self.__location(row)
+                factor.location = location.to_ref() if location else None
             indicator.impact_factors.append(factor)
 
         log.debug("write entities")
         dicts = [
             self.__indicators,
             self.__methods,
+            self.__locations,
             self.__sources_to_write
         ]
         if write_flows:
@@ -190,6 +205,31 @@ class Writer(object):
 
         self.__flows[uid] = flow
         return flow
+
+    def __location(self, row):
+        if row['Location'] == '':
+            # no location specified
+            return None
+        meta = (self.__location_meta.loc[
+            self.__location_meta['Code'] == row['Location']].squeeze())
+        if len(meta) == 0:
+            # not an available location
+            return None
+        location = self.__locations.get(meta.ID)
+        if location is not None:
+            # location found, no need to regenerate
+            return location
+        location = o.Location(
+            id=meta.ID,
+            name=meta.Name,
+            description=meta.Description,
+            category=meta.Category,
+            code=meta.Code,
+            geometry=self.__coordinates.get(row['Location'], {}).get('geometry'),
+            latitude=meta.Latitude,
+            longitude=meta.Longitude)
+        self.__locations[meta.ID] = location
+        return location
 
     def _return_source(self, name):
         for uid, s in self.__sources.items():
