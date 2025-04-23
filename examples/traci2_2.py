@@ -19,7 +19,7 @@ def main():
     # drop county FIPS, leave only US states and countries
     all_df = drop_county_data_and_assign_names(mapped_df)
 
-    save_json(method, all_df, name='TRACI2.2', regions=regions)
+    save_json(method, all_df, regions=regions)
 
 if __name__ == "__main__":
     main()
