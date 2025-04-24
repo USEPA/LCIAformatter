@@ -45,7 +45,7 @@
                 "Acidification": {"TRACI2_2": ["Acidification"]},
                 "Ozone Formation": {"TRACI3_0": ["Ozone Formation"]}
                 },
-    "smog_url": "",
+    "smog_url": "https://pasteur.epa.gov/uploads/10.23719/1532158/TRACI%20Ozone%20v01a.xlsx",
     "smog_file": "TRACI Ozone v01a.xlsx",
     "path": "traci",
     "case_insensitivity": "False",
