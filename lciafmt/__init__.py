@@ -85,46 +85,54 @@ def supported_methods() -> list:
         return json.load(f)
 
 
-def get_method(method_id, add_factors_for_missing_contexts=True,
-               endpoint=True, summary=False, file=None, subset=None,
-               url=None) -> pd.DataFrame:
+def get_method(method_id, **kwargs) -> pd.DataFrame:
     """Generate the method from source in standard format.
 
     The IDs of supported methods can be obtained using `supported_methods` or
     directly use the constants defined in the Method enumeration type.
     :param method_id: class Method or str, based on id field of
         supported_methods
-    :param add_factors_for_missing_contexts: bool, if True applies
+    :param kwargs:
+      - add_factors_for_missing_contexts: bool, if True applies
         lciafmt.util.aggregate_factors_for_primary_contexts to generate average
         factors for unspecified contexts
-    :param endpoint: bool, pass-through for RECIPE_2016, if True generates
+      - endpoint: bool, pass-through for RECIPE_2016, if True generates
         endpoint indicators from midpoints
-    :param summary: bool, pass-through for RECIPE_2016, if True aggregates
+      - summary: bool, pass-through for RECIPE_2016, if True aggregates
         endpoint methods into summary indicators
-    :param subset: pass-through for FEDEFL_INV, a list of dictionary keys from
+      - subset: pass-through for FEDEFL_INV, a list of dictionary keys from
         available inventory methods in fedelemflowlist, if none provided all
         available methods will be generated
-    :param file: str, alternate filepath for method, defaults to file stored
+      - region: pass-through for IW+, use three digit alphanumeric code for a
+        specific country (e.g. "USA"), None for global factors, or 'All' for all
+        countries and global factors.
+      - file: str, alternate filepath for method, defaults to file stored
         in cache
-    :param url: str, alternate url for method, defaults to url in method config
+      - url: str, alternate url for method, defaults to url in method config
     :return: DataFrame of method in standard format
     """
+    file = kwargs.get('file')
+    url = kwargs.get('url')
     if not method_id:
         return custom.get_custom_method(file=file)
     else:
         method_id = util.check_as_class(method_id)
     if method_id == Method.TRACI or method_id == Method.TRACI2_2:
-        return traci.get(method_id, add_factors_for_missing_contexts, file=file, url=None)
+        return traci.get(method_id,
+                         add_factors_for_missing_contexts=kwargs.get('add_factors_for_missing_contexts', True),
+                         file=file, url=None)
     if method_id == Method.RECIPE_2016:
-        return recipe.get(add_factors_for_missing_contexts, endpoint, summary,
+        return recipe.get(add_factors_for_missing_contexts=kwargs.get('add_factors_for_missing_contexts', True),
+                          endpoint=kwargs.get('endpoint', True),
+                          summary=kwargs.get('summary', False),
                           file=file, url=url)
     if method_id == Method.ImpactWorld:
         import lciafmt.iw as impactworld
-        return impactworld.get(file=file, url=url)
+        return impactworld.get(file=file, url=url, region=kwargs.get('region'))
     if method_id == Method.IPCC:
         return ipcc.get()
     if method_id == Method.FEDEFL_INV:
-        return fedefl_inventory.get(subset)
+        return fedefl_inventory.get(subset=kwargs.get('subset'))
     if method_id == Method.CED:
         return ced.get()
 
