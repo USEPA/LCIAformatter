@@ -6,6 +6,7 @@ This module contains functions needed to compile LCIA methods from ImpactWorld+
 """
 
 import pandas as pd
+import numpy as np
 import lciafmt
 import lciafmt.cache as cache
 import lciafmt.df as dfutil
@@ -134,11 +135,15 @@ def _read(access_file: str, region) -> pd.DataFrame:
                               factor=row.CFvalue)
 
         else:
-            reg = region if region else 'GLO'
-            sql = (f"SELECT * FROM [{sheet}] WHERE "
-                   f"(([{sheet}].[Region code] In('{reg}')) OR "
-                   f"([{sheet}].Resolution In('Not regionalized')))")
-            # ^^ 'Not regionalized' applies in all cases
+            if region in ("ALL", "All", "all"):
+                sql = (f"SELECT * FROM [{sheet}] WHERE "
+                       f"([{sheet}].Resolution In('Not regionalized', 'Country', 'Global'))")
+            else:
+                reg = region if region else 'GLO'
+                sql = (f"SELECT * FROM [{sheet}] WHERE "
+                       f"(([{sheet}].[Region code] In('{reg}')) OR "
+                       f"([{sheet}].Resolution In('Not regionalized')))")
+                # ^^ 'Not regionalized' applies in all cases
             crsr.execute(sql)
             rows = crsr.fetchall()
 
@@ -172,10 +177,16 @@ def _read(access_file: str, region) -> pd.DataFrame:
                               flow_category=category_stmt,
                               flow_unit=row.Unit.strip('[]').split('/')[1],
                               cas_number="",
-                              location=reg,
+                              location=row.__getattribute__('Region code'),
                               factor=row.__getattribute__('Weighted Average'))
 
-    return dfutil.data_frame(records)
+    df = dfutil.data_frame(records)
+    df = (df
+          .replace("#N/A", np.nan)
+          .dropna(subset=['Characterization Factor', 'Location'])
+          )
+
+    return df
 
 
 def update_context(df_context) -> pd.DataFrame:
@@ -208,3 +219,9 @@ def update_context(df_context) -> pd.DataFrame:
                    'Context'] = df_context['Context'].map(context).fillna(df_context['Context'])
 
     return df_context
+
+if __name__ == "__main__":
+    method = lciafmt.Method.ImpactWorld
+    data_US = lciafmt.get_method(method, region='USA')
+    data_GLO = lciafmt.get_method(method)
+    data_all = lciafmt.get_method(method, region='All')
