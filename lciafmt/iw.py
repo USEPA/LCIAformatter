@@ -12,13 +12,6 @@ import lciafmt.cache as cache
 import lciafmt.df as dfutil
 from lciafmt.util import log, format_cas
 
-try:
-    import pyodbc
-except ImportError:
-    log.error("Must install pyodbc for ImpactWorld. See install instructions "
-              "for optional package installation or install it independently "
-              "and retry.")
-
 
 def get(file=None, url=None, region=None) -> pd.DataFrame:
     """Generate a method for ImpactWorld+ in standard format.
@@ -31,15 +24,6 @@ def get(file=None, url=None, region=None) -> pd.DataFrame:
     """
     log.info("get method ImpactWorld+")
 
-    # Check for drivers and display help message if absent
-    driver_check = ([x for x in pyodbc.drivers()])
-    if any('Microsoft Access Driver' in word for word in driver_check):
-        log.debug("Drivers Available")
-    else:
-        log.warning(
-            "Please install drivers to remotely connect to Access Database. "
-            "Drivers only available on windows platform. For instructions visit: "
-            "https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access")
     method_meta = lciafmt.Method.ImpactWorld.get_metadata()
     f = file
     if f is None:
@@ -47,143 +31,63 @@ def get(file=None, url=None, region=None) -> pd.DataFrame:
     df = _read(f, region)
 
     # Identify midpoint and endpoint records and differentiate in data frame.
-    end_point_units = ['DALY', 'PDF.m2.yr']
-
-    df.loc[df["Indicator unit"].isin(end_point_units), ["Method"]] = "ImpactWorld+ - Endpoint"
-    df.loc[~df["Indicator unit"].isin(end_point_units), ["Method"]] = "ImpactWorld+ - Midpoint"
-
-    # call function to replace contexts for unspecified water and air flows.
-    df = update_context(df)
+    df = (df
+          .assign(Method = lambda x: np.where(x['MP or Damage'] == "Midpoint",
+                                              "ImpactWorld+ - Midpoint",
+                                              "ImpactWorld+ - Endpoint"))
+          .drop(columns=['MP or Damage', 'Scale'])
+          )
+    df = df.reindex(columns=dfutil.lciafmt_cols)
+    df = df.fillna('')
 
     return df
 
 def _get_file(method_meta, url=None):
-    fname = "Impact_World.accdb"
+    fname = method_meta['file']
     if url is None:
         url = method_meta['url']
     f = cache.get_or_download(fname, url)
     return f
 
-def _read(access_file: str, region) -> pd.DataFrame:
-    """Read the Access database at passed access_file into DataFrame."""
-    log.info(f"read ImpactWorld+ from file {access_file}")
+def _read(file: str, region) -> pd.DataFrame:
+    """Read the file into DataFrame."""
+    log.info(f"read ImpactWorld+ from file {file}")
 
-    path = cache.get_path(access_file)
-
-    connStr = (
-        r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
-        r'DBQ=' + path + ";")
-
-    cnxn = pyodbc.connect(connStr)
-    crsr = cnxn.cursor()
-    records = []
-
-    # Extract non regionalized data from "CF - not regionalized - All other impact categories"
-    crsr.execute("SELECT * FROM [CF - not regionalized - All other impact categories]")
-    rows = crsr.fetchall()
-    for row in rows:
-        dfutil.record(records,
-                      method="ImpactWorld+",
-                      indicator=row[1],
-                      indicator_unit=row[2],
-                      flow=row[5],
-                      flow_category=row[3] + "/" + row[4],
-                      flow_unit=row[8],
-                      cas_number=format_cas(row[6]).lstrip("0"),
-                      location='Global',
-                      factor=row[7])
-
-    """List relevant sheets in Impact World Access file. Second item in tuple
-    tells the source of compartment information. Compartment for water
-    categories are not included in access file, defined below. Elementary flow
-    names are used to define the compartment for land transformation and
-    occupation. Compartment and Subcompartment data is available in the Access
-    file for other categories."""
-    regional_sheets = [("CF - regionalized - WaterScarc - aggregated", "Raw/in water"),
-                       ("CF - regionalized - WaterAvailab_HH - aggregated", "Raw/in water"),
-                       ("CF - regionalized - LandTrans - aggregated", "Elementary Flow"),
-                       ("CF - regionalized - LandOcc - aggregated", "Elementary Flow"),
-                       ("CF - regionalized - EutroMar - aggregated", "Compartment"),
-                       ("CF - regionalized - PartMatterForm - aggregated", "Compartment"),
-                       ("CF - regionalized - AcidFW - aggregated", "Compartment"),
-                       ("CF - regionalized - AcidTerr - aggregated", "Compartment"),
-                       ("CF - regionalized - EutroFW - aggregated", "Compartment"),
-                       ]
-
-    for sheet, compartment in regional_sheets:
-        if sheet == "CF - regionalized - PartMatterForm - aggregated":
-            # Extract global flows from the particulate matter Access sheet
-
-            region_dict = {
-                'USA': 'US+Latin America',
-                }
-            reg = region_dict.get(region, 'World')
-            sql = f"SELECT * FROM [{sheet}] WHERE (([{sheet}].Region In('{reg}')))"
-            crsr.execute(sql)
-            rows = crsr.fetchall()
-
-            for row in rows:
-                dfutil.record(records,
-                              method="ImpactWorld+",
-                              indicator=row.ImpCat,
-                              indicator_unit=row.Unit.strip('[]').split('/')[0],
-                              flow=row.__getattribute__('Elem flow'),
-                              flow_category="Air/" + row.__getattribute__("Archetype 1"),
-                              flow_unit=row.Unit.strip('[]').split('/')[1],
-                              cas_number="",
-                              location=reg,
-                              factor=row.CFvalue)
-
-        else:
-            if region in ("ALL", "All", "all"):
-                sql = (f"SELECT * FROM [{sheet}] WHERE "
-                       f"([{sheet}].Resolution In('Not regionalized', 'Country', 'Global'))")
-            else:
-                reg = region if region else 'GLO'
-                sql = (f"SELECT * FROM [{sheet}] WHERE "
-                       f"(([{sheet}].[Region code] In('{reg}')) OR "
-                       f"([{sheet}].Resolution In('Not regionalized')))")
-                # ^^ 'Not regionalized' applies in all cases
-            crsr.execute(sql)
-            rows = crsr.fetchall()
-
-            # extract column headers from Access sheet for exception testing
-            cols = [column[0] for column in crsr.description]
-
-            for row in rows:
-                # Add water to detailed context information available in Access file
-                if sheet in ['CF - regionalized - WaterScarc - aggregated',
-                            'CF - regionalized - WaterAvailab_HH - aggregated']:
-                    flow_stmt = 'Water, ' + row.__getattribute__('Elem flow')
-                else:
-                    flow_stmt = row.__getattribute__('Elem flow')
-
-                # Define context/compartment for flow based on impact category.
-                if {'Compartment', 'Subcompartment'}.issubset(cols):
-                    category_stmt = f"{row.Compartment}/{row.Subcompartment}"
-                elif sheet in ['CF - regionalized - LandTrans - aggregated',
-                               'CF - regionalized - LandOcc - aggregated',
-                               'CF - regionalized - WaterScarc - aggregated',
-                               'CF - regionalized - WaterAvailab_HH - aggregated']:
-                    category_stmt = flow_stmt
-                else:
-                    category_stmt = compartment
-
-                dfutil.record(records,
-                              method="ImpactWorld+",
-                              indicator=row.ImpCat,
-                              indicator_unit=row.Unit.strip('[]').split('/')[0],
-                              flow=flow_stmt,
-                              flow_category=category_stmt,
-                              flow_unit=row.Unit.strip('[]').split('/')[1],
-                              cas_number="",
-                              location=row.__getattribute__('Region code'),
-                              factor=row.__getattribute__('Weighted Average'))
-
-    df = dfutil.data_frame(records)
+    df = pd.read_excel(file)
+    # df = df_orig.copy()
     df = (df
-          .replace("#N/A", np.nan)
-          .dropna(subset=['Characterization Factor', 'Location'])
+          .drop(df.columns[[0]], axis=1)
+          .rename(columns={'Impact category': 'Indicator',
+                           'CF unit': 'Indicator unit',
+                           'CF value': 'Characterization Factor',
+                           'Elem flow unit': 'Unit',
+                           'CAS number': 'CAS No',
+                           'Native geographical resolution scale': 'Scale',
+                           })
+          .assign(Context = lambda x: x['Compartment'].str.cat(x['Sub-compartment'], sep="/"))
+          )
+    generic_cols =  ["Global", "Not regionalized", "Global and continental",
+                     "Global and continental + population density and indoor archetypes"]
+    # extract location from flow name by looking for final comma.
+    # Note there is no guaranteed way to parse locations here becuase the comma
+    # is not unique to locations, and some locations have an internal comma e.g.,
+    # "Canada, without Quebec"
+    df = (df
+          .assign(Location = lambda x: np.where(x['Scale'].isin(generic_cols),
+              "",
+              x['Elem flow name'].apply(lambda z: z.split(',')[-1].strip())))
+          .assign(Flowable = lambda x: np.where(x['Scale'].isin(generic_cols),
+              x['Elem flow name'],
+              x['Elem flow name'].apply(lambda z: ','.join(z.split(',')[:-1]).strip())))
+          )
+
+    # Review locations and flows
+    flows = pd.Series(df.query('Scale in @generic_cols')['Elem flow name'].unique())
+    df2 = df.query('Flowable not in @flows')
+    flow_context = df[['Flowable', 'Context']].drop_duplicates()
+
+    df = (df
+          .drop(columns=['Elem flow name', 'Compartment', 'Sub-compartment'])
           )
 
     return df
@@ -222,6 +126,5 @@ def update_context(df_context) -> pd.DataFrame:
 
 if __name__ == "__main__":
     method = lciafmt.Method.ImpactWorld
-    data_US = lciafmt.get_method(method, region='USA')
-    data_GLO = lciafmt.get_method(method)
-    data_all = lciafmt.get_method(method, region='All')
+    data = lciafmt.get_method(method)
+    mapped_data = lciafmt.map_flows(data, system=method.get_metadata()['mapping'])

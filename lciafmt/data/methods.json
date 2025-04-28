@@ -58,16 +58,17 @@
   {
     "id": "ImpactWorld",
     "name": "ImpactWorld+",
-    "version": "1.3",
+    "version": "2.1",
     "detail_note": "FEDEFL contexts are mapped to IMPACT World+ to enable impact assessment across most of the possible contexts available within FEDEFL. Mappings that occur in the primary contexts (e.g. air) are assigned to all possible sub-contexts which apply. The LCIA Formatter generates a separate midpoint and endpoint impact assessment method based on the IMPACT World+ source file.",
     "mapping": "ImpactWorld+",
     "methods": {"ImpactWorld+ - Midpoint":"This method includes all global midpoint flows and their attributes.",
                 "ImpactWorld+ - Endpoint":"This method includes all global endpoint flows and their attributes."},
     "path": "impactworld",
     "case_insensitivity": "False",
-    "url": "https://www.dropbox.com/sh/2sdgbqf08yn91bc/AABIGLlb_OwfNy6oMMDZNrm0a/IWplus_public_v1.3.accdb?dl=1",
+    "file": "impact_world_plus_2.1_dev.xlsx",
+    "url": "https://zenodo.org/records/14041258/files/impact_world_plus_2.1_dev.xlsx?download=1",
     "citation": "Bulle, Cecile, Manuele Margni, Laure Patouillard, Anne-Marie Boulay, Guillaume Bourgault, Vincent De Bruille, Viet Cao, et al. IMPACT World+: A Globally Regionalized Life Cycle Impact Assessment Method. The International Journal of Life Cycle Assessment 24, no. 9 (September 2019), 1653–74. https://doi.org/10.1007/s11367-019-01583-0",
-    "source_type": "Access file"
+    "source_type": "Excel file"
   },
   {
     "id": "IPCC",
