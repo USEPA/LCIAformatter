@@ -15,7 +15,6 @@ setup(
                       "openpyxl>=3.0.7",
                       "pyyaml>=5.3"
                       ],
-    extras_require={"ImpactWorld": ["pyodbc >= 4.0.30;platform_system=='Windows'"]},
     license="MIT",
     author='Ben Young, Michael Srocka, Wesley Ingwersen, Troy Hottle, Ben Morelli',
     author_email='ingwersen.wesley@epa.gov',

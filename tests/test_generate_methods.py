@@ -4,7 +4,7 @@ import pytest
 import lciafmt
 from lciafmt.util import store_method, MODULEPATH
 
-skip_list = ['ImpactWorld'] # requires pyodbc
+skip_list = []
 
 @pytest.mark.generate_methods
 def test_generate_methods():
