@@ -435,7 +435,7 @@ def _read_acidification(method=None):
         cas = (row['FLOW_casnumber'].lstrip('0') if isinstance(row['FLOW_casnumber'], str)
                else '')
         dfutil.record(records,
-                      method='GLAM',
+                      method='TRACI 3.0',
                       indicator='Acidification Potential',
                       indicator_unit='kg SO2 eq',
                       flow=row['FLOW_name'],
