@@ -338,8 +338,12 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
     for ind, m_dict in meta.get('methods').items():
         m = list(m_dict.keys())[0]
         if m == "TRACI3_0":
-            df0 = _read_smog(method)
-            df0 = lciafmt.map_flows(df0, system='TRACI_SAPRC')
+            if 'Acidification' in list(m_dict.values())[0]:
+                df0 = _read_acidification(method)
+                df0 = lciafmt.map_flows(df0, system='TRACI_GLAM')
+            elif 'Ozone Formation' in list(m_dict.values())[0]:
+                df0 = _read_smog(method)
+                df0 = lciafmt.map_flows(df0, system='TRACI_SAPRC')
         else:
             indicators = list(x for x in m_dict.values())[0]
             df0 = lciafmt.get_mapped_method(method_id=list(m_dict.keys())[0],
@@ -365,6 +369,8 @@ def get_traci3(method, add_factors_for_missing_contexts=True) -> pd.DataFrame:
     return pd.concat(df_list, ignore_index=True)
 
 def _read_smog(method=None):
+    """Extracts midpoint smog formation data from data.gov for TRACI 3.0
+    """
     if not method:
         method = lciafmt.Method.TRACI3_0
     meta = method.get_metadata()
@@ -404,6 +410,40 @@ def _read_smog(method=None):
                       factor=row['Amount'],
                       location='' if region_id == "GLO" else row['Region']
                       )
+
+    return dfutil.data_frame(records)
+
+
+def _read_acidification(method=None):
+    """Extracts midpoint acidification data from data.gov for TRACI 3.0
+    """
+    if not method:
+        method = lciafmt.Method.TRACI3_0
+    meta = method.get_metadata()
+    f = datapath / meta['acid_file']
+    # f = cache.get_or_download(file = meta['acid_file'],
+    #                           url = meta['acid_url'])
+    df = (pd.read_excel(f, sheet_name = 'Midpoint as SO2eq')
+            .query('~LCIAMethod_location.str.startswith("x")')
+            .query('`Sector Weight` == "General"')
+            )
+
+    records = []
+    for index, row in df.iterrows():
+        location = ("" if row["LCIAMethod_location"] == "GLO"
+                    else row['LCIAMethod_location_name'])
+        cas = (row['FLOW_casnumber'].lstrip('0') if isinstance(row['FLOW_casnumber'], str)
+               else '')
+        dfutil.record(records,
+                      method='GLAM',
+                      indicator='Acidification Potential',
+                      indicator_unit='kg SO2 eq',
+                      flow=row['FLOW_name'],
+                      flow_category=row['FLOW_class1'],
+                      flow_unit='kg',
+                      cas_number=cas,
+                      location=location,
+                      factor=row['CF'])
 
     return dfutil.data_frame(records)
 
